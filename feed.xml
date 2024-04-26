@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+    <title>LowCode Practitioner</title>
+    <link href="https://mmiao79.github.io/feed.xml" rel="self" />
+    <link href="https://mmiao79.github.io" />
+    <updated>2024-04-06T03:58:19+08:00</updated>
+    <author>
+        <name>MMiao79</name>
+    </author>
+    <id>https://mmiao79.github.io</id>
+
+    <entry>
+        <title>低代码行者</title>
+        <author>
+            <name>MMiao79</name>
+        </author>
+        <link href="https://mmiao79.github.io/di-dai-ma-xing-zhe.html"/>
+        <id>https://mmiao79.github.io/di-dai-ma-xing-zhe.html</id>
+
+        <updated>2024-04-06T03:58:19+08:00</updated>
+            <summary></summary>
+        <content></content>
+    </entry>
+</feed>

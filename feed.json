@@ -1,0 +1,25 @@
+{
+    "version": "https://jsonfeed.org/version/1",
+    "title": "LowCode Practitioner",
+    "description": "",
+    "home_page_url": "https://mmiao79.github.io",
+    "feed_url": "https://mmiao79.github.io/feed.json",
+    "user_comment": "",
+    "author": {
+        "name": "MMiao79"
+    },
+    "items": [
+        {
+            "id": "https://mmiao79.github.io/di-dai-ma-xing-zhe.html",
+            "url": "https://mmiao79.github.io/di-dai-ma-xing-zhe.html",
+            "title": "低代码行者",
+            "author": {
+                "name": "MMiao79"
+            },
+            "tags": [
+            ],
+            "date_published": "2024-04-06T03:58:19+08:00",
+            "date_modified": "2024-04-06T03:58:19+08:00"
+        }
+    ]
+}
