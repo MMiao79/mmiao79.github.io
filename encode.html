@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>简易加密解密</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</head>
+<body>
+
+<h2>加密或解密</h2>
+
+<label for="inputKey">你的密钥:</label>
+<input type="text" id="inputKey" placeholder="请输入密钥"><br><br>
+
+<label for="inputText">原文或密文:</label>
+<textarea id="inputText" rows="4" cols="50"></textarea><br><br>
+
+<button onclick="encryptText()">加密</button>
+<button onclick="decryptText()">解密</button>
+
+<h3>结果:</h3>
+<textarea id="resultText" rows="4" cols="50" readonly></textarea>
+
+<script>
+function generateKey(password) {
+    // 使用SHA-256哈希函数生成一个256位的密钥
+    const key = CryptoJS.SHA256(password);
+    return key.toString();
+}
+
+function encryptText() {
+    // 获取用户输入的密钥和文本
+    const key = generateKey(document.getElementById('inputKey').value);
+    const inputText = document.getElementById('inputText').value;
+
+    // 使用AES加密
+    const encrypted = CryptoJS.AES.encrypt(inputText, CryptoJS.enc.Hex.parse(key), {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+    });
+
+    // 将加密后的文本显示在结果区域
+    document.getElementById('resultText').value = encrypted.toString();
+}
+
+function decryptText() {
+    // 获取用户输入的密钥和加密文本
+    const key = generateKey(document.getElementById('inputKey').value);
+    const encryptedText = document.getElementById('inputText').value;
+
+    // 使用AES解密
+    const decrypted = CryptoJS.AES.decrypt(encryptedText, CryptoJS.enc.Hex.parse(key), {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+    });
+
+    // 将解密后的文本显示在结果区域
+    document.getElementById('resultText').value = decrypted.toString(CryptoJS.enc.Utf8);
+}
+</script>
+
+</body>
+</html>
