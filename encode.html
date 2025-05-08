@@ -1,352 +1,296 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <title>高级加密工具 - 支持 SM2/SM4-ECB / AES-ECB</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sm-crypto@3.0.1/dist/sm-crypto.min.js"></script>
-  <style>
-    body {
-      background-color: #1e1e2f;
-      color: #dcdcdc;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 20px;
+<meta charset="UTF-8">
+<title>高级加密工具 - 多模式 & RSA & Base64</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+<style>
+    :root {
+        --bg-primary: #1e1e2f;
+        --bg-secondary: #2a2a3d;
+        --bg-tertiary: #3c3c54;
+        --text-primary: #dcdcdc;
+        --text-secondary: #ccc;
+        --accent-green: #4caf50;
+        --accent-blue: #2196f3;
+        --accent-gray: #777;
+        --border-color: #444;
+        --success-green: #4caf50;
+        --error-red: #f44336;
     }
 
-    h2, h3 {
-      color: #ffffff;
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        padding: 20px;
     }
 
     .container {
-      max-width: 750px;
-      margin: auto;
-      background-color: #2a2a3d;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: var(--bg-secondary);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+        color: var(--accent-green);
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 24px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+    }
+
+    h2 {
+        color: #ffffff;
+        margin: 20px 0 15px;
+        font-size: 18px;
+    }
+
+    h3 {
+        color: #aaa;
+        margin: 15px 0 10px;
+        font-size: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
     }
 
     label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #bbb;
     }
 
     input[type="text"],
     textarea,
     input[type="file"],
     select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: none;
-      border-radius: 5px;
-      background-color: #3c3c54;
-      color: #fff;
-      resize: vertical;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background-color: var(--bg-tertiary);
+        color: var(--text-primary);
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    input[type="file"]:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .readonly-textarea {
+        background-color: #2f2f44 !important;
+        color: #ccc !important;
+    }
+
+    .checkbox-label {
+        display: inline-block;
+        margin-right: 15px;
+        cursor: pointer;
+        color: #bbb;
+    }
+
+    input[type="checkbox"] {
+        margin-right: 5px;
+    }
+
+    .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
     }
 
     button {
-      margin-top: 10px;
-      padding: 8px 12px;
-      font-size: 14px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
 
-    .btn-green { background-color: #4caf50; color: white; }
-    .btn-blue { background-color: #2196f3; color: white; }
-    .btn-gray { background-color: #777; color: white; }
+    .btn-green { background-color: var(--accent-green); color: white; }
+    .btn-blue { background-color: var(--accent-blue); color: white; }
+    .btn-gray { background-color: var(--accent-gray); color: white; }
+    .btn-red { background-color: var(--error-red); color: white; }
 
     button:hover {
-      opacity: 0.9;
+        opacity: 0.9;
+        transform: translateY(-2px);
     }
 
-    textarea[readonly] {
-      background-color: #2f2f44;
-      color: #ccc;
+    button:active {
+        transform: translateY(0);
     }
 
-    .encrypt-decrypt-section {
-      margin-bottom: 30px;
+    .result-container {
+        margin-top: 20px;
     }
 
-    .qrcode-section {
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid #444;
+    .result-box {
+        background-color: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 15px;
+        min-height: 80px;
+        position: relative;
     }
 
-    .qrcode-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 20px;
+    .iv-output {
+        background-color: #2f2f44;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        word-break: break-all;
+        font-family: monospace;
     }
 
-    #qrcodeCanvas {
-      margin: 10px 0;
-      max-width: 200px;
-      max-height: 200px;
+    .file-section {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
     }
-  </style>
+
+    .test-case {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #333;
+        border-left: 4px solid var(--accent-green);
+        font-size: 14px;
+        color: #ccc;
+    }
+
+    .success-message {
+        color: var(--success-green);
+        margin-top: 10px;
+        font-size: 14px;
+    }
+
+    .error-message {
+        color: var(--error-red);
+        margin-top: 10px;
+        font-size: 14px;
+    }
+
+    .loading {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #fff;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 5px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            padding: 15px;
+        }
+        
+        .button-group {
+            flex-direction: column;
+        }
+    }
+</style>
 </head>
 <body>
 
 <div class="container">
-  <h2>高级加密工具 - 支持 SM2/SM4-ECB / AES-ECB</h2>
-
-  <!-- 加密/解密部分 -->
-  <div class="encrypt-decrypt-section">
-    <!-- 模式选择 -->
-    <label for="modeSelect">选择加密模式:</label>
-    <select id="modeSelect">
-      <option value="SM2">SM2 (国密非对称)</option>
-      <option value="SM4-ECB">SM4-ECB (国密对称)</option>
-      <option value="AES-ECB">AES-ECB (对称)</option>
-    </select>
-
-    <!-- 密钥输入 -->
-    <label for="inputKey">你的密钥:</label>
-    <input type="text" id="inputKey" placeholder="请输入密钥（SM2用公钥/私钥，SM4和AES用16字节密钥）" />
-
-    <!-- 内容输入 -->
-    <label for="inputText">原文或密文:</label>
-    <textarea id="inputText" rows="4" placeholder="请输入需要加密或解密的内容..."></textarea>
-
-    <!-- 按钮 -->
-    <div class="result-section">
-      <button class="btn-green" onclick="encryptText()">加密</button>
-      <button class="btn-blue" onclick="decryptText()">解密</button>
-      <button class="btn-gray" onclick="copyResult()">复制结果</button>
-      <textarea id="resultText" rows="4" readonly style="margin-top: 10px;"></textarea>
+    <h1>高级加密工具</h1>
+    
+    <h2>加密/解密</h2>
+    
+    <div class="form-group">
+        <label for="inputKey">密钥:</label>
+        <input type="text" id="inputKey" placeholder="请输入密钥">
     </div>
-  </div>
-
-  <!-- 二维码生成 -->
-  <div class="qrcode-section">
-    <h3>二维码生成:</h3>
-    <div class="qrcode-container">
-      <input type="text" id="qrcodeText" placeholder="输入要生成二维码的内容">
-      <button class="btn-green" onclick="generateQRCode()">生成二维码</button>
-      <canvas id="qrcodeCanvas"></canvas>
+    
+    <div class="form-group">
+        <label for="modeSelect">加密模式:</label>
+        <select id="modeSelect">
+            <option value="CBC">AES-CBC</option>
+            <option value="CFB">AES-CFB</option>
+            <option value="OFB">AES-OFB</option>
+            <option value="GCM">AES-GCM</option>
+            <option value="RSA">RSA (公钥加密)</option>
+        </select>
     </div>
-  </div>
-
-  <!-- 二维码识别 -->
-  <div class="qrcode-section">
-    <h3>二维码识别:</h3>
-    <input type="file" accept="image/*" onchange="handleImageUpload(event)">
-    <div id="reader"></div>
-  </div>
-</div>
-
-<script>
-// 加密函数
-function encryptText() {
-  const mode = document.getElementById('modeSelect').value;
-  const key = document.getElementById('inputKey').value.trim();
-  const text = document.getElementById('inputText').value;
-
-  if (!key || !text) {
-    alert("请填写密钥和内容");
-    return;
-  }
-
-  let encrypted;
-
-  try {
-    switch (mode) {
-      case "SM2":
-        // SM2加密需要公钥，假设用户输入的是公钥
-        if (!key.startsWith('04')) { // 简单检查是否为公钥(非压缩格式)
-          alert("SM2加密需要公钥(以04开头的64字节Hex字符串)");
-          return;
-        }
-        encrypted = sm2.doEncrypt(text, key, { cipherMode: 'C1C3C2' });
-        break;
-
-      case "SM4-ECB":
-        encrypted = sm4.encrypt(text, key, { mode: 'ecb', padding: 'pkcs7padding' });
-        break;
-
-      case "AES-ECB":
-        // AES-ECB需要16字节密钥
-        if (key.length !== 16 && key.length !== 32 && key.length !== 48) { // 16, 24, 32 bytes
-          alert("AES-ECB需要16、24或32字节的密钥");
-          return;
-        }
-        // 将密钥转换为WordArray
-        const keyBytes = CryptoJS.enc.Utf8.parse(key);
-        encrypted = CryptoJS.AES.encrypt(text, keyBytes, {
-          mode: CryptoJS.mode.ECB,
-          padding: CryptoJS.pad.Pkcs7
-        }).toString();
-        break;
-
-      default:
-        alert("不支持的加密模式");
-        return;
-    }
-
-    document.getElementById('resultText').value = encrypted;
-  } catch (error) {
-    alert("加密失败: " + error.message);
-    console.error("加密错误详情:", error);
-  }
-}
-
-// 解密函数
-function decryptText() {
-  const mode = document.getElementById('modeSelect').value;
-  const key = document.getElementById('inputKey').value.trim();
-  const cipher = document.getElementById('inputText').value;
-
-  if (!key || !cipher) {
-    alert("请填写密钥和密文");
-    return;
-  }
-
-  let decrypted;
-
-  try {
-    switch (mode) {
-      case "SM2":
-        // SM2解密需要私钥，假设用户输入的是私钥
-        if (key.startsWith('04')) { // 简单检查是否可能为公钥
-          alert("SM2解密需要私钥(不以04开头的64字节Hex字符串)");
-          return;
-        }
-        decrypted = sm2.doDecrypt(cipher, key, { cipherMode: 'C1C3C2' });
-        break;
-
-      case "SM4-ECB":
-        decrypted = sm4.decrypt(cipher, key, { mode: 'ecb', padding: 'pkcs7padding' });
-        break;
-
-      case "AES-ECB":
-        // AES-ECB需要16字节密钥
-        if (key.length !== 16 && key.length !== 32 && key.length !== 48) { // 16, 24, 32 bytes
-          alert("AES-ECB需要16、24或32字节的密钥");
-          return;
-        }
-        // 将密钥转换为WordArray
-        const keyBytes = CryptoJS.enc.Utf8.parse(key);
-        decrypted = CryptoJS.AES.decrypt(cipher, keyBytes, {
-          mode: CryptoJS.mode.ECB,
-          padding: CryptoJS.pad.Pkcs7
-        }).toString(CryptoJS.enc.Utf8);
-        break;
-
-      default:
-        alert("不支持的解密模式");
-        return;
-    }
-
-    // 检查解密结果是否有效
-    if (decrypted === '') {
-      throw new Error("解密结果为空");
-    }
-
-    document.getElementById('resultText').value = decrypted;
-  } catch (error) {
-    alert("解密失败: " + (error.message || "未知错误"));
-    console.error("解密错误详情:", error);
-  }
-}
-
-// 复制结果到剪贴板
-function copyResult() {
-  const result = document.getElementById('resultText');
-  result.select();
-  try {
-    const successful = document.execCommand("copy");
-    if (successful) {
-      alert("结果已复制到剪贴板！");
-    } else {
-      throw new Error("复制失败");
-    }
-  } catch (err) {
-    alert("无法复制结果，请手动复制。");
-    console.error("复制错误:", err);
-  }
-}
-
-// QRCode生成
-function generateQRCode() {
-  const text = document.getElementById('qrcodeText').value.trim();
-  if (!text) {
-    alert("请输入要生成二维码的内容");
-    return;
-  }
-
-  try {
-    const canvas = document.getElementById('qrcodeCanvas');
-    QRCode.toCanvas(canvas, text, {
-      width: 200,
-      margin: 1,
-      color: {
-        dark: '#000000',
-        light: '#ffffff'
-      }
-    }, function (error) {
-      if (error) console.error(error);
-    });
-  } catch (error) {
-    alert("二维码生成失败: " + error.message);
-  }
-}
-
-// QRCode识别
-async function handleImageUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  try {
-    const image = new Image();
-    image.src = URL.createObjectURL(file);
-    image.onload = async () => {
-      const codeReader = new ZXing.BrowserQRCodeReader();
-      try {
-        const result = await codeReader.decodeFromImage(image);
-        document.getElementById('inputText').value = result.text;
-      } catch (err) {
-        alert("未检测到二维码：" + err.message);
-      } finally {
-        URL.revokeObjectURL(image.src);
-      }
-    };
-  } catch (error) {
-    alert("二维码处理失败: " + error.message);
-  }
-}
-
-// 动态加载QRCode.js
-function loadQRCodeScript() {
-  if (typeof QRCode === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js';
-    script.onload = function() {
-      // 脚本加载完成后可以调用生成二维码的函数
-    };
-    document.head.appendChild(script);
-  }
-}
-
-window.onload = loadQRCodeScript;
-</script>
-
-<!-- 引入 QRCode.js -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-
-<!-- 引入 sm-crypto 库（已在CDN引入） -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/sm-crypto@3.0.1/dist/sm-crypto.min.js"></script> -->
-
-<!-- 引入 crypto-js 库（已在CDN引入） -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script> -->
-
-</body>
-</html>
+    
+    <div id="base64Toggle" class="form-group">
+        <label class="checkbox-label">
+            <input type="checkbox" id="useBase64" checked> 使用 Base64 输出
+        </label>
+    </div>
+    
+    <div class="form-group">
+        <label for="inputText">输入文本:</label>
+        <textarea id="inputText" placeholder="请输入需要加密或解密的内容..."></textarea>
+    </div>
+    
+    <div class="button-group">
+        <button class="btn-green" onclick="encryptText()">加密</button>
+        <button class="btn-blue" onclick="decryptText()">解密</button>
+        <button class="btn-gray" onclick="copyResult()">复制结果</button>
+    </div>
+    
+    <div class="result-container">
+        <h3>结果:</h3>
+        <div id="resultText" class="result-box readonly-textarea"></div>
+    </div>
+    
+    <div id="ivContainer" style="display: none;">
+        <h3>IV (如果适用):</h3>
+        <div id="ivOutput" class="iv-output"></div>
+    </div>
+    
+    <div class="file-section">
+        <h2>文件操作</h2>
+        
+        <div class="form-group">
+            <label for="fileInput">选择文件 (.txt):</label>
+            <input type="file" id="fileInput" accept=".txt">
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-green" onclick="processFile('encrypt')">文件加密</button>
+            <button class="btn-blue" onclick="processFile('decrypt')">文件解密</button>
+            <button class="btn-gray" onclick="downloadIV()">导出 IV</button>
+        </div>
+    </div>
+    
+    <div class="test-case">
+        <strong>✅ 测试用例：</strong><br/>
+        密钥
