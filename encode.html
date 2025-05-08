@@ -429,8 +429,20 @@
             
             // 生成二维码
             qrGenerateBtn.addEventListener('click', function() {
-                const text = textArea.value;
-                if (!text) {
+                // 优先检查加密结果框是否有内容
+                const encryptedText = resultArea.value.trim();
+                const originalText = textArea.value.trim();
+                
+                let textToEncode = '';
+                
+                if (encryptedText) {
+                    // 如果加密结果框有内容，优先使用它
+                    textToEncode = encryptedText;
+                } else if (originalText) {
+                    // 如果加密结果框为空，但原文框有内容，使用原文
+                    textToEncode = originalText;
+                } else {
+                    // 如果两者都为空，提示用户
                     alert('请输入要生成二维码的内容');
                     return;
                 }
@@ -439,7 +451,7 @@
                 qrDropArea.innerHTML = '';
                 
                 // 生成新的二维码
-                QRCode.toCanvas(document.createElement('canvas'), text, function (error, canvas) {
+                QRCode.toCanvas(document.createElement('canvas'), textToEncode, function (error, canvas) {
                     if (error) {
                         console.error(error);
                         alert('二维码生成失败');
@@ -560,7 +572,7 @@
             });
             
             decryptBtn.addEventListener('click', async function() {
-                const text = textArea.value;
+                const text = resultArea.value;
                 const key = keyInput.value;
                 const mode = modeSelect.value;
                 
@@ -579,24 +591,4 @@
                 try {
                     decrypted = await decrypt(text, key, 'aes');
                     if (decrypted !== "解密失败，可能是密钥错误") {
-                        resultArea.value = decrypted;
-                        return;
-                    }
-                } catch {}
-                
-                try {
-                    decrypted = simpleDecrypt(text, key);
-                    if (decrypted !== "解密失败") {
-                        resultArea.value = decrypted;
-                        return;
-                    }
-                } catch {}
-                
-                resultArea.value = "解密失败，请检查密钥或密文格式";
-            });
-            
-            copyBtn.addEventListener('click', copyToClipboard);
-        });
-    </script>
-</body>
-</html>
+                       
