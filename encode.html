@@ -145,23 +145,7 @@
 </div>
 
 <script>
-// 显示/隐藏IV输入框（已移除IV功能，此代码可删除）
-/*
-document.getElementById('modeSelect').addEventListener('change', function() {
-  const ivLabel = document.getElementById('ivLabel');
-  const ivInput = document.getElementById('ivInput');
-  
-  if (this.value === 'AES-CBC' || this.value === 'AES-GCM') {
-    ivLabel.style.display = 'block';
-    ivInput.style.display = 'block';
-  } else {
-    ivLabel.style.display = 'none';
-    ivInput.style.display = 'none';
-    document.getElementById('ivInput').value = '';
-  }
-});
-*/
-
+// 加密函数
 function encryptText() {
   const mode = document.getElementById('modeSelect').value;
   const key = document.getElementById('inputKey').value.trim();
@@ -215,6 +199,7 @@ function encryptText() {
   }
 }
 
+// 解密函数
 function decryptText() {
   const mode = document.getElementById('modeSelect').value;
   const key = document.getElementById('inputKey').value.trim();
@@ -273,6 +258,7 @@ function decryptText() {
   }
 }
 
+// 复制结果到剪贴板
 function copyResult() {
   const result = document.getElementById('resultText');
   result.select();
@@ -355,6 +341,12 @@ window.onload = loadQRCodeScript;
 
 <!-- 引入 QRCode.js -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
+<!-- 引入 sm-crypto 库（已在CDN引入） -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/sm-crypto@3.0.1/dist/sm-crypto.min.js"></script> -->
+
+<!-- 引入 crypto-js 库（已在CDN引入） -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script> -->
 
 </body>
 </html>
