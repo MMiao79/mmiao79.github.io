@@ -123,10 +123,6 @@
     <label for="inputKey">你的密钥:</label>
     <input type="text" id="inputKey" placeholder="请输入密钥（SM4用16字节，SM2用私钥/公钥）" />
 
-    <!-- IV 输入 (仅AES-CBC和AES-GCM需要) -->
-    <label id="ivLabel" style="display: none;" for="ivInput">手动输入 IV（Hex 格式，可选）:</label>
-    <input type="text" id="ivInput" style="display: none;" placeholder="如: 70231a8d4cb59c49f0516720e1f79a5b" />
-
     <!-- 内容输入 -->
     <label for="inputText">原文或密文:</label>
     <textarea id="inputText" rows="4" placeholder="请输入需要加密或解密的内容..."></textarea>
@@ -159,7 +155,8 @@
 </div>
 
 <script>
-// 显示/隐藏IV输入框
+// 显示/隐藏IV输入框（已移除IV功能，此代码可删除）
+/*
 document.getElementById('modeSelect').addEventListener('change', function() {
   const ivLabel = document.getElementById('ivLabel');
   const ivInput = document.getElementById('ivInput');
@@ -173,11 +170,11 @@ document.getElementById('modeSelect').addEventListener('change', function() {
     document.getElementById('ivInput').value = '';
   }
 });
+*/
 
 function encryptText() {
   const mode = document.getElementById('modeSelect').value;
   const key = document.getElementById('inputKey').value.trim();
-  const ivInput = document.getElementById('ivInput').value.trim();
   const text = document.getElementById('inputText').value;
 
   if (!key || !text) {
@@ -190,17 +187,19 @@ function encryptText() {
   try {
     switch (mode) {
       case "AES-CBC":
+        // AES-CBC需要IV，但已移除IV功能，这里使用随机IV
         encrypted = CryptoJS.AES.encrypt(text, CryptoJS.enc.Utf8.parse(key), {
-          iv: ivInput ? CryptoJS.enc.Hex.parse(ivInput) : CryptoJS.lib.WordArray.random(16),
+          iv: CryptoJS.lib.WordArray.random(16),
           mode: CryptoJS.mode.CBC,
           padding: CryptoJS.pad.Pkcs7
         }).toString();
+        alert("注意：AES-CBC模式已使用随机IV，解密时需要相同的IV");
         break;
 
       case "AES-GCM":
         alert("注意：CryptoJS不支持AES-GCM模式，已自动切换为AES-CBC模式");
         encrypted = CryptoJS.AES.encrypt(text, CryptoJS.enc.Utf8.parse(key), {
-          iv: ivInput ? CryptoJS.enc.Hex.parse(ivInput) : CryptoJS.lib.WordArray.random(16),
+          iv: CryptoJS.lib.WordArray.random(16),
           mode: CryptoJS.mode.CBC,
           padding: CryptoJS.pad.Pkcs7
         }).toString();
@@ -215,7 +214,7 @@ function encryptText() {
         break;
 
       case "SM4-CBC":
-        encrypted = sm4.encrypt(text, key, { mode: 'cbc', iv: ivInput || undefined, padding: 'pkcs7padding' });
+        encrypted = sm4.encrypt(text, key, { mode: 'cbc', padding: 'pkcs7padding' });
         break;
 
       case "SM4-ECB":
@@ -232,7 +231,6 @@ function encryptText() {
 function decryptText() {
   const mode = document.getElementById('modeSelect').value;
   const key = document.getElementById('inputKey').value.trim();
-  const ivInput = document.getElementById('ivInput').value.trim();
   const cipher = document.getElementById('inputText').value;
 
   if (!key || !cipher) {
@@ -245,12 +243,9 @@ function decryptText() {
   try {
     switch (mode) {
       case "AES-CBC":
-        decrypted = CryptoJS.AES.decrypt(cipher, CryptoJS.enc.Utf8.parse(key), {
-          iv: ivInput ? CryptoJS.enc.Hex.parse(ivInput) : undefined,
-          mode: CryptoJS.mode.CBC,
-          padding: CryptoJS.pad.Pkcs7
-        }).toString(CryptoJS.enc.Utf8);
-        break;
+        // AES-CBC需要IV，但已移除IV功能，无法正确解密
+        alert("错误：AES-CBC模式需要IV才能解密，但IV已被移除");
+        return;
 
       case "AES-GCM":
         alert("注意：CryptoJS不支持AES-GCM模式，无法解密");
@@ -265,7 +260,7 @@ function decryptText() {
         break;
 
       case "SM4-CBC":
-        decrypted = sm4.decrypt(cipher, key, { mode: 'cbc', iv: ivInput || undefined, padding: 'pkcs7padding' });
+        decrypted = sm4.decrypt(cipher, key, { mode: 'cbc', padding: 'pkcs7padding' });
         break;
 
       case "SM4-ECB":
