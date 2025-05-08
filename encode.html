@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>（加密/解密）小工具</title>
+    <title>（加密/解密 & 二维码）工具</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -93,6 +93,24 @@
             background-color: #f57c00;
         }
         
+        #qrGenerateBtn {
+            background-color: #64b5f6;
+            color: white;
+        }
+        
+        #qrGenerateBtn:hover {
+            background-color: #42a5f5;
+        }
+        
+        #qrReadBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        #qrReadBtn:hover {
+            background-color: #d32f2f;
+        }
+        
         .output-group {
             display: flex;
             flex-direction: column;
@@ -167,31 +185,6 @@
             align-items: flex-start;
         }
         
-        /* 按钮样式优化 */
-        button {
-            padding: 10px 18px;
-            border-radius: 6px;
-            font-weight: 500;
-        }
-        
-        #qrGenerateBtn {
-            background-color: #64b5f6;
-            color: white;
-        }
-        
-        #qrGenerateBtn:hover {
-            background-color: #42a5f5;
-        }
-        
-        #qrReadBtn {
-            background-color: #f44336;
-            color: white;
-        }
-        
-        #qrReadBtn:hover {
-            background-color: #d32f2f;
-        }
-        
         /* 响应式调整 */
         @media (max-width: 600px) {
             .qr-row {
@@ -206,7 +199,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>简单的（加密/解密）小工具</h1>
+        <h1>（加密/解密 & 二维码）工具</h1>
         
         <div class="input-group">
             <label for="modeSelect">加密模式:</label>
@@ -230,6 +223,7 @@
             <button id="encryptBtn">加密原文</button>
             <button id="decryptBtn">还原密文</button>
             <button id="copyBtn">复制结果</button>
+            <button id="qrGenerateBtn">生成二维码</button>
         </div>
         
         <div class="output-group">
@@ -239,16 +233,6 @@
         
         <!-- 二维码区域单独成行 -->
         <div class="qr-container">
-            <div class="qr-row">
-                <div>
-                    <button id="qrGenerateBtn">生成二维码</button>
-                </div>
-            </div>
-            
-            <div class="qr-row">
-                <div id="qrResult"></div>
-            </div>
-            
             <div class="qr-row">
                 <div>
                     <label for="qrDropArea">读取二维码:</label>
@@ -274,7 +258,6 @@
             const decryptBtn = document.getElementById('decryptBtn');
             const copyBtn = document.getElementById('copyBtn');
             const qrGenerateBtn = document.getElementById('qrGenerateBtn');
-            const qrResult = document.getElementById('qrResult');
             const qrDropArea = document.getElementById('qrDropArea');
             const qrFileInput = document.getElementById('qrFileInput');
             const qrTextResult = document.getElementById('qrTextResult');
@@ -421,16 +404,16 @@
             
             // 生成二维码
             qrGenerateBtn.addEventListener('click', async function() {
-                const text = resultArea.value;
+                const text = textArea.value;
                 if (!text) {
-                    alert('请先加密或输入要生成二维码的内容');
+                    alert('请输入要生成二维码的内容');
                     return;
                 }
                 
-                qrResult.innerHTML = '';
+                qrDropArea.innerHTML = '';
                 QRCode.toCanvas(document.createElement('canvas'), text, function (error, canvas) {
                     if (error) console.error(error);
-                    qrResult.appendChild(canvas);
+                    qrDropArea.appendChild(canvas);
                 });
             });
             
@@ -514,19 +497,11 @@
                 if (code) {
                     qrTextResult.textContent = "识别成功: " + code.data;
                     textArea.value = code.data; // 自动填充到原文/密文文本框
-                    copyToClipboardFromQR(code.data); // 自动复制到剪贴板
+                    // 可选：自动解密（如果内容是加密后的数据）
+                    // decryptBtn.click();
                 } else {
                     qrTextResult.textContent = "未识别到二维码";
                 }
-            }
-            
-            // 从二维码自动复制到剪贴板
-            function copyToClipboardFromQR(text) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('已复制二维码内容到剪贴板');
-                }).catch(err => {
-                    console.error('复制失败:', err);
-                });
             }
             
             // 按钮事件绑定
