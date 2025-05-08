@@ -2,8 +2,10 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>高级加密工具 - 多模式 & RSA & Base64</title>
+  <title>高级加密工具 - 国密 & 二维码</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sm-crypto@3.0.1/dist/sm-crypto.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js"></script>
   <style>
     body {
       background-color: #1e1e2f;
@@ -18,7 +20,7 @@
     }
 
     .container {
-      max-width: 700px;
+      max-width: 750px;
       margin: auto;
       background-color: #2a2a3d;
       padding: 25px;
@@ -28,7 +30,7 @@
 
     label {
       display: block;
-      margin-top: 15px;
+      margin-top: 10px;
       font-weight: bold;
     }
 
@@ -47,8 +49,8 @@
     }
 
     button {
-      margin-top: 15px;
-      padding: 10px 15px;
+      margin-top: 10px;
+      padding: 8px 12px;
       font-size: 14px;
       border: none;
       border-radius: 5px;
@@ -69,353 +71,181 @@
       color: #ccc;
     }
 
-    .test-case {
-      margin-top: 30px;
-      padding: 15px;
-      background-color: #333;
-      border-left: 4px solid #4caf50;
-      font-size: 14px;
-      color: #ccc;
-    }
-
-    .iv-output {
-      background-color: #2f2f44;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 5px;
-      word-break: break-all;
-    }
-
-    .checkbox-label {
-      display: inline-block;
-      margin-right: 15px;
-      cursor: pointer;
-    }
-
-    input[type="checkbox"] {
-      margin-right: 5px;
+    #reader {
+      margin-top: 10px;
+      width: 100%;
+      height: 200px;
+      background-color: #000;
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>高级加密工具（支持 GCM / RSA / Base64）</h2>
+  <h2>高级加密工具 - 支持 SM2/SM4 / 二维码识别</h2>
 
-  <label for="inputKey">你的密钥:</label>
-  <input type="text" id="inputKey" placeholder="请输入密钥" />
-
+  <!-- 模式选择 -->
   <label for="modeSelect">选择加密模式:</label>
   <select id="modeSelect">
-    <option value="CBC">CBC</option>
-    <option value="CFB">CFB</option>
-    <option value="OFB">OFB</option>
-    <option value="GCM">GCM</option>
-    <option value="RSA">RSA (公钥加密)</option>
+    <option value="AES-CBC">AES-CBC</option>
+    <option value="AES-GCM">AES-GCM</option>
+    <option value="SM2">SM2 (国密非对称)</option>
+    <option value="SM4-CBC">SM4-CBC (国密对称)</option>
+    <option value="SM4-ECB">SM4-ECB (国密对称)</option>
   </select>
 
-  <div id="base64Toggle" style="margin-top: 10px;">
-    <label class="checkbox-label">
-      <input type="checkbox" id="useBase64" checked> 使用 Base64 输出
-    </label>
-  </div>
+  <!-- 密钥输入 -->
+  <label for="inputKey">你的密钥:</label>
+  <input type="text" id="inputKey" placeholder="请输入密钥（SM4用16字节，SM2用私钥）" />
 
+  <!-- IV 输入 -->
+  <label for="ivInput">手动输入 IV（Hex 格式，可选）:</label>
+  <input type="text" id="ivInput" placeholder="如: 70231a8d4cb59c49f0516720e1f79a5b" />
+
+  <!-- 内容输入 -->
   <label for="inputText">原文或密文:</label>
   <textarea id="inputText" rows="4" placeholder="请输入需要加密或解密的内容..."></textarea>
 
-  <button class="btn-green" onclick="encryptText()">AES/RSA 加密</button>
-  <button class="btn-blue" onclick="decryptText()">AES/RSA 解密</button>
+  <!-- 按钮 -->
+  <button class="btn-green" onclick="encryptText()">加密</button>
+  <button class="btn-blue" onclick="decryptText()">解密</button>
   <button class="btn-gray" onclick="copyResult()">复制结果</button>
 
-  <h3>IV（如果适用）:</h3>
-  <div id="ivOutput" class="iv-output"></div>
+  <!-- 二维码识别 -->
+  <h3>二维码识别:</h3>
+  <input type="file" accept="image/*" onchange="handleImageUpload(event)">
+  <div id="reader"></div>
 
+  <!-- 结果输出 -->
   <h3>结果:</h3>
   <textarea id="resultText" rows="4" readonly></textarea>
-
-  <hr style="margin: 20px 0; border: none; border-top: 1px solid #444;" />
-
-  <label>上传并加密/解密文件 (.txt):</label>
-  <input type="file" id="fileInput" accept=".txt" />
-  <button class="btn-green" onclick="processFile('encrypt')">文件加密</button>
-  <button class="btn-blue" onclick="processFile('decrypt')">文件解密</button>
-  <button class="btn-gray" onclick="downloadIV()">导出 IV</button>
-
-  <div class="test-case">
-    <strong>✅ 测试用例：</strong><br/>
-    密钥：<code>mysecretpassword</code><br/>
-    原文：<code>Hello World!</code><br/>
-    模式：<code>GCM / CBC / CFB / OFB / RSA</code><br/>
-    结果应能正确加解密，且每次加密结果不同（除 ECB）
-  </div>
 </div>
 
 <script>
-let currentIV = null;
-
-function generateKey(password) {
-    const key = CryptoJS.SHA256(password);
-    return key.toString(CryptoJS.enc.Hex);
-}
-
-function getMode(modeStr) {
-    switch (modeStr) {
-        case "CBC": return CryptoJS.mode.CBC;
-        case "CFB": return CryptoJS.mode.CFB;
-        case "OFB": return CryptoJS.mode.OFB;
-        case "GCM": return CryptoJS.mode.GCM;
-    }
-}
-
 function encryptText() {
-    const password = document.getElementById('inputKey').value;
-    const inputText = document.getElementById('inputText').value;
-    const modeStr = document.getElementById('modeSelect').value;
-    const useBase64 = document.getElementById('useBase64').checked;
+  const mode = document.getElementById('modeSelect').value;
+  const key = document.getElementById('inputKey').value.trim();
+  const iv = document.getElementById('ivInput').value.trim();
+  const text = document.getElementById('inputText').value;
 
-    if (!password || !inputText) {
-        alert("请填写密钥和内容");
-        return;
-    }
+  if (!key || !text) {
+    alert("请填写密钥和内容");
+    return;
+  }
 
-    if (modeStr === "RSA") {
-        encryptRSA(inputText, useBase64);
-        return;
-    }
+  let encrypted;
 
-    const keyHex = generateKey(password);
-    const key = CryptoJS.enc.Hex.parse(keyHex);
+  switch (mode) {
+    case "AES-CBC":
+      encrypted = CryptoJS.AES.encrypt(text, CryptoJS.enc.Utf8.parse(key), {
+        iv: CryptoJS.enc.Hex.parse(iv || CryptoJS.lib.WordArray.random(16).toString())
+      }).toString();
+      break;
 
-    let options = {
-        mode: getMode(modeStr),
-        padding: CryptoJS.pad.Pkcs7
-    };
+    case "AES-GCM":
+      encrypted = CryptoJS.AES.encrypt(text, CryptoJS.enc.Utf8.parse(key), {
+        iv: CryptoJS.enc.Hex.parse(iv || CryptoJS.lib.WordArray.random(12).toString()),
+        mode: CryptoJS.mode.GCM,
+        tagLength: 128
+      }).toString();
+      break;
 
-    if (["CBC", "CFB", "OFB"].includes(modeStr)) {
-        currentIV = CryptoJS.lib.WordArray.random(16);
-        options.iv = currentIV;
-        document.getElementById('ivOutput').innerText = currentIV.toString();
-    } else if (modeStr === "GCM") {
-        currentIV = CryptoJS.lib.WordArray.random(12); // GCM 推荐 12 字节
-        options.iv = currentIV;
-        options.tagLength = 128;
-        document.getElementById('ivOutput').innerText = currentIV.toString();
-    }
+    case "SM2":
+      encrypted = sm4.sm2.doEncrypt(text, key); // SM2加密需提供公钥
+      break;
 
-    const encrypted = CryptoJS.AES.encrypt(inputText, key, options);
-    const result = useBase64 ? btoa(encrypted.toString()) : encrypted.toString();
-    document.getElementById('resultText').value = result;
+    case "SM4-CBC":
+      encrypted = sm4.sm4.encrypt(text, key, {
+        mode: 'cbc',
+        iv: iv
+      });
+      break;
+
+    case "SM4-ECB":
+      encrypted = sm4.sm4.encrypt(text, key, {
+        mode: 'ecb'
+      });
+      break;
+  }
+
+  document.getElementById('resultText').value = encrypted;
 }
 
 function decryptText() {
-    const password = document.getElementById('inputKey').value;
-    const encryptedText = document.getElementById('inputText').value;
-    const modeStr = document.getElementById('modeSelect').value;
-    const useBase64 = document.getElementById('useBase64').checked;
+  const mode = document.getElementById('modeSelect').value;
+  const key = document.getElementById('inputKey').value.trim();
+  const iv = document.getElementById('ivInput').value.trim();
+  const cipher = document.getElementById('inputText').value;
 
-    if (!password || !encryptedText) {
-        alert("请填写密钥和密文");
-        return;
-    }
+  if (!key || !cipher) {
+    alert("请填写密钥和密文");
+    return;
+  }
 
-    if (modeStr === "RSA") {
-        decryptRSA(encryptedText, useBase64);
-        return;
-    }
+  let decrypted;
 
-    const keyHex = generateKey(password);
-    const key = CryptoJS.enc.Hex.parse(keyHex);
+  switch (mode) {
+    case "AES-CBC":
+      decrypted = CryptoJS.AES.decrypt(cipher, CryptoJS.enc.Utf8.parse(key), {
+        iv: CryptoJS.enc.Hex.parse(iv)
+      }).toString(CryptoJS.enc.Utf8);
+      break;
 
-    let options = {};
-    if (["CBC", "CFB", "OFB"].includes(modeStr)) {
-        const ivStr = document.getElementById('ivOutput').innerText.trim();
-        if (!ivStr) {
-            alert("缺少 IV，请先加密获取 IV");
-            return;
-        }
-        options.iv = CryptoJS.enc.Hex.parse(ivStr);
-        options.mode = getMode(modeStr);
-        options.padding = CryptoJS.pad.Pkcs7;
-    } else if (modeStr === "GCM") {
-        const ivStr = document.getElementById('ivOutput').innerText.trim();
-        if (!ivStr) {
-            alert("缺少 IV，请先加密获取 IV");
-            return;
-        }
-        options.iv = CryptoJS.enc.Hex.parse(ivStr);
-        options.mode = CryptoJS.mode.GCM;
-        options.padding = CryptoJS.pad.Pkcs7;
-        options.tagLength = 128;
-    }
+    case "AES-GCM":
+      decrypted = CryptoJS.AES.decrypt(cipher, CryptoJS.enc.Utf8.parse(key), {
+        iv: CryptoJS.enc.Hex.parse(iv),
+        mode: CryptoJS.mode.GCM
+      }).toString(CryptoJS.enc.Utf8);
+      break;
 
-    try {
-        const encrypted = useBase64 ? atob(encryptedText) : encryptedText;
-        const decrypted = CryptoJS.AES.decrypt(encrypted, key, options);
-        const plaintext = decrypted.toString(CryptoJS.enc.Utf8);
-        if (!plaintext) {
-            alert("解密失败，请检查密钥或IV是否匹配");
-        } else {
-            document.getElementById('resultText').value = plaintext;
-        }
-    } catch (e) {
-        alert("解密出错：" + e.message);
-    }
-}
+    case "SM2":
+      decrypted = sm4.sm2.doDecrypt(cipher, key); // 需要私钥
+      break;
 
-async function encryptRSA(text, base64) {
-    const encoder = new TextEncoder();
-    const keyPair = await window.crypto.subtle.generateKey(
-        {
-            name: "RSA-OAEP",
-            modulusLength: 2048,
-            publicExponent: new Uint8Array([1, 0, 1]),
-            hash: "SHA-256"
-        },
-        true,
-        ["encrypt", "decrypt"]
-    );
+    case "SM4-CBC":
+      decrypted = sm4.sm4.decrypt(cipher, key, {
+        mode: 'cbc',
+        iv: iv
+      });
+      break;
 
-    const encrypted = await window.crypto.subtle.encrypt(
-        { name: "RSA-OAEP" },
-        keyPair.publicKey,
-        encoder.encode(text)
-    );
+    case "SM4-ECB":
+      decrypted = sm4.sm4.decrypt(cipher, key, {
+        mode: 'ecb'
+      });
+      break;
+  }
 
-    const result = arrayBufferToBase64(encrypted);
-    document.getElementById('resultText').value = result;
-    alert("生成 RSA 公私钥对成功（仅演示），实际使用需持久化存储！");
-}
-
-async function decryptRSA(data, base64) {
-    const decoder = new TextDecoder();
-    const keyPair = await window.crypto.subtle.generateKey(
-        {
-            name: "RSA-OAEP",
-            modulusLength: 2048,
-            publicExponent: new Uint8Array([1, 0, 1]),
-            hash: "SHA-256"
-        },
-        true,
-        ["encrypt", "decrypt"]
-    );
-
-    try {
-        const encrypted = base64ToArrayBuffer(atob(data));
-        const decrypted = await window.crypto.subtle.decrypt(
-            { name: "RSA-OAEP" },
-            keyPair.privateKey,
-            encrypted
-        );
-        document.getElementById('resultText').value = decoder.decode(decrypted);
-    } catch (e) {
-        alert("RSA 解密失败，请确保使用相同密钥对");
-    }
+  document.getElementById('resultText').value = decrypted;
 }
 
 function copyResult() {
-    const result = document.getElementById('resultText');
-    result.select();
-    result.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    alert("结果已复制到剪贴板！");
+  const result = document.getElementById('resultText');
+  result.select();
+  document.execCommand("copy");
+  alert("结果已复制到剪贴板！");
 }
 
-function processFile(mode) {
-    const fileInput = document.getElementById('fileInput');
-    const password = document.getElementById('inputKey').value;
-    const modeStr = document.getElementById('modeSelect').value;
+// === 二维码识别功能 ===
+async function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-    if (!fileInput.files.length) {
-        alert("请选择一个文件");
-        return;
-    }
-    if (!password) {
-        alert("请输入密钥");
-        return;
-    }
-
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(event) {
-        const content = event.target.result;
-
-        let processed;
-        const keyHex = generateKey(password);
-        const key = CryptoJS.enc.Hex.parse(keyHex);
-
-        const options = {};
-        if (["CBC", "CFB", "OFB"].includes(modeStr)) {
-            const ivStr = document.getElementById('ivOutput').innerText.trim();
-            if (!ivStr && mode === "decrypt") {
-                alert("缺少 IV，请提供");
-                return;
-            }
-            options.iv = CryptoJS.enc.Hex.parse(ivStr || CryptoJS.lib.WordArray.random(16).toString());
-            options.mode = getMode(modeStr);
-            options.padding = CryptoJS.pad.Pkcs7;
-        } else if (modeStr === "GCM") {
-            const ivStr = document.getElementById('ivOutput').innerText.trim();
-            options.iv = CryptoJS.enc.Hex.parse(ivStr || CryptoJS.lib.WordArray.random(12).toString());
-            options.mode = CryptoJS.mode.GCM;
-            options.padding = CryptoJS.pad.Pkcs7;
-            options.tagLength = 128;
-        }
-
-        if (mode === 'encrypt') {
-            processed = CryptoJS.AES.encrypt(content, key, options).toString();
-        } else if (mode === 'decrypt') {
-            try {
-                const decrypted = CryptoJS.AES.decrypt(content, key, options);
-                processed = decrypted.toString(CryptoJS.enc.Utf8);
-            } catch (e) {
-                alert("文件解密失败，请检查密钥或IV是否正确");
-                return;
-            }
-        }
-
-        const blob = new Blob([processed], { type: "text/plain" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = mode + '_' + modeStr + '_' + file.name;
-        link.click();
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const image = new Image();
+    image.src = e.target.result;
+    image.onload = async () => {
+      const codeReader = new ZXing.BrowserQRCodeReader();
+      try {
+        const result = await codeReader.decodeFromImageElement(image);
+        document.getElementById('inputText').value = result.text;
+      } catch (err) {
+        alert("未检测到二维码：" + err.message);
+      }
     };
-
-    reader.readAsText(file);
-}
-
-function downloadIV() {
-    const iv = document.getElementById('ivOutput').innerText.trim();
-    if (!iv) {
-        alert("没有可用的 IV");
-        return;
-    }
-
-    const blob = new Blob([iv], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "iv.txt";
-    link.click();
-}
-
-function arrayBufferToBase64(buffer) {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-}
-
-function base64ToArrayBuffer(base64) {
-    const binaryString = atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes.buffer;
+  };
+  reader.readAsDataURL(file);
 }
 </script>
 
