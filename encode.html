@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>简单（加/解）密工具 By MMiao79 使用 AI 辅助</title>
+    <title>简单加密工具</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -206,7 +206,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>简单（加/解）密工具</h1>
+        <h1>简单加密工具</h1>
         
         <div class="input-group">
             <label for="modeSelect">加密模式:</label>
@@ -227,13 +227,13 @@
         </div>
         
         <div class="buttons">
-            <button id="encryptBtn">加密原文</button>
-            <button id="decryptBtn">还原密文</button>
+            <button id="encryptBtn">加密</button>
+            <button id="decryptBtn">解密</button>
             <button id="copyBtn">复制结果</button>
         </div>
         
         <div class="output-group">
-            <label for="resultArea">（加密/解密）结果:</label>
+            <label for="resultArea">加密/解密结果:</label>
             <textarea id="resultArea" readonly></textarea>
         </div>
         
@@ -262,6 +262,7 @@
 
     <!-- 引入QRCode.js库用于生成二维码 -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 获取DOM元素
@@ -446,12 +447,9 @@
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
-                        // 这里应该使用二维码识别库，如jsQR
-                        // 为了简化，我们模拟一个识别结果
-                        qrTextResult.textContent = "模拟识别的二维码内容: " + resultArea.value || "示例文本";
+                        detectQRCode(img);
                     };
                     img.src = event.target.result;
-                    // 实际应用中应该在这里处理图片并识别二维码
                 };
                 reader.readAsDataURL(file);
             });
@@ -494,13 +492,41 @@
                     reader.onload = function(event) {
                         const img = new Image();
                         img.onload = function() {
-                            // 模拟二维码识别
-                            qrTextResult.textContent = "模拟识别的二维码内容: " + resultArea.value || "示例文本";
+                            detectQRCode(img);
                         };
                         img.src = event.target.result;
                     };
                     reader.readAsDataURL(file);
                 }
+            }
+            
+            // 检测二维码
+            function detectQRCode(img) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    qrTextResult.textContent = "识别成功: " + code.data;
+                    textArea.value = code.data; // 自动填充到原文/密文文本框
+                    copyToClipboardFromQR(code.data); // 自动复制到剪贴板
+                } else {
+                    qrTextResult.textContent = "未识别到二维码";
+                }
+            }
+            
+            // 从二维码自动复制到剪贴板
+            function copyToClipboardFromQR(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('已复制二维码内容到剪贴板');
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                });
             }
             
             // 按钮事件绑定
