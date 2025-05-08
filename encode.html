@@ -6,112 +6,201 @@
     <title>简单加密工具</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
+            background-color: #1e1e2f;
+            color: #e0e0e0;
         }
+        
+        h1 {
+            color: #64b5f6;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
         .container {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
+        
         .input-group {
             display: flex;
             flex-direction: column;
             gap: 5px;
         }
+        
         label {
             font-weight: bold;
+            color: #bbdefb;
         }
+        
         select, input[type="text"], textarea {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 10px 12px;
+            border: 1px solid #424242;
+            border-radius: 6px;
+            background-color: #2d2d3e;
+            color: #e0e0e0;
         }
+        
         textarea {
             min-height: 100px;
             resize: vertical;
         }
+        
         .buttons {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
+        
         button {
-            padding: 8px 15px;
-            background-color: #4CAF50;
-            color: white;
+            padding: 10px 18px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
-        button:hover {
-            background-color: #45a049;
+        
+        #encryptBtn {
+            background-color: #4caf50;
+            color: white;
         }
+        
+        #encryptBtn:hover {
+            background-color: #3d8b40;
+        }
+        
+        #decryptBtn {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        #decryptBtn:hover {
+            background-color: #1976d2;
+        }
+        
         #copyBtn {
-            background-color: #2196F3;
-        }
-        #copyBtn:hover {
-            background-color: #0b7dda;
-        }
-        #qrGenerateBtn {
             background-color: #ff9800;
+            color: white;
         }
-        #qrGenerateBtn:hover {
-            background-color: #e68a00;
+        
+        #copyBtn:hover {
+            background-color: #f57c00;
         }
-        #qrReadBtn {
-            background-color: #f44336;
-        }
-        #qrReadBtn:hover {
-            background-color: #da190b;
-        }
+        
         .output-group {
             display: flex;
             flex-direction: column;
             gap: 5px;
         }
+        
         .output-box {
             display: flex;
             gap: 10px;
         }
+        
         .output-box textarea {
             flex-grow: 1;
+            background-color: #2d2d3e;
+            color: #e0e0e0;
         }
+        
+        /* 二维码区域样式优化 */
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .qr-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .qr-row > div {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
         #qrResult, #qrUploadArea {
-            border: 1px dashed #ddd;
-            padding: 10px;
+            border: 1px dashed #424242;
+            padding: 15px;
             text-align: center;
             min-height: 200px;
-            flex: 1;
+            background-color: #2d2d3e;
+            color: #bbdefb;
+            border-radius: 6px;
         }
+        
         #qrUploadArea {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
+        
         #qrDropArea {
-            border: 2px dashed #ccc;
-            border-radius: 5px;
+            border: 2px dashed #64b5f6;
+            border-radius: 8px;
             padding: 20px;
             text-align: center;
             cursor: pointer;
             margin-top: 10px;
             width: 100%;
+            transition: all 0.2s ease;
         }
+        
         #qrDropArea.highlight {
-            border-color: #4CAF50;
+            border-color: #4caf50;
             background-color: rgba(76, 175, 80, 0.1);
         }
-        .qr-row {
-            display: flex;
-            gap: 10px;
+        
+        .qr-row > div:first-child {
+            align-items: flex-start;
         }
-        .qr-row > div {
-            flex: 1;
+        
+        /* 按钮样式优化 */
+        button {
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        #qrGenerateBtn {
+            background-color: #64b5f6;
+            color: white;
+        }
+        
+        #qrGenerateBtn:hover {
+            background-color: #42a5f5;
+        }
+        
+        #qrReadBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        #qrReadBtn:hover {
+            background-color: #d32f2f;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 600px) {
+            .qr-row {
+                flex-direction: column;
+            }
+            
+            .qr-row > div {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -123,7 +212,6 @@
             <label for="modeSelect">加密模式:</label>
             <select id="modeSelect">
                 <option value="aes">AES (推荐)</option>
-                <option value="sm4">SM4 (国密)</option>
                 <option value="simple">简单替换</option>
             </select>
         </div>
@@ -149,11 +237,15 @@
             <textarea id="resultArea" readonly></textarea>
         </div>
         
-        <div class="output-group qr-row">
+        <!-- 二维码区域单独成行 -->
+        <div class="qr-container">
             <div class="qr-row">
                 <div>
                     <button id="qrGenerateBtn">生成二维码</button>
                 </div>
+            </div>
+            
+            <div class="qr-row">
                 <div id="qrResult"></div>
             </div>
             
@@ -187,7 +279,7 @@
             const qrTextResult = document.getElementById('qrTextResult');
             
             // 加密函数
-            function encrypt(text, key, mode) {
+            async function encrypt(text, key, mode) {
                 if (!key) {
                     alert('请输入密钥');
                     return '';
@@ -199,25 +291,20 @@
                 let encrypted;
                 switch(mode) {
                     case 'aes':
-                        encrypted = aesEncrypt(text, key);
-                        break;
-                    case 'sm4':
-                        encrypted = sm4Encrypt(text, key);
+                        encrypted = await aesEncrypt(text, key);
                         break;
                     case 'simple':
                         encrypted = simpleEncrypt(text, key);
                         break;
                     default:
-                        encrypted = aesEncrypt(text, key);
+                        encrypted = await aesEncrypt(text, key);
                 }
                 
-                // 使用密钥的哈希值作为IV的一部分（模拟）
-                const ivPart = crc32(key).toString(16).slice(0, 4);
-                return ivPart + encrypted;
+                return encrypted;
             }
             
             // 解密函数
-            function decrypt(text, key, mode) {
+            async function decrypt(text, key, mode) {
                 if (!key) {
                     alert('请输入密钥');
                     return '';
@@ -226,70 +313,75 @@
                 key = key.toString();
                 text = text.toString();
                 
-                // 提取IV部分（前4个字符）
-                const ivPart = text.slice(0, 4);
-                const encryptedText = text.slice(4);
-                
-                // 验证IV是否匹配（简单验证）
-                if (crc32(key).toString(16).slice(0, 4) !== ivPart) {
-                    return "密钥错误或数据损坏";
-                }
-                
+                let decrypted;
                 switch(mode) {
                     case 'aes':
-                        return aesDecrypt(encryptedText, key);
-                    case 'sm4':
-                        return sm4Decrypt(encryptedText, key);
+                        decrypted = await aesDecrypt(text, key);
+                        break;
                     case 'simple':
-                        return simpleDecrypt(encryptedText, key);
+                        decrypted = simpleDecrypt(text, key);
+                        break;
                     default:
-                        return aesDecrypt(encryptedText, key);
+                        decrypted = await aesDecrypt(text, key);
                 }
+                
+                return decrypted;
             }
             
-            // AES加密 (模拟)
-            function aesEncrypt(text, key) {
-                try {
-                    const encrypted = btoa(text + key);
-                    return encrypted;
-                } catch {
-                    return "加密失败";
-                }
+            // AES加密 (使用Web Crypto API)
+            async function aesEncrypt(text, key) {
+                const encoder = new TextEncoder();
+                const encodedText = encoder.encode(text);
+                const encodedKey = await crypto.subtle.digest('SHA-256', encoder.encode(key)); // 使用 SHA-256 哈希密钥
+                const keyMaterial = await crypto.subtle.importKey(
+                    'raw',
+                    encodedKey.slice(0, 32), // 取前 32 字节作为 AES-256 密钥
+                    { name: 'AES-GCM' },
+                    false,
+                    ['encrypt']
+                );
+
+                const iv = crypto.getRandomValues(new Uint8Array(12)); // 生成随机 IV
+                const encrypted = await crypto.subtle.encrypt(
+                    { name: 'AES-GCM', iv },
+                    keyMaterial,
+                    encodedText
+                );
+
+                // 将 IV 和加密数据合并，并返回 Base64
+                const combined = new Uint8Array(iv.length + encrypted.byteLength);
+                combined.set(iv, 0);
+                combined.set(new Uint8Array(encrypted), iv.length);
+                return btoa(String.fromCharCode(...combined));
             }
             
-            // AES解密
-            function aesDecrypt(text, key) {
+            // AES解密 (使用Web Crypto API)
+            async function aesDecrypt(encryptedBase64, key) {
+                const decoder = new TextDecoder();
+                const encryptedBytes = new Uint8Array(atob(encryptedBase64).split('').map(c => c.charCodeAt(0)));
+
+                // 提取 IV (前 12 字节)
+                const iv = encryptedBytes.slice(0, 12);
+                const encryptedData = encryptedBytes.slice(12);
+
+                const encodedKey = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(key));
+                const keyMaterial = await crypto.subtle.importKey(
+                    'raw',
+                    encodedKey.slice(0, 32),
+                    { name: 'AES-GCM' },
+                    false,
+                    ['decrypt']
+                );
+
                 try {
-                    const decrypted = atob(text);
-                    if (!decrypted.endsWith(key)) {
-                        return "密钥错误";
-                    }
-                    return decrypted.substring(0, decrypted.length - key.length);
-                } catch {
-                    return "解密失败";
-                }
-            }
-            
-            // SM4加密 (模拟)
-            function sm4Encrypt(text, key) {
-                try {
-                    const encrypted = btoa(text + key);
-                    return encrypted;
-                } catch {
-                    return "加密失败";
-                }
-            }
-            
-            // SM4解密 (模拟)
-            function sm4Decrypt(text, key) {
-                try {
-                    const decrypted = atob(text);
-                    if (!decrypted.endsWith(key)) {
-                        return "密钥错误";
-                    }
-                    return decrypted.substring(0, decrypted.length - key.length);
-                } catch {
-                    return "解密失败";
+                    const decrypted = await crypto.subtle.decrypt(
+                        { name: 'AES-GCM', iv },
+                        keyMaterial,
+                        encryptedData
+                    );
+                    return decoder.decode(decrypted);
+                } catch (e) {
+                    return "解密失败，可能是密钥错误";
                 }
             }
             
@@ -300,39 +392,23 @@
                 for (let i = 0; i < text.length; i++) {
                     const charCode = text.charCodeAt(i);
                     const keyChar = key.charCodeAt(i % keyLength);
-                    // 简单的位移加密
-                    result += String.fromCharCode(charCode + keyChar % 10);
+                    // 更复杂的位移加密
+                    result += String.fromCharCode((charCode + keyChar * 3) % 256);
                 }
-                return btoa(result + key);
+                return btoa(result); // 仍然使用 Base64，但逻辑更复杂
             }
             
             // 简单替换解密
             function simpleDecrypt(text, key) {
-                try {
-                    const decoded = atob(text);
-                    const keyLength = key.length;
-                    let result = '';
-                    for (let i = 0; i < decoded.length - keyLength; i++) {
-                        const charCode = decoded.charCodeAt(i);
-                        const keyChar = key.charCodeAt(i % keyLength);
-                        result += String.fromCharCode(charCode - keyChar % 10);
-                    }
-                    return result;
-                } catch {
-                    return "解密失败";
+                const decoded = atob(text);
+                let result = '';
+                const keyLength = key.length;
+                for (let i = 0; i < decoded.length; i++) {
+                    const charCode = decoded.charCodeAt(i);
+                    const keyChar = key.charCodeAt(i % keyLength);
+                    result += String.fromCharCode((charCode - keyChar * 3 + 256) % 256);
                 }
-            }
-            
-            // CRC32校验（简化版）
-            function crc32(str) {
-                let crc = 0xFFFFFFFF;
-                for (let i = 0; i < str.length; i++) {
-                    crc ^= str.charCodeAt(i);
-                    for (let j = 0; j < 8; j++) {
-                        crc = (crc >>> 1) ^ (0xEDB88320 & -(crc & 1));
-                    }
-                }
-                return crc ^ 0xFFFFFFFF;
+                return result;
             }
             
             // 复制结果到剪贴板
@@ -343,7 +419,7 @@
             }
             
             // 生成二维码
-            qrGenerateBtn.addEventListener('click', function() {
+            qrGenerateBtn.addEventListener('click', async function() {
                 const text = resultArea.value;
                 if (!text) {
                     alert('请先加密或输入要生成二维码的内容');
@@ -428,7 +504,7 @@
             }
             
             // 按钮事件绑定
-            encryptBtn.addEventListener('click', function() {
+            encryptBtn.addEventListener('click', async function() {
                 const text = textArea.value;
                 const key = keyInput.value;
                 const mode = modeSelect.value;
@@ -443,11 +519,11 @@
                     return;
                 }
                 
-                const encrypted = encrypt(text, key, mode);
+                const encrypted = await encrypt(text, key, mode);
                 resultArea.value = encrypted;
             });
             
-            decryptBtn.addEventListener('click', function() {
+            decryptBtn.addEventListener('click', async function() {
                 const text = textArea.value;
                 const key = keyInput.value;
                 const mode = modeSelect.value;
@@ -465,24 +541,16 @@
                 // 尝试自动检测加密模式
                 let decrypted;
                 try {
-                    decrypted = decrypt(text, key, 'aes');
-                    if (decrypted !== "密钥错误或数据损坏") {
+                    decrypted = await decrypt(text, key, 'aes');
+                    if (decrypted !== "解密失败，可能是密钥错误") {
                         resultArea.value = decrypted;
                         return;
                     }
                 } catch {}
                 
                 try {
-                    decrypted = decrypt(text, key, 'sm4');
-                    if (decrypted !== "密钥错误或数据损坏") {
-                        resultArea.value = decrypted;
-                        return;
-                    }
-                } catch {}
-                
-                try {
-                    decrypted = decrypt(text, key, 'simple');
-                    if (decrypted !== "密钥错误或数据损坏") {
+                    decrypted = simpleDecrypt(text, key);
+                    if (decrypted !== "解密失败") {
                         resultArea.value = decrypted;
                         return;
                     }
@@ -494,8 +562,5 @@
             copyBtn.addEventListener('click', copyToClipboard);
         });
     </script>
-    
-    <!-- 引入QRCode.js库 -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 </body>
 </html>
