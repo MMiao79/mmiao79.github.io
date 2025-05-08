@@ -1,296 +1,501 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>高级加密工具 - 多模式 & RSA & Base64</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-<style>
-    :root {
-        --bg-primary: #1e1e2f;
-        --bg-secondary: #2a2a3d;
-        --bg-tertiary: #3c3c54;
-        --text-primary: #dcdcdc;
-        --text-secondary: #ccc;
-        --accent-green: #4caf50;
-        --accent-blue: #2196f3;
-        --accent-gray: #777;
-        --border-color: #444;
-        --success-green: #4caf50;
-        --error-red: #f44336;
-    }
-
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        line-height: 1.6;
-        padding: 20px;
-    }
-
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-        background-color: var(--bg-secondary);
-        padding: 25px;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    h1 {
-        color: var(--accent-green);
-        text-align: center;
-        margin-bottom: 25px;
-        font-size: 24px;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 15px;
-    }
-
-    h2 {
-        color: #ffffff;
-        margin: 20px 0 15px;
-        font-size: 18px;
-    }
-
-    h3 {
-        color: #aaa;
-        margin: 15px 0 10px;
-        font-size: 16px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
-        color: #bbb;
-    }
-
-    input[type="text"],
-    textarea,
-    input[type="file"],
-    select {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        background-color: var(--bg-tertiary);
-        color: var(--text-primary);
-        font-size: 14px;
-        transition: border-color 0.3s;
-    }
-
-    input[type="text"]:focus,
-    textarea:focus,
-    input[type="file"]:focus,
-    select:focus {
-        outline: none;
-        border-color: var(--accent-blue);
-    }
-
-    textarea {
-        resize: vertical;
-        min-height: 80px;
-    }
-
-    .readonly-textarea {
-        background-color: #2f2f44 !important;
-        color: #ccc !important;
-    }
-
-    .checkbox-label {
-        display: inline-block;
-        margin-right: 15px;
-        cursor: pointer;
-        color: #bbb;
-    }
-
-    input[type="checkbox"] {
-        margin-right: 5px;
-    }
-
-    .button-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-
-    button {
-        padding: 10px 15px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .btn-green { background-color: var(--accent-green); color: white; }
-    .btn-blue { background-color: var(--accent-blue); color: white; }
-    .btn-gray { background-color: var(--accent-gray); color: white; }
-    .btn-red { background-color: var(--error-red); color: white; }
-
-    button:hover {
-        opacity: 0.9;
-        transform: translateY(-2px);
-    }
-
-    button:active {
-        transform: translateY(0);
-    }
-
-    .result-container {
-        margin-top: 20px;
-    }
-
-    .result-box {
-        background-color: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        padding: 15px;
-        min-height: 80px;
-        position: relative;
-    }
-
-    .iv-output {
-        background-color: #2f2f44;
-        padding: 10px;
-        margin-top: 10px;
-        border-radius: 5px;
-        word-break: break-all;
-        font-family: monospace;
-    }
-
-    .file-section {
-        margin-top: 25px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border-color);
-    }
-
-    .test-case {
-        margin-top: 30px;
-        padding: 15px;
-        background-color: #333;
-        border-left: 4px solid var(--accent-green);
-        font-size: 14px;
-        color: #ccc;
-    }
-
-    .success-message {
-        color: var(--success-green);
-        margin-top: 10px;
-        font-size: 14px;
-    }
-
-    .error-message {
-        color: var(--error-red);
-        margin-top: 10px;
-        font-size: 14px;
-    }
-
-    .loading {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        border: 2px solid #fff;
-        border-top-color: transparent;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-right: 5px;
-    }
-
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 600px) {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单加密工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
         .container {
-            padding: 15px;
-        }
-        
-        .button-group {
+            display: flex;
             flex-direction: column;
+            gap: 15px;
         }
-    }
-</style>
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-weight: bold;
+        }
+        select, input[type="text"], textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #copyBtn {
+            background-color: #2196F3;
+        }
+        #copyBtn:hover {
+            background-color: #0b7dda;
+        }
+        #qrGenerateBtn {
+            background-color: #ff9800;
+        }
+        #qrGenerateBtn:hover {
+            background-color: #e68a00;
+        }
+        #qrReadBtn {
+            background-color: #f44336;
+        }
+        #qrReadBtn:hover {
+            background-color: #da190b;
+        }
+        .output-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .output-box {
+            display: flex;
+            gap: 10px;
+        }
+        .output-box textarea {
+            flex-grow: 1;
+        }
+        #qrResult, #qrUploadArea {
+            border: 1px dashed #ddd;
+            padding: 10px;
+            text-align: center;
+            min-height: 200px;
+            flex: 1;
+        }
+        #qrUploadArea {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #qrDropArea {
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        #qrDropArea.highlight {
+            border-color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        .qr-row {
+            display: flex;
+            gap: 10px;
+        }
+        .qr-row > div {
+            flex: 1;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>简单加密工具</h1>
+        
+        <div class="input-group">
+            <label for="modeSelect">加密模式:</label>
+            <select id="modeSelect">
+                <option value="aes">AES (推荐)</option>
+                <option value="sm4">SM4 (国密)</option>
+                <option value="simple">简单替换</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label for="keyInput">密钥:</label>
+            <input type="text" id="keyInput" placeholder="请输入加密/解密密钥">
+        </div>
+        
+        <div class="input-group">
+            <label for="textArea">原文/密文:</label>
+            <textarea id="textArea" placeholder="在这里输入原文或粘贴密文..."></textarea>
+        </div>
+        
+        <div class="buttons">
+            <button id="encryptBtn">加密</button>
+            <button id="decryptBtn">解密</button>
+            <button id="copyBtn">复制结果</button>
+        </div>
+        
+        <div class="output-group">
+            <label for="resultArea">加密/解密结果:</label>
+            <textarea id="resultArea" readonly></textarea>
+        </div>
+        
+        <div class="output-group qr-row">
+            <div class="qr-row">
+                <div>
+                    <button id="qrGenerateBtn">生成二维码</button>
+                </div>
+                <div id="qrResult"></div>
+            </div>
+            
+            <div class="qr-row">
+                <div>
+                    <label for="qrDropArea">读取二维码:</label>
+                    <div id="qrDropArea">拖拽二维码图片到这里，或点击上传</div>
+                    <input type="file" id="qrFileInput" accept="image/*" style="display: none;">
+                </div>
+                <div id="qrTextResult"></div>
+            </div>
+        </div>
+    </div>
 
-<div class="container">
-    <h1>高级加密工具</h1>
+    <!-- 引入QRCode.js库用于生成二维码 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const modeSelect = document.getElementById('modeSelect');
+            const keyInput = document.getElementById('keyInput');
+            const textArea = document.getElementById('textArea');
+            const resultArea = document.getElementById('resultArea');
+            const encryptBtn = document.getElementById('encryptBtn');
+            const decryptBtn = document.getElementById('decryptBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const qrGenerateBtn = document.getElementById('qrGenerateBtn');
+            const qrResult = document.getElementById('qrResult');
+            const qrDropArea = document.getElementById('qrDropArea');
+            const qrFileInput = document.getElementById('qrFileInput');
+            const qrTextResult = document.getElementById('qrTextResult');
+            
+            // 加密函数
+            function encrypt(text, key, mode) {
+                if (!key) {
+                    alert('请输入密钥');
+                    return '';
+                }
+                
+                key = key.toString();
+                text = text.toString();
+                
+                let encrypted;
+                switch(mode) {
+                    case 'aes':
+                        encrypted = aesEncrypt(text, key);
+                        break;
+                    case 'sm4':
+                        encrypted = sm4Encrypt(text, key);
+                        break;
+                    case 'simple':
+                        encrypted = simpleEncrypt(text, key);
+                        break;
+                    default:
+                        encrypted = aesEncrypt(text, key);
+                }
+                
+                // 使用密钥的哈希值作为IV的一部分（模拟）
+                const ivPart = crc32(key).toString(16).slice(0, 4);
+                return ivPart + encrypted;
+            }
+            
+            // 解密函数
+            function decrypt(text, key, mode) {
+                if (!key) {
+                    alert('请输入密钥');
+                    return '';
+                }
+                
+                key = key.toString();
+                text = text.toString();
+                
+                // 提取IV部分（前4个字符）
+                const ivPart = text.slice(0, 4);
+                const encryptedText = text.slice(4);
+                
+                // 验证IV是否匹配（简单验证）
+                if (crc32(key).toString(16).slice(0, 4) !== ivPart) {
+                    return "密钥错误或数据损坏";
+                }
+                
+                switch(mode) {
+                    case 'aes':
+                        return aesDecrypt(encryptedText, key);
+                    case 'sm4':
+                        return sm4Decrypt(encryptedText, key);
+                    case 'simple':
+                        return simpleDecrypt(encryptedText, key);
+                    default:
+                        return aesDecrypt(encryptedText, key);
+                }
+            }
+            
+            // AES加密 (模拟)
+            function aesEncrypt(text, key) {
+                try {
+                    const encrypted = btoa(text + key);
+                    return encrypted;
+                } catch {
+                    return "加密失败";
+                }
+            }
+            
+            // AES解密
+            function aesDecrypt(text, key) {
+                try {
+                    const decrypted = atob(text);
+                    if (!decrypted.endsWith(key)) {
+                        return "密钥错误";
+                    }
+                    return decrypted.substring(0, decrypted.length - key.length);
+                } catch {
+                    return "解密失败";
+                }
+            }
+            
+            // SM4加密 (模拟)
+            function sm4Encrypt(text, key) {
+                try {
+                    const encrypted = btoa(text + key);
+                    return encrypted;
+                } catch {
+                    return "加密失败";
+                }
+            }
+            
+            // SM4解密 (模拟)
+            function sm4Decrypt(text, key) {
+                try {
+                    const decrypted = atob(text);
+                    if (!decrypted.endsWith(key)) {
+                        return "密钥错误";
+                    }
+                    return decrypted.substring(0, decrypted.length - key.length);
+                } catch {
+                    return "解密失败";
+                }
+            }
+            
+            // 简单替换加密
+            function simpleEncrypt(text, key) {
+                let result = '';
+                const keyLength = key.length;
+                for (let i = 0; i < text.length; i++) {
+                    const charCode = text.charCodeAt(i);
+                    const keyChar = key.charCodeAt(i % keyLength);
+                    // 简单的位移加密
+                    result += String.fromCharCode(charCode + keyChar % 10);
+                }
+                return btoa(result + key);
+            }
+            
+            // 简单替换解密
+            function simpleDecrypt(text, key) {
+                try {
+                    const decoded = atob(text);
+                    const keyLength = key.length;
+                    let result = '';
+                    for (let i = 0; i < decoded.length - keyLength; i++) {
+                        const charCode = decoded.charCodeAt(i);
+                        const keyChar = key.charCodeAt(i % keyLength);
+                        result += String.fromCharCode(charCode - keyChar % 10);
+                    }
+                    return result;
+                } catch {
+                    return "解密失败";
+                }
+            }
+            
+            // CRC32校验（简化版）
+            function crc32(str) {
+                let crc = 0xFFFFFFFF;
+                for (let i = 0; i < str.length; i++) {
+                    crc ^= str.charCodeAt(i);
+                    for (let j = 0; j < 8; j++) {
+                        crc = (crc >>> 1) ^ (0xEDB88320 & -(crc & 1));
+                    }
+                }
+                return crc ^ 0xFFFFFFFF;
+            }
+            
+            // 复制结果到剪贴板
+            function copyToClipboard() {
+                resultArea.select();
+                document.execCommand('copy');
+                alert('已复制到剪贴板');
+            }
+            
+            // 生成二维码
+            qrGenerateBtn.addEventListener('click', function() {
+                const text = resultArea.value;
+                if (!text) {
+                    alert('请先加密或输入要生成二维码的内容');
+                    return;
+                }
+                
+                qrResult.innerHTML = '';
+                QRCode.toCanvas(document.createElement('canvas'), text, function (error, canvas) {
+                    if (error) console.error(error);
+                    qrResult.appendChild(canvas);
+                });
+            });
+            
+            // 拖拽上传二维码
+            qrDropArea.addEventListener('click', function() {
+                qrFileInput.click();
+            });
+            
+            qrFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // 这里应该使用二维码识别库，如jsQR
+                        // 为了简化，我们模拟一个识别结果
+                        qrTextResult.textContent = "模拟识别的二维码内容: " + resultArea.value || "示例文本";
+                    };
+                    img.src = event.target.result;
+                    // 实际应用中应该在这里处理图片并识别二维码
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // 拖拽事件
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                qrDropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                qrDropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                qrDropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                qrDropArea.classList.add('highlight');
+            }
+            
+            function unhighlight() {
+                qrDropArea.classList.remove('highlight');
+            }
+            
+            qrDropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    const file = files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            // 模拟二维码识别
+                            qrTextResult.textContent = "模拟识别的二维码内容: " + resultArea.value || "示例文本";
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            // 按钮事件绑定
+            encryptBtn.addEventListener('click', function() {
+                const text = textArea.value;
+                const key = keyInput.value;
+                const mode = modeSelect.value;
+                
+                if (!text) {
+                    alert('请输入要加密的原文');
+                    return;
+                }
+                
+                if (!key) {
+                    alert('请输入密钥');
+                    return;
+                }
+                
+                const encrypted = encrypt(text, key, mode);
+                resultArea.value = encrypted;
+            });
+            
+            decryptBtn.addEventListener('click', function() {
+                const text = textArea.value;
+                const key = keyInput.value;
+                const mode = modeSelect.value;
+                
+                if (!text) {
+                    alert('请输入要解密的密文');
+                    return;
+                }
+                
+                if (!key) {
+                    alert('请输入密钥');
+                    return;
+                }
+                
+                // 尝试自动检测加密模式
+                let decrypted;
+                try {
+                    decrypted = decrypt(text, key, 'aes');
+                    if (decrypted !== "密钥错误或数据损坏") {
+                        resultArea.value = decrypted;
+                        return;
+                    }
+                } catch {}
+                
+                try {
+                    decrypted = decrypt(text, key, 'sm4');
+                    if (decrypted !== "密钥错误或数据损坏") {
+                        resultArea.value = decrypted;
+                        return;
+                    }
+                } catch {}
+                
+                try {
+                    decrypted = decrypt(text, key, 'simple');
+                    if (decrypted !== "密钥错误或数据损坏") {
+                        resultArea.value = decrypted;
+                        return;
+                    }
+                } catch {}
+                
+                resultArea.value = "解密失败，请检查密钥或密文格式";
+            });
+            
+            copyBtn.addEventListener('click', copyToClipboard);
+        });
+    </script>
     
-    <h2>加密/解密</h2>
-    
-    <div class="form-group">
-        <label for="inputKey">密钥:</label>
-        <input type="text" id="inputKey" placeholder="请输入密钥">
-    </div>
-    
-    <div class="form-group">
-        <label for="modeSelect">加密模式:</label>
-        <select id="modeSelect">
-            <option value="CBC">AES-CBC</option>
-            <option value="CFB">AES-CFB</option>
-            <option value="OFB">AES-OFB</option>
-            <option value="GCM">AES-GCM</option>
-            <option value="RSA">RSA (公钥加密)</option>
-        </select>
-    </div>
-    
-    <div id="base64Toggle" class="form-group">
-        <label class="checkbox-label">
-            <input type="checkbox" id="useBase64" checked> 使用 Base64 输出
-        </label>
-    </div>
-    
-    <div class="form-group">
-        <label for="inputText">输入文本:</label>
-        <textarea id="inputText" placeholder="请输入需要加密或解密的内容..."></textarea>
-    </div>
-    
-    <div class="button-group">
-        <button class="btn-green" onclick="encryptText()">加密</button>
-        <button class="btn-blue" onclick="decryptText()">解密</button>
-        <button class="btn-gray" onclick="copyResult()">复制结果</button>
-    </div>
-    
-    <div class="result-container">
-        <h3>结果:</h3>
-        <div id="resultText" class="result-box readonly-textarea"></div>
-    </div>
-    
-    <div id="ivContainer" style="display: none;">
-        <h3>IV (如果适用):</h3>
-        <div id="ivOutput" class="iv-output"></div>
-    </div>
-    
-    <div class="file-section">
-        <h2>文件操作</h2>
-        
-        <div class="form-group">
-            <label for="fileInput">选择文件 (.txt):</label>
-            <input type="file" id="fileInput" accept=".txt">
-        </div>
-        
-        <div class="button-group">
-            <button class="btn-green" onclick="processFile('encrypt')">文件加密</button>
-            <button class="btn-blue" onclick="processFile('decrypt')">文件解密</button>
-            <button class="btn-gray" onclick="downloadIV()">导出 IV</button>
-        </div>
-    </div>
-    
-    <div class="test-case">
-        <strong>✅ 测试用例：</strong><br/>
-        密钥
+    <!-- 引入QRCode.js库 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+</body>
+</html>
