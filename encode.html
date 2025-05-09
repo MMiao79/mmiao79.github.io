@@ -264,6 +264,7 @@
             <button id="decryptBtn">还原密文</button>
             <button id="copyBtn">复制结果</button>
             <button id="qrGenerateBtn">生成二维码</button>
+            <button id="clearResultBtn">清空结果</button>
             <button id="clearAllBtn">清空所有</button>
         </div>
         
@@ -443,6 +444,16 @@
                 resultArea.select();
                 document.execCommand('copy');
                 alert('已复制到剪贴板');
+            }
+            
+            // 清空结果内容
+            function clearResultArea() {
+                // keyInput.value = '';
+                // textArea.value = '';
+                resultArea.value = '';
+                qrDropArea.innerHTML = '拖拽二维码图片到这里，或点击上传';
+                qrTextResult.textContent = '';
+                qrFileInput.value = ''; // 清除文件输入
             }
             
             // 清空所有内容
@@ -638,6 +649,9 @@
             });
             
             copyBtn.addEventListener('click', copyToClipboard);
+            
+            // 清空结果按钮事件
+            clearResultBtn.addEventListener('click', clearResultArea);
             
             // 清空所有按钮事件
             clearAllBtn.addEventListener('click', clearAll);
