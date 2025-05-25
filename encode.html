@@ -128,6 +128,15 @@
             background-color: #42a5f5;
         }
         
+        #qrSaveBtn {
+            background-color: #9c27b0;
+            color: white;
+        }
+        
+        #qrSaveBtn:hover {
+            background-color: #7b1fa2;
+        }
+        
         #clearResultBtn {
             background-color: #8e8e8e;
             color: white;
@@ -221,32 +230,9 @@
             border-color: #4caf50;
             background-color: rgba(76, 175, 80, 0.1);
         }
-        
-        /* 响应式调整 */
-        @media (min-width: 600px) {
-            body {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-                margin-bottom: 25px;
-            }
-            
-            .buttons {
-                gap: 10px;
-            }
-            
-            button {
-                flex: none;
-                min-width: auto;
-                padding: 10px 18px;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- 页面内容保持不变，与之前相同 -->
     <div class="container">
         <h1>（加密/解密 & 二维码）工具</h1>
         
@@ -273,6 +259,7 @@
             <button id="decryptBtn">还原密文</button>
             <button id="copyBtn">复制结果</button>
             <button id="qrGenerateBtn">生成二维码</button>
+            <button id="qrSaveBtn">保存二维码</button>
             <button id="clearResultBtn">清空结果</button>
             <button id="clearAllBtn">清空所有</button>
         </div>
@@ -295,11 +282,9 @@
         </div>
     </div>
 
-    <!-- 引入的JS库和脚本保持不变 -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
     <script>
-        // JavaScript代码保持不变，与之前相同
         document.addEventListener('DOMContentLoaded', function() {
             // 获取DOM元素
             const modeSelect = document.getElementById('modeSelect');
@@ -310,6 +295,7 @@
             const decryptBtn = document.getElementById('decryptBtn');
             const copyBtn = document.getElementById('copyBtn');
             const qrGenerateBtn = document.getElementById('qrGenerateBtn');
+            const qrSaveBtn = document.getElementById('qrSaveBtn');
             const clearAllBtn = document.getElementById('clearAllBtn');
             const qrDropArea = document.getElementById('qrDropArea');
             const qrFileInput = document.getElementById('qrFileInput');
@@ -457,8 +443,6 @@
             
             // 清空结果内容
             function clearResultArea() {
-                // keyInput.value = '';
-                // textArea.value = '';
                 resultArea.value = '';
                 qrDropArea.innerHTML = '拖拽二维码图片到这里，或点击上传';
                 qrTextResult.textContent = '';
@@ -476,7 +460,7 @@
             }
             
             // 生成二维码 - 修改后的逻辑
-            qrGenerateBtn.addEventListener('click', function() {
+            qrGenerateBtn.addEventListener('click', async function() {
                 // 优先使用加密后的内容生成二维码
                 let contentToEncode = resultArea.value.trim();
                 
@@ -512,6 +496,24 @@
                         qrTextResult.textContent = "已生成原文的二维码";
                     }
                 });
+            });
+            
+            // 保存二维码到本地
+            qrSaveBtn.addEventListener('click', function() {
+                // 检查是否有二维码存在
+                if (qrDropArea.children.length === 0 || !qrDropArea.querySelector('canvas')) {
+                    alert('请先生成二维码');
+                    return;
+                }
+                
+                // 获取二维码canvas元素
+                const canvas = qrDropArea.querySelector('canvas');
+                
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.download = 'qrcode.png'; // 默认文件名
+                link.href = canvas.toDataURL('image/png');
+                link.click();
             });
             
             // 拖拽上传二维码
