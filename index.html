@@ -35,10 +35,21 @@
             font-size: 1.5rem;
         }
         
+        p {
+          text-align: center;
+          margin: 10px 0;
+        }
+        
+        p a {
+          color: var(--primary-color);
+          text-decoration: none;
+          font-size: 1.2rem;
+        }
+        
         .container {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 8px;
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
@@ -234,10 +245,11 @@
 </head>
 <body>
     <div class="container">
-        <a href="./five.html" class="h1-style">
-            <h1>来局【五子棋】放松</h1>
-            <h1>（加密/解密 & 二维码）工具</h1>
-        </a>
+        <h1>（加密/解密 & 二维码）工具</h1>
+        <div class="game-links">
+            <p><a href="five.html" target="_blank" rel="noopener">来一局【五子棋】放松下</a></p>
+            <p><a href="sudoku.html" target="_blank" rel="noopener">来一局【数独】放松下</a></p>
+        </div>
         <div class="input-group">
             <label for="modeSelect">加密模式:</label>
             <select id="modeSelect">
