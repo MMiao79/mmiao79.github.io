@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>（加密/解密 & 二维码）工具</title>
+    <style>
+        :root {
+            --primary-color: #64b5f6;
+            --secondary-color: #2d2d3e;
+            --background-color: #1e1e2f;
+            --text-color: #e0e0e0;
+            --label-color: #bbdefb;
+            --element-height: 38px;
+            --element-padding: 5px 5px;
+            --gap-size: 5px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: var(--gap-size);
+            line-height: 1.4;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            font-size: 1rem;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: calc(var(--gap-size) * 2);
+            font-size: 1.5rem;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-size);
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--gap-size) / 2);
+            width: 100%;
+        }
+        
+        label {
+            color: var(--label-color);
+            font-size: 1rem;
+        }
+        
+        select, input[type="text"], textarea {
+            padding: var(--element-padding);
+            border: 1px solid #424242;
+            border-radius: 5px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            width: 100%;
+            font-size: 1rem;
+            height: var(--element-height);
+        }
+        
+        textarea {
+            min-height: 100px;
+            height: auto;
+            resize: vertical;
+        }
+        
+        .notices-container {
+            min-height: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--gap-size) / 2);
+            margin: calc(var(--gap-size) / 2) 0;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: var(--gap-size);
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        button {
+            padding: var(--element-padding);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            height: var(--element-height);
+            flex: 1 1 calc(50% - var(--gap-size));
+            min-width: calc(50% - var(--gap-size));
+            max-width: 100%;
+        }
+        
+        #encryptBtn {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        #encryptBtn:hover {
+            background-color: #3d8b40;
+        }
+        
+        #decryptBtn {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        #decryptBtn:hover {
+            background-color: #1976d2;
+        }
+        
+        #copyBtn {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        #copyBtn:hover {
+            background-color: #f57c00;
+        }
+        
+        #qrGenerateBtn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        #qrGenerateBtn:hover {
+            background-color: #42a5f5;
+        }
+        
+        #qrSaveBtn {
+            background-color: #9c27b0;
+            color: white;
+        }
+        
+        #qrSaveBtn:hover {
+            background-color: #7b1fa2;
+        }
+        
+        #clearResultBtn {
+            background-color: #8e8e8e;
+            color: white;
+        }
+        
+        #clearResultBtn:hover {
+            background-color: #575757;
+        }
+        
+        #clearAllBtn {
+            background-color: #2f2e2d;
+            color: white;
+        }
+        
+        #clearAllBtn:hover {
+            background-color: #5f6e7d;
+        }
+        
+        .output-group {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--gap-size) / 2);
+            width: 100%;
+        }
+        
+        .output-box {
+            display: flex;
+            gap: calc(var(--gap-size) / 2);
+            width: 100%;
+        }
+        
+        .output-box textarea {
+            flex-grow: 1;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+        
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--gap-size) * 1.5);
+            margin-top: calc(var(--gap-size) * 2);
+            width: 100%;
+        }
+        
+        .qr-row {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-size);
+            width: 100%;
+        }
+        
+        .qr-row > div {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--gap-size) / 2);
+            width: 100%;
+        }
+        
+        #qrResult, #qrDropArea {
+            border: 1px dashed #424242;
+            padding: var(--gap-size);
+            text-align: center;
+            min-height: 180px;
+            background-color: var(--secondary-color);
+            color: var(--label-color);
+            border-radius: 5px;
+            width: 100%;
+            font-size: 1rem;
+        }
+        
+        #qrDropArea {
+            border: 2px dashed var(--primary-color);
+            border-radius: 6px;
+            padding: calc(var(--gap-size) * 2);
+            text-align: center;
+            cursor: pointer;
+            margin-top: calc(var(--gap-size) / 2);
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        
+        #qrDropArea.highlight {
+            border-color: #4caf50;
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        .notice {
+            border-radius: 4px;
+            padding: calc(var(--gap-size) / 2);
+            font-size: 1rem;
+        }
+        
+        .notice.success {
+            background-color: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #a5d6a7;
+        }
+        
+        .notice.info {
+            background-color: rgba(33, 150, 243, 0.2);
+            border: 1px solid #2196f3;
+            color: #bbdefb;
+        }
+        
+        .notice.warning {
+            background-color: rgba(255, 152, 0, 0.2);
+            border: 1px solid #ff9800;
+            color: #ffe0b2;
+        }
+        
+        .notice.error {
+            background-color: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #ffcdd2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>（加密/解密 & 二维码）工具</h1>
+        
+        <div class="input-group">
+            <label for="modeSelect">加密模式:</label>
+            <select id="modeSelect">
+                <option value="aes">AES (推荐)</option>
+                <option value="simple">简单替换</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label for="keyInput">密钥:</label>
+            <input type="text" id="keyInput" placeholder="请输入（加密/解密）密钥">
+        </div>
+        
+        <div class="input-group">
+            <label for="textArea">原文/密文:</label>
+            <textarea id="textArea" placeholder="在这里输入原文或粘贴密文..."></textarea>
+        </div>
+        
+        <div class="notices-container" id="noticesContainer"></div>
+        
+        <div class="buttons">
+            <button id="encryptBtn">加密原文</button>
+            <button id="decryptBtn">还原密文</button>
+            <button id="copyBtn">复制结果</button>
+            <button id="clearResultBtn">清空结果</button>
+            <button id="qrGenerateBtn">生成二维码</button>
+            <button id="qrSaveBtn">保存二维码</button>
+            <button id="clearAllBtn">清空所有</button>
+        </div>
+        
+        <div class="output-group">
+            <label for="resultArea">加密/解密结果:</label>
+            <textarea id="resultArea" readonly></textarea>
+        </div>
+        
+        <div class="qr-container">
+            <div class="qr-row">
+                <div>
+                    <label for="qrDropArea">读取二维码:</label>
+                    <div id="qrDropArea">拖拽二维码图片到这里，或点击上传</div>
+                    <input type="file" id="qrFileInput" accept="image/*" style="display: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modeSelect = document.getElementById('modeSelect');
+            const keyInput = document.getElementById('keyInput');
+            const textArea = document.getElementById('textArea');
+            const resultArea = document.getElementById('resultArea');
+            const encryptBtn = document.getElementById('encryptBtn');
+            const decryptBtn = document.getElementById('decryptBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const qrGenerateBtn = document.getElementById('qrGenerateBtn');
+            const qrSaveBtn = document.getElementById('qrSaveBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const clearResultBtn = document.getElementById('clearResultBtn');
+            const qrDropArea = document.getElementById('qrDropArea');
+            const qrFileInput = document.getElementById('qrFileInput');
+            const noticesContainer = document.getElementById('noticesContainer');
+            
+            function getCurrentPageUrl() {
+                return window.location.href.split('?')[0];
+            }
+            
+            function clearUrlParams() {
+                const baseUrl = getCurrentPageUrl();
+                window.history.replaceState(null, '', baseUrl);
+            }
+            
+            function showNotice(message, type = 'info') {
+                clearNotices();
+                
+                const notice = document.createElement('div');
+                notice.className = `notice ${type}`;
+                notice.textContent = message;
+                noticesContainer.appendChild(notice);
+            }
+            
+            function clearNotices() {
+                noticesContainer.innerHTML = '';
+            }
+            
+            function checkUrlParamsAndAutoFill() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const cipherText = urlParams.get('cipher');
+                
+                if (cipherText) {
+                    textArea.value = cipherText;
+                    keyInput.value = '';
+                    keyInput.focus();
+                    showNotice('✅ 已从链接自动填充密文，请输入密钥进行解密', 'success');
+                }
+            }
+
+            checkUrlParamsAndAutoFill();
+
+            async function encrypt(text, key, mode) {
+                if (!key) throw new Error('密钥不能为空');
+                key = key.toString();
+                text = text.toString();
+                let encrypted;
+
+                switch(mode) {
+                    case 'aes':
+                        encrypted = await aesEncrypt(text, key);
+                        break;
+                    case 'simple':
+                        encrypted = simpleEncrypt(text, key);
+                        break;
+                    default:
+                        encrypted = await aesEncrypt(text, key);
+                }
+
+                return encrypted || '';
+            }
+
+            async function decrypt(text, key, mode) {
+                if (!key) throw new Error('密钥不能为空');
+                key = key.toString();
+                text = text.toString();
+                let decrypted;
+
+                switch(mode) {
+                    case 'aes':
+                        decrypted = await aesDecrypt(text, key);
+                        break;
+                    case 'simple':
+                        decrypted = simpleDecrypt(text, key);
+                        break;
+                    default:
+                        decrypted = await aesDecrypt(text, key);
+                }
+
+                return decrypted || '';
+            }
+
+            async function aesEncrypt(text, key) {
+                try {
+                    const encrypted = CryptoJS.AES.encrypt(text, key);
+                    return encrypted.toString();
+                } catch (e) {
+                    console.error("AES加密错误:", e);
+                    throw new Error("AES加密失败: " + e.message);
+                }
+            }
+
+            async function aesDecrypt(encryptedText, key) {
+                try {
+                    const decrypted = CryptoJS.AES.decrypt(encryptedText, key);
+                    const result = decrypted.toString(CryptoJS.enc.Utf8);
+                    
+                    if (!result) {
+                        return null;
+                    }
+                    
+                    return result;
+                } catch (e) {
+                    console.error("AES解密错误:", e);
+                    return null;
+                }
+            }
+
+            function simpleEncrypt(text, key) {
+                let result = '';
+                const keyLength = key.length;
+                
+                for (let i = 0; i < text.length; i++) {
+                    const charCode = text.charCodeAt(i);
+                    const keyChar = key.charCodeAt(i % keyLength);
+                    result += String.fromCharCode((charCode + keyChar * 3) % 256);
+                }
+                
+                return btoa(result);
+            }
+
+            function simpleDecrypt(text, key) {
+                try {
+                    const decoded = atob(text);
+                    let result = '';
+                    const keyLength = key.length;
+                    
+                    for (let i = 0; i < decoded.length; i++) {
+                        const charCode = decoded.charCodeAt(i);
+                        const keyChar = key.charCodeAt(i % keyLength);
+                        result += String.fromCharCode((charCode - keyChar * 3 + 256) % 256);
+                    }
+                    
+                    return result;
+                } catch {
+                    return null;
+                }
+            }
+
+            function copyToClipboard() {
+                if (!resultArea.value) {
+                    showNotice('❌ 没有内容可复制', 'error');
+                    return;
+                }
+                
+                resultArea.select();
+                document.execCommand('copy');
+                showNotice('✅ 已复制到剪贴板', 'success');
+            }
+
+            function clearResultArea() {
+                resultArea.value = '';
+                qrDropArea.innerHTML = '拖拽二维码图片到这里，或点击上传';
+                qrFileInput.value = '';
+                clearNotices();
+                clearUrlParams();
+                showNotice('✅ 已清空结果区域', 'info');
+            }
+
+            function clearAll() {
+                keyInput.value = '';
+                textArea.value = '';
+                resultArea.value = '';
+                qrDropArea.innerHTML = '拖拽二维码图片到这里，或点击上传';
+                qrFileInput.value = '';
+                clearNotices();
+                clearUrlParams();
+                showNotice('✅ 已清空所有内容', 'info');
+            }
+
+            qrGenerateBtn.addEventListener('click', async function() {
+                let contentToEncode = resultArea.value.trim();
+                
+                if (!contentToEncode && textArea.value.trim()) {
+                    contentToEncode = textArea.value.trim();
+                }
+                
+                if (!contentToEncode) {
+                    showNotice('❌ 请输入要生成二维码的内容', 'error');
+                    return;
+                }
+
+                qrDropArea.innerHTML = '';
+
+                const pageUrl = getCurrentPageUrl();
+                const qrContent = `${pageUrl}?cipher=${encodeURIComponent(contentToEncode)}`;
+
+                const canvas = document.createElement('canvas');
+                QRCode.toCanvas(canvas, qrContent, { width: 200 }, function (error) {
+                    if (error) {
+                        console.error(error);
+                        showNotice('❌ 二维码生成失败', 'error');
+                        return;
+                    }
+
+                    qrDropArea.appendChild(canvas);
+
+                    const isEncryptedContent = contentToEncode === resultArea.value.trim();
+                    showNotice(
+                        isEncryptedContent ? 
+                        '✅ 已生成加密内容的二维码' : 
+                        '✅ 已生成原文的二维码', 
+                        'success'
+                    );
+
+                    const tip = document.createElement('div');
+                    tip.style.marginTop = '8px';
+                    tip.style.fontSize = '1rem';
+                    tip.style.color = '#bbdefb';
+                    tip.textContent = '扫描此二维码将自动打开此页面并填充密文';
+                    qrDropArea.appendChild(tip);
+                });
+            });
+
+            qrSaveBtn.addEventListener('click', function() {
+                const canvas = qrDropArea.querySelector('canvas');
+                if (!canvas) {
+                    showNotice('❌ 请先生成二维码', 'error');
+                    return;
+                }
+                
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showNotice('✅ 二维码已保存为 qrcode.png', 'success');
+            });
+
+            qrDropArea.addEventListener('click', () => qrFileInput.click());
+            qrFileInput.addEventListener('change', handleFileSelect);
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event =>
+                qrDropArea.addEventListener(event, e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                })
+            );
+
+            qrDropArea.addEventListener('dragover', () => qrDropArea.classList.add('highlight'));
+            qrDropArea.addEventListener('dragleave', () => qrDropArea.classList.remove('highlight'));
+            qrDropArea.addEventListener('drop', e => handleFileSelect(e));
+
+            function handleFileSelect(e) {
+                const file = e.dataTransfer?.files[0] || e.target.files?.[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = new Image();
+                    img.onload = () => detectQRCode(img);
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function detectQRCode(img) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code) {
+                    let content = code.data;
+                    let isOurQRCode = false;
+                    
+                    const currentPageUrl = getCurrentPageUrl();
+                    const cipherPrefix = currentPageUrl + '?cipher=';
+                    
+                    if (content.startsWith(cipherPrefix)) {
+                        const encodedCipher = content.substring(cipherPrefix.length);
+                        try {
+                            content = decodeURIComponent(encodedCipher);
+                            isOurQRCode = true;
+                            showNotice('🔍 识别成功: 已提取密文内容', 'success');
+                        } catch (e) {
+                            console.error("URL解码失败:", e);
+                            showNotice('⚠️ 识别成功: 但密文解码失败', 'warning');
+                        }
+                    } else {
+                        showNotice('🔍 识别成功: 已读取二维码内容', 'success');
+                    }
+                    
+                    textArea.value = content;
+                    
+                    if (isOurQRCode) {
+                        keyInput.value = '';
+                        keyInput.focus();
+                        showNotice('✅ 已从二维码提取密文，请输入密钥进行解密', 'info');
+                    }
+                } else {
+                    showNotice('❌ 未识别到二维码', 'error');
+                }
+            }
+
+            encryptBtn.addEventListener('click', async function() {
+                const text = textArea.value.trim();
+                const key = keyInput.value.trim();
+                const mode = modeSelect.value;
+
+                if (!text) {
+                    showNotice('❌ 请输入要加密的原文', 'error');
+                    textArea.focus();
+                    return;
+                }
+                
+                if (!key) {
+                    showNotice('❌ 请输入密钥', 'error');
+                    keyInput.focus();
+                    return;
+                }
+
+                try {
+                    const encrypted = await encrypt(text, key, mode);
+                    if (encrypted) {
+                        resultArea.value = encrypted;
+                        resultArea.style.borderColor = '#4caf50';
+                        setTimeout(() => resultArea.style.borderColor = '#424242', 1000);
+                        showNotice('✅ 加密成功', 'success');
+                    } else {
+                        resultArea.value = '';
+                        showNotice('❌ 加密失败，请检查输入内容', 'error');
+                    }
+                } catch (error) {
+                    console.error("加密出错:", error);
+                    resultArea.value = '';
+                    showNotice('❌ 加密失败：' + error.message, 'error');
+                }
+            });
+
+            decryptBtn.addEventListener('click', async function() {
+                const text = textArea.value.trim();
+                const key = keyInput.value.trim();
+                const mode = modeSelect.value;
+
+                if (!text) {
+                    showNotice('❌ 请输入要解密的密文', 'error');
+                    textArea.focus();
+                    return;
+                }
+                
+                if (!key) {
+                    showNotice('❌ 请输入密钥', 'error');
+                    keyInput.focus();
+                    return;
+                }
+
+                let decrypted;
+                
+                if (mode === 'aes') {
+                    decrypted = await decrypt(text, key, 'aes');
+                    if (decrypted) {
+                        resultArea.value = decrypted;
+                        showNotice('✅ 解密成功', 'success');
+                        return;
+                    }
+                }
+                
+                if (mode === 'simple') {
+                    decrypted = simpleDecrypt(text, key);
+                    if (decrypted) {
+                        resultArea.value = decrypted;
+                        showNotice('✅ 解密成功', 'success');
+                        return;
+                    }
+                }
+
+                decrypted = await decrypt(text, key, 'aes');
+                if (decrypted) {
+                    resultArea.value = decrypted;
+                    showNotice('✅ 解密成功', 'success');
+                    return;
+                }
+                
+                decrypted = simpleDecrypt(text, key);
+                if (decrypted) {
+                    resultArea.value = decrypted;
+                    showNotice('✅ 解密成功', 'success');
+                    return;
+                }
+
+                resultArea.value = '';
+                showNotice('❌ 解密失败，请检查密钥或密文格式是否正确', 'error');
+            });
+
+            copyBtn.addEventListener('click', copyToClipboard);
+            clearResultBtn.addEventListener('click', clearResultArea);
+            clearAllBtn.addEventListener('click', clearAll);
+        });
+    </script>
+</body>
+</html>
