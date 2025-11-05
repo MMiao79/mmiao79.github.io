@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>简易首页</title>
+    <style>
+        /* =============
+           1. 全局变量定义
+           ============= */
+        :root {
+            /* 主题颜色 */
+            --color-primary: #64b5f6;
+            --color-bg-main: #1e1e2f;
+            --color-text-main: #e0e0e0;
+            --color-text-secondary: #bbdefb;
+            
+            /* 按钮颜色 */
+            --color-btn-1: #4caf50;    /* 绿色系 - 工具类 */
+            --color-btn-2: #2196f3;    /* 蓝色系 - 游戏类 */
+            --color-btn-3: #9c27b0;    /* 紫色系 - 谜题类 */
+            --color-btn-4: #ff9800;    /* 橙色系 - 工具类 */
+            
+            /* 尺寸变量 */
+            --size-container-max-width: 280px;
+            --size-button-padding: 12px 8px;
+            --size-button-radius: 6px;
+            --size-spacing-unit: 12px;
+            --size-title-margin-bottom: 10px;
+            --size-font-title: 1.4rem;
+        }
+        
+        /* =============
+           2. 基础样式
+           ============= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: var(--size-spacing-unit);
+            line-height: 1.4;
+            background-color: var(--color-bg-main);
+            color: var(--color-text-main);
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* =============
+           3. 标题样式
+           ============= */
+        h1 {
+            color: var(--color-primary);
+            text-align: center;
+            margin-bottom: var(--size-title-margin-bottom);
+            font-size: var(--size-font-title);
+            font-weight: 600;
+        }
+        
+        /* =============
+           4. 链接容器样式
+           ============= */
+        .link-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--size-spacing-unit);
+            width: 100%;
+            max-width: var(--size-container-max-width);
+        }
+        
+        /* =============
+           5. 链接按钮样式
+           ============= */
+        .link-container a {
+            padding: var(--size-button-padding);
+            border: none;
+            border-radius: var(--size-button-radius);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            min-height: 46px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        
+        /* 悬停效果 */
+        .link-container a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* =============
+           6. 功能特定按钮样式
+           ============= */
+        .link-container a:nth-child(1) {
+            background-color: var(--color-btn-1);
+        }
+        
+        .link-container a:nth-child(2) {
+            background-color: var(--color-btn-2);
+        }
+        
+        .link-container a:nth-child(3) {
+            background-color: var(--color-btn-3);
+        }
+        
+        .link-container a:nth-child(4) {
+            background-color: var(--color-btn-4);
+        }
+        
+        /* =============
+           7. 响应式设计 - 真正解决手机端问题
+           ============= */
+        @media (max-width: 480px) {
+            /* 简单地减小字体大小，而不是添加两行显示 */
+            .link-container a {
+                font-size: 0.88rem;
+                padding: 10px 6px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            /* 对于特别小的屏幕，进一步简化 */
+            @media (max-width: 360px) {
+                .link-container a {
+                    font-size: 0.82rem;
+                    padding: 9px 5px;
+                }
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>简易首页</h1>
+    
+    <div class="link-container">
+        <a href="./expansion/crypto-qr-tool.html" target="_blank" rel="noopener">加密/解密 & 二维码</a>
+        <a href="./expansion/five.html" target="_blank" rel="noopener">人机对战【五子棋】</a>
+        <a href="./expansion/sudoku.html" target="_blank" rel="noopener">单人挑战【数独】</a>
+        <a href="./expansion/ts-conv.html" target="_blank" rel="noopener">时间戳转换</a>
+    </div>
+</body>
+</html>
