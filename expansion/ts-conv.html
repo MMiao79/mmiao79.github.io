@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增强版时间戳工具 v2.0</title>
+    <style>
+        :root {
+            --dark-bg: #1e1e2f;
+            --primary: #64b5f6;
+            --secondary: #2d2d3e;
+            --text: #bbdefb;
+            --input-border: #424242;
+            --button-bg: #4CAF50;
+            --button-hover: #45a049;
+            --error: #ff4444;
+            --toast-bg: rgba(88, 58, 88, 0.2);
+            --toast-success: rgba(68, 240, 180, 0.2);
+            --toast-error: rgba(28, 68, 58, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 1.2rem;
+            font-size: 1.3rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-weight: 600;
+        }
+
+        .container {
+            background: linear-gradient(135deg, #2d2d3e 0%, #1e1e2f 100%);
+            padding: 1.2rem;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            width: 95%;
+            max-width: 700px;
+        }
+
+        .section {
+            border: 1px solid #424242;
+            padding: 0.8rem;
+            margin: 0.8rem 0;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .input-group { 
+            margin: 0.8rem 0; 
+            display: flex;
+            gap: 0.4rem;
+            flex-direction: column;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1.5px solid var(--input-border);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+            width: 100%;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            padding: 10px 12px;
+            background-color: var(--button-bg);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-1px);
+        }
+
+        .result {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1.2rem;
+            background: rgba(255,255,255,0.1);
+            color: var(--text);
+            font-size: 0.9rem;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .error {
+            color: var(--error);
+            font-size: 0.85rem;
+            padding: 0.8rem;
+            background: rgba(255,68,68,0.1);
+            border-radius: 4px;
+            margin-top: 0.8rem;
+        }
+
+        /* 时间选择器样式 */
+        input[type="datetime-local"] {
+            padding: 10px;
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid var(--input-border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        input[type="datetime-local"]:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        /* 时间戳结果显示区域样式 */
+        .timestamp-display {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .timestamp-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .timestamp-label {
+            font-size: 0.85rem;
+            color: #bbdefb;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .timestamp-input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 0.9rem;
+            cursor: not-allowed;
+        }
+
+        .timestamp-copy-btn {
+            margin-top: 0.5rem;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            width: 100%;
+        }
+
+        .inline-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .time-display {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .relative-time {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        #history-container div {
+            padding: 6px;
+            margin: 3px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* 历史记录按钮布局优化 */
+        .history-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .history-buttons button {
+            flex: 1;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+
+        .clear-history-btn {
+            background-color: #f44336 !important;
+        }
+
+        .clear-history-btn:hover {
+            background-color: #d32f2f !important;
+        }
+
+        /* Toast 提示样式 - 居中显示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            padding: 16px 24px;
+            background: var(--toast-bg);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            max-width: 300px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .toast.hide {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.7);
+        }
+
+        .toast.success {
+            background: var(--toast-success);
+        }
+
+        .toast.error {
+            background: var(--toast-error);
+        }
+
+        @media (min-width: 768px) {
+            .input-group {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            button {
+                width: auto;
+                padding: 10px 16px;
+            }
+            
+            .history-buttons button {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .timestamp-display {
+                flex-wrap: nowrap;
+            }
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .container {
+                padding: 0.8rem;
+            }
+            
+            .section {
+                padding: 0.6rem;
+            }
+            
+            input, select, button {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+            
+            .history-buttons {
+                flex-direction: row;
+                gap: 6px;
+            }
+            
+            .history-buttons button {
+                padding: 6px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .timestamp-display {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .timestamp-item {
+                min-width: 100%;
+            }
+            
+            .toast {
+                max-width: 280px;
+                padding: 14px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>智能时间戳工具 v2.0</h1>
+        
+        <!-- 时间戳转换区 -->
+        <div class="section">
+            <div class="input-group">
+                <input type="text" id="timestamp-input" placeholder="输入时间戳（10/13位）">
+                <button onclick="convertTimestamp()">转换</button>
+            </div>
+            <div id="result"></div>
+        </div>
+
+        <!-- 时间差计算区 -->
+        <div class="section">
+            <div class="input-group">
+                <input type="datetime-local" id="start-datetime">
+                <input type="datetime-local" id="end-datetime">
+                <button onclick="calcDiff()">计算间隔</button>
+            </div>
+            <div id="diff-result"></div>
+        </div>
+
+        <!-- 时间戳生成区 -->
+        <div class="section">
+            <div class="input-group">
+                <input type="datetime-local" id="datetime-picker">
+                <button onclick="generateTimestamp()">生成时间戳</button>
+            </div>
+            <div id="gen-result"></div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="section">
+            <div class="history-buttons">
+                <button onclick="showHistory()">历史记录</button>
+                <button onclick="clearHistory()" class="clear-history-btn">清空历史</button>
+            </div>
+            <div id="history-container"></div>
+        </div>
+    </div>
+
+    <!-- Toast 提示容器 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 保持原有的Day.js库引用路径 -->
+    <script src="../lib/dayjs.min.js"></script>
+    <script src="../lib/dayjs-plugin-relativeTime.js"></script>
+    <script>
+        // 初始化Day.js插件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查Day.js是否正确加载
+            if (typeof dayjs === 'undefined') {
+                console.error('Day.js库加载失败，请检查文件路径');
+                showToast('Day.js库加载失败，请检查lib目录下的文件', 'error');
+                return;
+            }
+            
+            // 初始化插件和语言设置
+            try {
+                if (typeof dayjs_plugin_relativeTime !== 'undefined') {
+                    dayjs.extend(dayjs_plugin_relativeTime);
+                }
+                dayjs.locale('zh-cn');
+                console.log('Day.js初始化成功');
+            } catch (error) {
+                console.error('Day.js插件初始化失败:', error);
+            }
+            
+            // 设置默认时间
+            setDefaultTimes();
+        });
+
+        const HISTORY_KEY = 'timestampHistory';
+        const MAX_HISTORY = 10;
+
+        // 设置默认时间
+        function setDefaultTimes() {
+            const now = dayjs();
+            const oneWeekLater = now.add(1, 'week');
+            
+            // 设置时间差计算器的默认时间
+            document.getElementById('start-datetime').value = now.format('YYYY-MM-DDTHH:mm');
+            document.getElementById('end-datetime').value = oneWeekLater.format('YYYY-MM-DDTHH:mm');
+            
+            // 设置时间戳生成器的默认时间
+            document.getElementById('datetime-picker').value = now.format('YYYY-MM-DDTHH:mm');
+        }
+
+        // Toast提示函数 - 居中显示
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
+            toast.classList.add(type);
+            
+            // 显示Toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            // 2秒后隐藏
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+                
+                // 动画完成后重置
+                setTimeout(() => {
+                    toast.className = 'toast';
+                }, 300);
+            }, 2000);
+        }
+
+        // 时间戳转换核心函数
+        function convertTimestamp() {
+            const input = document.getElementById('timestamp-input').value.trim();
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            if (!input) {
+                showError('请输入时间戳');
+                return;
+            }
+
+            try {
+                const ts = parseInt(input);
+                if (isNaN(ts)) throw new Error('请输入有效的数字时间戳');
+                
+                const timestampLength = input.length;
+                let date;
+                
+                if (timestampLength === 10) {
+                    date = dayjs(ts * 1000);
+                } else if (timestampLength === 13) {
+                    date = dayjs(ts);
+                } else {
+                    throw new Error('时间戳位数必须是10位或13位');
+                }
+                
+                if (!date.isValid()) throw new Error('无效的时间戳');
+                
+                // 格式化输出
+                const formatted = date.format('YYYY年MM月DD日 HH:mm:ss');
+                const relative = date.fromNow ? date.fromNow() : '相对时间功能不可用';
+                
+                resultDiv.innerHTML = `
+                    <div class="inline-result">
+                        <div class="time-display">${formatted}</div>
+                        <div class="relative-time">${relative}</div>
+                    </div>
+                    <button onclick="copyToClipboard('${formatted.replace(/'/g, "\\'")}')" style="margin-top: 8px; padding: 6px 12px; font-size: 0.85rem; width: 100%;">复制结果</button>
+                `;
+                
+                saveHistory(input, formatted);
+            } catch (e) {
+                showError(e.message);
+            }
+        }
+
+        // 时间差计算
+        function calcDiff() {
+            const startInput = document.getElementById('start-datetime').value;
+            const endInput = document.getElementById('end-datetime').value;
+            const diffDiv = document.getElementById('diff-result');
+            diffDiv.innerHTML = '';
+
+            if (!startInput || !endInput) {
+                showErrorIn(diffDiv, '请选择起始和结束时间');
+                return;
+            }
+
+            try {
+                const startDate = dayjs(startInput);
+                const endDate = dayjs(endInput);
+                
+                if (!startDate.isValid() || !endDate.isValid()) {
+                    throw new Error('无效的日期时间');
+                }
+
+                const diffMs = endDate.diff(startDate);
+                const diffSec = Math.abs(diffMs / 1000);
+                const days = Math.floor(diffSec / 86400);
+                const hours = Math.floor((diffSec % 86400) / 3600);
+                const minutes = Math.floor((diffSec % 3600) / 60);
+                const seconds = Math.floor(diffSec % 60);
+                
+                const direction = diffMs >= 0 ? '之后' : '之前';
+                diffDiv.innerHTML = `
+                    <div>时间差: ${days}天 ${hours}小时 ${minutes}分钟 ${seconds}秒</div>
+                    <div style="color: #888; font-size: 0.85rem;">结束时间在开始时间${direction}</div>
+                `;
+            } catch (e) {
+                showErrorIn(diffDiv, e.message);
+            }
+        }
+
+        // 时间戳生成器
+        function generateTimestamp() {
+            const dt = document.getElementById('datetime-picker').value;
+            const genDiv = document.getElementById('gen-result');
+            genDiv.innerHTML = '';
+
+            if (!dt) {
+                showErrorIn(genDiv, '请选择日期时间');
+                return;
+            }
+
+            try {
+                const date = dayjs(dt);
+                const unixTs = date.unix();
+                const msTs = date.valueOf();
+                
+                genDiv.innerHTML = `
+                    <div class="timestamp-display">
+                        <div class="timestamp-item">
+                            <div class="timestamp-label">10位UNIX时间戳</div>
+                            <input type="text" class="timestamp-input" value="${unixTs}" readonly>
+                            <button class="timestamp-copy-btn" onclick="copyGeneratedTimestamp('${unixTs}', '10位UNIX时间戳')">复制10位时间戳</button>
+                        </div>
+                        <div class="timestamp-item">
+                            <div class="timestamp-label">13位毫秒时间戳</div>
+                            <input type="text" class="timestamp-input" value="${msTs}" readonly>
+                            <button class="timestamp-copy-btn" onclick="copyGeneratedTimestamp('${msTs}', '13位毫秒时间戳')">复制13位时间戳</button>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                showErrorIn(genDiv, e.message);
+            }
+        }
+
+        // 复制生成的时间戳
+        function copyGeneratedTimestamp(text, type) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制' + type + ': ' + text, 'success');
+            }).catch(err => {
+                console.error('复制失败: ', err);
+                showToast('复制失败，请手动选择文本复制', 'error');
+            });
+        }
+
+        // 历史记录功能
+        function saveHistory(timestamp, result) {
+            let history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+            const newEntry = {
+                timestamp: timestamp,
+                result: result,
+                time: new Date().toISOString()
+            };
+            
+            history = [newEntry, ...history].slice(0, MAX_HISTORY);
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        }
+
+        function showHistory() {
+            const container = document.getElementById('history-container');
+            const history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div style="color: #888; text-align: center;">暂无历史记录</div>';
+                return;
+            }
+            
+            container.innerHTML = history.map((entry, index) => `
+                <div>
+                    <strong>${index + 1}.</strong> 
+                    ${entry.timestamp} → ${entry.result}
+                    <span style="color: #888; font-size: 0.8rem;">(${formatHistoryTime(entry.time)})</span>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            localStorage.removeItem(HISTORY_KEY);
+            document.getElementById('history-container').innerHTML = 
+                '<div style="color: #888; text-align: center;">历史记录已清空</div>';
+        }
+
+        // 格式化历史记录时间
+        function formatHistoryTime(isoString) {
+            try {
+                return dayjs(isoString).format('MM-DD HH:mm');
+            } catch (e) {
+                // 如果dayjs不可用，使用原生Date
+                const date = new Date(isoString);
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${month}-${day} ${hours}:${minutes}`;
+            }
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制到剪贴板: ' + text, 'success');
+            }).catch(err => {
+                console.error('复制失败: ', err);
+                showToast('复制失败，请手动选择文本复制', 'error');
+            });
+        }
+
+        // 错误处理
+        function showError(message) {
+            showErrorIn(document.getElementById('result'), message);
+        }
+
+        function showErrorIn(container, message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            container.appendChild(errorDiv);
+        }
+
+        // 事件监听
+        document.getElementById('timestamp-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') convertTimestamp();
+        });
+
+        // 初始化显示当前时间
+        setDefaultTimes();
+    </script>
+</body>
+</html>
