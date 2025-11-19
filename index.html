@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>简易首页</title>
     <style>
+        /* ===== CSS变量定义 ===== */
         :root {
+            /* 科技感主色调 */
             --color-primary: #7c9cff;
             --color-bg-main: #0f121c;
             --color-text-main: #e6e6f0;
             --color-text-secondary: #a3b1f0;
             --color-border: rgba(255, 255, 255, 0.08);
             
+            /* 尺寸变量 */
             --size-container-max-width: 320px;
             --size-button-padding: 14px 10px;
             --size-button-radius: 12px;
@@ -20,18 +23,21 @@
             --size-font-title: 1.6rem;
         }
         
+        /* ===== 基础样式重置 ===== */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
         
+        /* ===== 页面主体样式 ===== */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             max-width: 100%;
             margin: 0 auto;
             padding: var(--size-spacing-unit);
             line-height: 1.55;
+            /* 渐变背景与径向渐变叠加 */
             background: 
                 radial-gradient(circle at 10% 20%, rgba(28, 58, 103, 0.7) 0%, transparent 30%),
                 radial-gradient(circle at 90% 80%, rgba(103, 28, 90, 0.7) 0%, transparent 30%),
@@ -47,6 +53,7 @@
             overflow: hidden;
         }
         
+        /* ===== 背景动画元素 ===== */
         .bg-element {
             position: absolute;
             border-radius: 50%;
@@ -56,6 +63,7 @@
             animation: float 20s infinite linear;
         }
         
+        /* 背景元素1 - 蓝色光斑 */
         .bg-element:nth-child(1) {
             width: 300px;
             height: 300px;
@@ -65,6 +73,7 @@
             animation-delay: 0s;
         }
         
+        /* 背景元素2 - 青色光斑 */
         .bg-element:nth-child(2) {
             width: 250px;
             height: 250px;
@@ -75,6 +84,7 @@
             animation-direction: reverse;
         }
         
+        /* 背景元素3 - 紫色光斑 */
         .bg-element:nth-child(3) {
             width: 350px;
             height: 350px;
@@ -84,6 +94,7 @@
             animation-delay: -10s;
         }
         
+        /* 背景元素4 - 红色光斑 */
         .bg-element:nth-child(4) {
             width: 200px;
             height: 200px;
@@ -94,6 +105,7 @@
             animation-direction: reverse;
         }
         
+        /* 背景元素浮动动画 */
         @keyframes float {
             0% {
                 transform: translate(0, 0) rotate(0deg);
@@ -109,6 +121,7 @@
             }
         }
         
+        /* ===== 标题样式 ===== */
         h1 {
             color: var(--color-primary);
             text-align: center;
@@ -121,6 +134,7 @@
             padding-bottom: 8px;
         }
         
+        /* 标题下方装饰线 */
         h1:after {
             content: '';
             position: absolute;
@@ -133,6 +147,7 @@
             border-radius: 3px;
         }
         
+        /* ===== 链接容器样式 ===== */
         .link-container {
             display: flex;
             flex-direction: column;
@@ -141,6 +156,7 @@
             max-width: var(--size-container-max-width);
         }
         
+        /* ===== 按钮样式 ===== */
         .link-container a {
             padding: var(--size-button-padding);
             border: none;
@@ -149,11 +165,13 @@
             text-align: center;
             text-decoration: none;
             font-weight: 500;
+            /* 添加浏览器兼容前缀的过渡效果 */
             -webkit-transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
             -moz-transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
             transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
             font-size: 0.98rem;
             min-height: 52px;
+            /* 多层阴影效果 */
             box-shadow: 
                 0 6px 16px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -163,15 +181,19 @@
             align-items: center;
             justify-content: center;
             white-space: nowrap;
+            /* 毛玻璃效果 */
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             position: relative;
+            /* 半透明背景 */
             background: rgba(30, 30, 46, 0.4);
+            /* 初始变换状态 */
             -webkit-transform: translateY(0) scale(1);
             -moz-transform: translateY(0) scale(1);
             transform: translateY(0) scale(1);
         }
         
+        /* ===== 按钮悬浮效果 ===== */
         .link-container a:hover {
             -webkit-transform: translateY(-6px) scale(1.05);
             -moz-transform: translateY(-6px) scale(1.05);
@@ -182,6 +204,7 @@
             z-index: 2;
         }
         
+        /* ===== 响应式设计 ===== */
         @media (max-width: 480px) {
             body {
                 padding: 14px;
@@ -213,6 +236,7 @@
     </style>
 </head>
 <body>
+    <!-- 背景动画元素 -->
     <div class="bg-element"></div>
     <div class="bg-element"></div>
     <div class="bg-element"></div>
@@ -221,30 +245,42 @@
     <h1>简易首页</h1>
     
     <div class="link-container">
+        <!--
+        ===== 按钮管理说明 =====
+        添加新按钮：复制下方任意<a>标签，在href中指定新路径
+        删除按钮：直接移除对应<a>标签
+        系统会自动适应按钮数量变化
+        -->
         <a href="./expansion/crypto-qr-tool.html" target="_blank" rel="noopener">加密/解密 & 二维码</a>
         <a href="./mm-TrendRadar/index.html" target="_blank" rel="noopener">每日新闻热点追踪</a>
         <a href="./expansion/five.html" target="_blank" rel="noopener">人机对战【五子棋】</a>
         <a href="./expansion/sudoku.html" target="_blank" rel="noopener">单人挑战【数独】</a>
         <a href="./expansion/ts-conv.html" target="_blank" rel="noopener">时间戳转换</a>
+        <!-- 预留位置 - 添加新按钮时取消注释并修改路径 -->
+        <!-- <a href="./path/to/new-tool.html" target="_blank" rel="noopener">新工具名称</a> -->
     </div>
     
     <script>
+        // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有按钮元素
             const buttons = document.querySelectorAll('.link-container a');
             
+            // 科技感配色方案 - 半透明版本
             const techColors = [
-                'rgba(124, 156, 255, 0.25)',
-                'rgba(101, 232, 255, 0.25)',
-                'rgba(171, 102, 255, 0.25)',
-                'rgba(255, 107, 107, 0.25)',
-                'rgba(72, 219, 151, 0.25)',
-                'rgba(255, 171, 92, 0.25)',
-                'rgba(255, 107, 229, 0.25)',
-                'rgba(107, 255, 176, 0.25)',
-                'rgba(255, 245, 107, 0.25)',
-                'rgba(107, 185, 255, 0.25)'
+                'rgba(124, 156, 255, 0.25)',  // 蓝色
+                'rgba(101, 232, 255, 0.25)',  // 青色
+                'rgba(171, 102, 255, 0.25)',  // 紫色
+                'rgba(255, 107, 107, 0.25)',  // 红色
+                'rgba(72, 219, 151, 0.25)',   // 绿色
+                'rgba(255, 171, 92, 0.25)',   // 橙色
+                'rgba(255, 107, 229, 0.25)',  // 粉色
+                'rgba(107, 255, 176, 0.25)',  // 浅绿
+                'rgba(255, 245, 107, 0.25)',  // 黄色
+                'rgba(107, 185, 255, 0.25)'   // 天蓝
             ];
             
+            // 随机打乱数组函数
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -253,19 +289,25 @@
                 return array;
             }
             
+            // 为所有按钮应用随机科技感配色
             const shuffledColors = shuffleArray([...techColors]);
             
             buttons.forEach((button, index) => {
+                // 循环使用颜色数组
                 const colorIndex = index % shuffledColors.length;
                 const baseColor = shuffledColors[colorIndex];
                 
+                // 应用半透明背景
                 button.style.background = baseColor;
                 
+                // 添加悬浮光效
                 button.addEventListener('mouseenter', function() {
+                    // 悬浮时增加透明度
                     this.style.background = baseColor.replace('0.25', '0.4');
                 });
                 
                 button.addEventListener('mouseleave', function() {
+                    // 恢复原始透明度
                     this.style.background = baseColor;
                 });
             });
