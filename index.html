@@ -5,34 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>简易首页</title>
     <style>
-        /* =============
-           1. 全局变量定义
-           ============= */
         :root {
-            /* 主题颜色 */
-            --color-primary: #64b5f6;
-            --color-bg-main: #1e1e2f;
-            --color-text-main: #e0e0e0;
-            --color-text-secondary: #bbdefb;
-            
-            /* 按钮颜色 */
-            --color-btn-1: #4caf50;    /* 绿色系 - 工具类 */
-            --color-btn-2: #2196f3;    /* 蓝色系 - 游戏类 */
-            --color-btn-3: #9c27b0;    /* 紫色系 - 谜题类 */
-            --color-btn-4: #ff9800;    /* 橙色系 - 工具类 */
+            /* 科技感主色调 */
+            --color-primary: #7c9cff;
+            --color-bg-main: #0f121c;
+            --color-text-main: #e6e6f0;
+            --color-text-secondary: #a3b1f0;
+            --color-border: rgba(255, 255, 255, 0.08);
             
             /* 尺寸变量 */
-            --size-container-max-width: 280px;
-            --size-button-padding: 12px 8px;
-            --size-button-radius: 6px;
-            --size-spacing-unit: 12px;
-            --size-title-margin-bottom: 10px;
-            --size-font-title: 1.4rem;
+            --size-container-max-width: 320px;
+            --size-button-padding: 14px 10px;
+            --size-button-radius: 12px;
+            --size-spacing-unit: 16px;
+            --size-title-margin-bottom: 20px;
+            --size-font-title: 1.6rem;
         }
         
-        /* =============
-           2. 基础样式
-           ============= */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -40,34 +29,113 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             max-width: 100%;
             margin: 0 auto;
             padding: var(--size-spacing-unit);
-            line-height: 1.4;
-            background-color: var(--color-bg-main);
+            line-height: 1.55;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(28, 58, 103, 0.7) 0%, transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(103, 28, 90, 0.7) 0%, transparent 30%),
+                radial-gradient(circle at 50% 50%, rgba(28, 103, 76, 0.5) 0%, transparent 40%),
+                linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
             color: var(--color-text-main);
-            min-height: 80vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
         
-        /* =============
-           3. 标题样式
-           ============= */
+        /* 背景动画元素 */
+        .bg-element {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: -1;
+            opacity: 0.7;
+            animation: float 20s infinite linear;
+        }
+        
+        .bg-element:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            background: rgba(124, 156, 255, 0.15);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .bg-element:nth-child(2) {
+            width: 250px;
+            height: 250px;
+            background: rgba(101, 232, 255, 0.1);
+            top: 70%;
+            left: 80%;
+            animation-delay: -5s;
+            animation-direction: reverse;
+        }
+        
+        .bg-element:nth-child(3) {
+            width: 350px;
+            height: 350px;
+            background: rgba(171, 102, 255, 0.1);
+            top: 40%;
+            left: 70%;
+            animation-delay: -10s;
+        }
+        
+        .bg-element:nth-child(4) {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 107, 107, 0.1);
+            top: 80%;
+            left: 20%;
+            animation-delay: -15s;
+            animation-direction: reverse;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+                transform: translate(30px, -50px) rotate(120deg);
+            }
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+        
         h1 {
             color: var(--color-primary);
             text-align: center;
             margin-bottom: var(--size-title-margin-bottom);
             font-size: var(--size-font-title);
-            font-weight: 600;
+            font-weight: 700;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            letter-spacing: -0.5px;
+            position: relative;
+            padding-bottom: 8px;
         }
         
-        /* =============
-           4. 链接容器样式
-           ============= */
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--color-primary), transparent);
+            border-radius: 3px;
+        }
+        
         .link-container {
             display: flex;
             flex-direction: column;
@@ -76,9 +144,6 @@
             max-width: var(--size-container-max-width);
         }
         
-        /* =============
-           5. 链接按钮样式
-           ============= */
         .link-container a {
             padding: var(--size-button-padding);
             border: none;
@@ -87,67 +152,71 @@
             text-align: center;
             text-decoration: none;
             font-weight: 500;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
-            min-height: 46px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+            font-size: 0.98rem;
+            min-height: 52px;
+            box-shadow: 
+                0 6px 16px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             overflow: hidden;
             text-overflow: ellipsis;
             display: flex;
             align-items: center;
             justify-content: center;
             white-space: nowrap;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            position: relative;
+            background: rgba(30, 30, 46, 0.4);
         }
         
-        /* 悬停效果 */
+        /* 半透明按钮悬浮效果 */
         .link-container a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+            transform: translateY(-6px) scale(1.05);
+            box-shadow: 
+                0 12px 30px rgba(124, 156, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            z-index: 2;
         }
         
-        /* =============
-           6. 功能特定按钮样式
-           ============= */
-        .link-container a:nth-child(1) {
-            background-color: var(--color-btn-1);
-        }
-        
-        .link-container a:nth-child(2) {
-            background-color: var(--color-btn-2);
-        }
-        
-        .link-container a:nth-child(3) {
-            background-color: var(--color-btn-3);
-        }
-        
-        .link-container a:nth-child(4) {
-            background-color: var(--color-btn-4);
-        }
-        
-        /* =============
-           7. 响应式设计 - 真正解决手机端问题
-           ============= */
+        /* 响应式设计 */
         @media (max-width: 480px) {
-            /* 简单地减小字体大小，而不是添加两行显示 */
-            .link-container a {
-                font-size: 0.88rem;
-                padding: 10px 6px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+            body {
+                padding: 14px;
             }
             
-            /* 对于特别小的屏幕，进一步简化 */
+            h1 {
+                font-size: 1.45rem;
+                margin-bottom: 18px;
+            }
+            
+            .link-container a {
+                font-size: 0.92rem;
+                padding: 12px 8px;
+                min-height: 50px;
+            }
+            
             @media (max-width: 360px) {
+                h1 {
+                    font-size: 1.35rem;
+                }
+                
                 .link-container a {
-                    font-size: 0.82rem;
-                    padding: 9px 5px;
+                    font-size: 0.86rem;
+                    padding: 11px 6px;
+                    min-height: 48px;
                 }
             }
         }
     </style>
 </head>
 <body>
+    <!-- 背景动画元素 -->
+    <div class="bg-element"></div>
+    <div class="bg-element"></div>
+    <div class="bg-element"></div>
+    <div class="bg-element"></div>
+    
     <h1>简易首页</h1>
     
     <div class="link-container">
@@ -156,6 +225,58 @@
         <a href="./expansion/five.html" target="_blank" rel="noopener">人机对战【五子棋】</a>
         <a href="./expansion/sudoku.html" target="_blank" rel="noopener">单人挑战【数独】</a>
         <a href="./expansion/ts-conv.html" target="_blank" rel="noopener">时间戳转换</a>
+        <!-- 预留位置 - 添加新按钮时取消注释并修改路径 -->
+        <!-- <a href="./path/to/new-tool.html" target="_blank" rel="noopener">新工具名称</a> -->
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.link-container a');
+            
+            // 扩展的科技感配色方案 - 半透明版本
+            const techColors = [
+                'rgba(124, 156, 255, 0.25)',
+                'rgba(101, 232, 255, 0.25)',
+                'rgba(171, 102, 255, 0.25)',
+                'rgba(255, 107, 107, 0.25)',
+                'rgba(72, 219, 151, 0.25)',
+                'rgba(255, 171, 92, 0.25)',
+                'rgba(255, 107, 229, 0.25)',
+                'rgba(107, 255, 176, 0.25)',
+                'rgba(255, 245, 107, 0.25)',
+                'rgba(107, 185, 255, 0.25)'
+            ];
+            
+            // 随机打乱颜色数组
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+            
+            // 为所有按钮应用随机科技感配色
+            const shuffledColors = shuffleArray([...techColors]);
+            
+            buttons.forEach((button, index) => {
+                const colorIndex = index % shuffledColors.length;
+                const baseColor = shuffledColors[colorIndex];
+                
+                // 应用半透明背景
+                button.style.background = baseColor;
+                
+                // 添加悬浮光效
+                button.addEventListener('mouseenter', function() {
+                    // 悬浮时增加透明度
+                    this.style.background = baseColor.replace('0.25', '0.4');
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.background = baseColor;
+                });
+            });
+        });
+    </script>
 </body>
 </html>
