@@ -6,14 +6,12 @@
     <title>简易首页</title>
     <style>
         :root {
-            /* 科技感主色调 */
             --color-primary: #7c9cff;
             --color-bg-main: #0f121c;
             --color-text-main: #e6e6f0;
             --color-text-secondary: #a3b1f0;
             --color-border: rgba(255, 255, 255, 0.08);
             
-            /* 尺寸变量 */
             --size-container-max-width: 320px;
             --size-button-padding: 14px 10px;
             --size-button-radius: 12px;
@@ -49,7 +47,6 @@
             overflow: hidden;
         }
         
-        /* 背景动画元素 */
         .bg-element {
             position: absolute;
             border-radius: 50%;
@@ -152,6 +149,8 @@
             text-align: center;
             text-decoration: none;
             font-weight: 500;
+            -webkit-transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+            -moz-transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
             transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
             font-size: 0.98rem;
             min-height: 52px;
@@ -168,10 +167,14 @@
             -webkit-backdrop-filter: blur(12px);
             position: relative;
             background: rgba(30, 30, 46, 0.4);
+            -webkit-transform: translateY(0) scale(1);
+            -moz-transform: translateY(0) scale(1);
+            transform: translateY(0) scale(1);
         }
         
-        /* 半透明按钮悬浮效果 */
         .link-container a:hover {
+            -webkit-transform: translateY(-6px) scale(1.05);
+            -moz-transform: translateY(-6px) scale(1.05);
             transform: translateY(-6px) scale(1.05);
             box-shadow: 
                 0 12px 30px rgba(124, 156, 255, 0.3),
@@ -179,7 +182,6 @@
             z-index: 2;
         }
         
-        /* 响应式设计 */
         @media (max-width: 480px) {
             body {
                 padding: 14px;
@@ -211,7 +213,6 @@
     </style>
 </head>
 <body>
-    <!-- 背景动画元素 -->
     <div class="bg-element"></div>
     <div class="bg-element"></div>
     <div class="bg-element"></div>
@@ -225,15 +226,12 @@
         <a href="./expansion/five.html" target="_blank" rel="noopener">人机对战【五子棋】</a>
         <a href="./expansion/sudoku.html" target="_blank" rel="noopener">单人挑战【数独】</a>
         <a href="./expansion/ts-conv.html" target="_blank" rel="noopener">时间戳转换</a>
-        <!-- 预留位置 - 添加新按钮时取消注释并修改路径 -->
-        <!-- <a href="./path/to/new-tool.html" target="_blank" rel="noopener">新工具名称</a> -->
     </div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.link-container a');
             
-            // 扩展的科技感配色方案 - 半透明版本
             const techColors = [
                 'rgba(124, 156, 255, 0.25)',
                 'rgba(101, 232, 255, 0.25)',
@@ -247,7 +245,6 @@
                 'rgba(107, 185, 255, 0.25)'
             ];
             
-            // 随机打乱颜色数组
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -256,19 +253,15 @@
                 return array;
             }
             
-            // 为所有按钮应用随机科技感配色
             const shuffledColors = shuffleArray([...techColors]);
             
             buttons.forEach((button, index) => {
                 const colorIndex = index % shuffledColors.length;
                 const baseColor = shuffledColors[colorIndex];
                 
-                // 应用半透明背景
                 button.style.background = baseColor;
                 
-                // 添加悬浮光效
                 button.addEventListener('mouseenter', function() {
-                    // 悬浮时增加透明度
                     this.style.background = baseColor.replace('0.25', '0.4');
                 });
                 
