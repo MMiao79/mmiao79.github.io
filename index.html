@@ -14,13 +14,13 @@
             --color-text-secondary: #a3b1f0;
             --color-border: rgba(255, 255, 255, 0.08);
             
-            /* 尺寸变量 */
-            --size-container-max-width: 320px;
-            --size-button-padding: 14px 10px;
-            --size-button-radius: 12px;
-            --size-spacing-unit: 16px;
-            --size-title-margin-bottom: 20px;
-            --size-font-title: 1.6rem;
+            /* 尺寸变量 - 缩小了整体尺寸 */
+            --size-container-max-width: 300px;
+            --size-button-padding: 12px 8px;
+            --size-button-radius: 10px;
+            --size-spacing-unit: 12px;
+            --size-title-margin-bottom: 16px;
+            --size-font-title: 1.4rem;
         }
         
         /* ===== 基础样式重置 ===== */
@@ -33,6 +33,7 @@
         
         html, body {
             width: 100%;
+            height: 100%;
             max-width: 100%;
             overflow-x: hidden; /* 防止水平滚动 */
             position: relative;
@@ -42,8 +43,8 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             margin: 0 auto;
-            padding: var(--size-spacing-unit);
-            line-height: 1.55;
+            padding: 12px;
+            line-height: 1.5;
             /* 渐变背景与径向渐变叠加 */
             background: 
                 radial-gradient(circle at 10% 20%, rgba(28, 58, 103, 0.7) 0%, transparent 30%),
@@ -55,8 +56,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start; /* 改为顶部对齐 */
             position: relative;
+            overflow-y: auto; /* 允许垂直滚动，但正常情况下不会触发 */
         }
         
         /* ===== 内容容器 ===== */
@@ -68,11 +70,13 @@
             align-items: center;
             position: relative;
             z-index: 1;
+            margin-top: 20px; /* 添加顶部间距 */
+            padding-bottom: 20px; /* 添加底部间距 */
         }
         
         /* ===== 背景动画元素 ===== */
         .bg-element {
-            position: absolute;
+            position: fixed; /* 改为fixed，避免影响布局 */
             border-radius: 50%;
             filter: blur(40px);
             z-index: 0;
@@ -82,8 +86,8 @@
         
         /* 背景元素1 - 蓝色光斑 */
         .bg-element:nth-child(1) {
-            width: 300px;
-            height: 300px;
+            width: 200px;
+            height: 200px;
             background: rgba(124, 156, 255, 0.15);
             top: 10%;
             left: 10%;
@@ -92,8 +96,8 @@
         
         /* 背景元素2 - 青色光斑 */
         .bg-element:nth-child(2) {
-            width: 250px;
-            height: 250px;
+            width: 180px;
+            height: 180px;
             background: rgba(101, 232, 255, 0.1);
             top: 70%;
             left: 80%;
@@ -103,8 +107,8 @@
         
         /* 背景元素3 - 紫色光斑 */
         .bg-element:nth-child(3) {
-            width: 350px;
-            height: 350px;
+            width: 220px;
+            height: 220px;
             background: rgba(171, 102, 255, 0.1);
             top: 40%;
             left: 70%;
@@ -113,8 +117,8 @@
         
         /* 背景元素4 - 红色光斑 */
         .bg-element:nth-child(4) {
-            width: 200px;
-            height: 200px;
+            width: 150px;
+            height: 150px;
             background: rgba(255, 107, 107, 0.1);
             top: 80%;
             left: 20%;
@@ -148,7 +152,7 @@
             text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
             letter-spacing: -0.5px;
             position: relative;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
             width: 100%;
         }
         
@@ -159,10 +163,10 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
+            width: 50px;
+            height: 2px;
             background: linear-gradient(to right, transparent, var(--color-primary), transparent);
-            border-radius: 3px;
+            border-radius: 2px;
         }
         
         /* ===== 链接容器样式 ===== */
@@ -186,11 +190,11 @@
             -webkit-transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
             -moz-transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
             transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
-            font-size: 0.98rem;
-            min-height: 52px;
+            font-size: 0.9rem;
+            min-height: 46px;
             /* 多层阴影效果 */
             box-shadow: 
-                0 6px 16px rgba(0, 0, 0, 0.3),
+                0 4px 12px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
             overflow: hidden;
             text-overflow: ellipsis;
@@ -213,11 +217,11 @@
         /* ===== 按钮悬浮效果 ===== */
         .link-container a:hover,
         .link-container a:active { /* 添加移动端点击效果 */
-            -webkit-transform: translateY(-6px) scale(1.05);
-            -moz-transform: translateY(-6px) scale(1.05);
-            transform: translateY(-6px) scale(1.05);
+            -webkit-transform: translateY(-4px) scale(1.03);
+            -moz-transform: translateY(-4px) scale(1.03);
+            transform: translateY(-4px) scale(1.03);
             box-shadow: 
-                0 12px 30px rgba(124, 156, 255, 0.3),
+                0 8px 20px rgba(124, 156, 255, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
             z-index: 2;
         }
@@ -225,65 +229,90 @@
         /* ===== 响应式设计 ===== */
         @media (max-width: 480px) {
             body {
-                padding: 14px;
+                padding: 10px;
+                justify-content: flex-start;
+            }
+            
+            .content-wrapper {
+                margin-top: 15px;
             }
             
             h1 {
-                font-size: 1.45rem;
-                margin-bottom: 18px;
+                font-size: 1.3rem;
+                margin-bottom: 14px;
             }
             
             .link-container {
-                gap: 14px;
+                gap: 10px;
             }
             
             .link-container a {
-                font-size: 0.92rem;
-                padding: 12px 8px;
-                min-height: 50px;
+                font-size: 0.85rem;
+                padding: 10px 6px;
+                min-height: 42px;
             }
             
-            /* 调整背景元素大小 */
+            /* 进一步缩小背景元素 */
             .bg-element:nth-child(1) {
-                width: 200px;
-                height: 200px;
+                width: 150px;
+                height: 150px;
             }
             
             .bg-element:nth-child(2) {
-                width: 180px;
-                height: 180px;
+                width: 130px;
+                height: 130px;
             }
             
             .bg-element:nth-child(3) {
-                width: 220px;
-                height: 220px;
+                width: 170px;
+                height: 170px;
             }
             
             .bg-element:nth-child(4) {
-                width: 150px;
-                height: 150px;
+                width: 120px;
+                height: 120px;
             }
         }
         
         @media (max-width: 360px) {
             h1 {
-                font-size: 1.35rem;
+                font-size: 1.2rem;
             }
             
             .link-container a {
-                font-size: 0.86rem;
-                padding: 11px 6px;
-                min-height: 48px;
+                font-size: 0.8rem;
+                padding: 9px 5px;
+                min-height: 40px;
             }
         }
         
         /* 安全区域适配 - 针对有刘海的手机 */
         @supports(padding: max(0px)) {
             body {
-                padding-left: max(14px, env(safe-area-inset-left));
-                padding-right: max(14px, env(safe-area-inset-right));
-                padding-top: max(14px, env(safe-area-inset-top));
-                padding-bottom: max(14px, env(safe-area-inset-bottom));
+                padding-left: max(10px, env(safe-area-inset-left));
+                padding-right: max(10px, env(safe-area-inset-right));
+                padding-top: max(10px, env(safe-area-inset-top));
+                padding-bottom: max(10px, env(safe-area-inset-bottom));
+            }
+        }
+        
+        /* 针对非常小的屏幕高度 */
+        @media (max-height: 600px) {
+            .content-wrapper {
+                margin-top: 10px;
+            }
+            
+            h1 {
+                margin-bottom: 10px;
+            }
+            
+            .link-container {
+                gap: 8px;
+            }
+            
+            .link-container a {
+                min-height: 40px;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -382,6 +411,25 @@
                     e.preventDefault();
                 }
             }, { passive: false });
+            
+            // 确保页面高度适应内容
+            function adjustLayout() {
+                const contentHeight = document.querySelector('.content-wrapper').offsetHeight;
+                const windowHeight = window.innerHeight;
+                
+                // 如果内容高度小于窗口高度，调整垂直居中
+                if (contentHeight < windowHeight) {
+                    document.body.style.justifyContent = "center";
+                } else {
+                    document.body.style.justifyContent = "flex-start";
+                }
+            }
+            
+            // 初始调整
+            adjustLayout();
+            
+            // 窗口大小变化时调整
+            window.addEventListener('resize', adjustLayout);
         });
     </script>
 </body>
