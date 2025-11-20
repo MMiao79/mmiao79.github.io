@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>加密/解密 & 二维码工具</title>
     <style>
         /* =============
@@ -24,6 +24,7 @@
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 100%; /* 防止任何元素超出容器 */
         }
         body {
             max-width: 100%;
@@ -35,6 +36,10 @@
             min-height: 100vh;
             font-size: 1rem;
             scroll-behavior: smooth;
+            /* 添加修复 */
+            overflow-x: hidden; /* 防止水平滚动 */
+            width: 100%; /* 确保宽度为100% */
+            position: relative; /* 创建新的定位上下文 */
         }
         h1 {
             color: var(--primary-color);
@@ -52,6 +57,9 @@
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
+            /* 添加修复 */
+            overflow: hidden; /* 防止内容溢出 */
+            box-sizing: border-box; /* 确保padding和border包含在宽度内 */
         }
         .disclaimer-container {
             background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
@@ -159,6 +167,8 @@
             width: 100%;
             font-size: 0.95rem;
             height: var(--element-height);
+            max-width: 100%; /* 防止溢出 */
+            box-sizing: border-box;
         }
         .text-area-base {
             min-height: 50px;
@@ -399,6 +409,8 @@
             gap: calc(var(--gap-size) * 1.5);
             margin-top: calc(var(--gap-size) * 2);
             width: 100%;
+            max-width: 100%; /* 防止溢出 */
+            overflow: hidden;
         }
         .qr-row > div {
             display: flex;
@@ -423,6 +435,8 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            max-width: 100%; /* 防止溢出 */
+            box-sizing: border-box;
         }
         #qrDropArea.has-canvas {
             cursor: pointer;
@@ -1415,14 +1429,8 @@
                             }
                         }
                     }
-                    textArea.value = extractedContent; // 将提取的内容放入原文输入框
-                    updateCharCounter();
                     keyInput.value = ''; // 清空密钥
                     updateKeyInputStyle();
-                    resultArea.value = ''; // 清空结果框
-                    updateResultCounter();
-                    updateButtonStates();
-                    resetQrDropArea();
                     // 根据内容类型给出相应提示
                     if (isLikelyCiphertext(extractedContent)) {
                         showToast('✅ 已提取密文并填充到输入区域，请输入密钥解密');
@@ -1431,6 +1439,10 @@
                         showToast('✅ 已提取原文内容并填充到输入区域，可继续编辑');
                         textArea.focus(); // 原文时焦点定位到原文输入框
                     }
+                    textArea.value = extractedContent; // 将提取的内容放入原文输入框
+                    resultArea.value = ''; // 清空结果框
+                    updateCharCounter();
+                    updateResultCounter();
                     updateButtonStates();
                     resetQrDropArea();
                 } else {
@@ -1570,6 +1582,9 @@
                 agreeBtn.addEventListener('click', function() {
                     sessionStorage.setItem('encryptionToolAgreed', 'true');
                     termsModal.style.display = 'none';
+                    
+                    // 重置滚动位置
+                    window.scrollTo(0, 0);
                 });
                 
                 // 第三步：初始化页面UI
@@ -1581,7 +1596,13 @@
                 checkUrlParamsAndAutoFill();
                 checkResourceAvailability();
                 
-                // 第四步：设置所有事件监听器
+                // 第四步：添加滚动重置
+                window.scrollTo(0, 0);
+                window.addEventListener('beforeunload', function() {
+                    window.scrollTo(0, 0);
+                });
+                
+                // 第五步：设置所有事件监听器
                 // 文本输入区域事件
                 textArea.addEventListener('input', function() {
                     updateCharCounter();
