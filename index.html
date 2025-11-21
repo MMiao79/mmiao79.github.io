@@ -140,27 +140,30 @@
         /* ===== 按钮样式 ===== */
         .link-container a {
             padding: var(--size-button-padding);
-            border: none;       /* 确保无边框 */
-            outline: none;      /* 防聚焦边框 */
+            border: 1px solid rgba(255, 255, 255, 0.15); /* 稍微降低边框透明度 */
+            outline: none;
             border-radius: var(--size-button-radius);
             color: white;
             text-align: center;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* 平滑过渡 */
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             font-size: 0.95rem;
             min-height: 50px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22); /* 外阴影，移除 inset 内阴影 */
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.25),
+                0 0 10px rgba(100, 180, 255, 0.1); /* 降低外发光强度 */
             overflow: hidden;
             text-overflow: ellipsis;
             display: flex;
             align-items: center;
             justify-content: center;
             white-space: nowrap;
-            backdrop-filter: blur(8px) saturate(120%);
-            -webkit-backdrop-filter: blur(8px) saturate(120%);
+            /* 增强模糊效果，降低饱和度以突出通透感 */
+            backdrop-filter: blur(12px) saturate(120%);
+            -webkit-backdrop-filter: blur(12px) saturate(120%);
             position: relative;
-            background: rgba(110, 190, 255, 0.28); /* fallback 色 */
+            background: rgba(110, 190, 255, 0.2); /* 降低 fallback 色的透明度 */
             transform: translateY(0) scale(1);
         }
         
@@ -169,22 +172,25 @@
         .link-container a:focus {
             transform: translateY(-5px) scale(1.04);
             box-shadow: 
-                0 10px 30px rgba(100, 180, 255, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.15);
-            outline: 1px solid rgba(255, 255, 255, 0.5); /* 边缘发光，非边框 */
-            backdrop-filter: blur(10px) saturate(140%) brightness(1.5);
-            -webkit-backdrop-filter: blur(10px) saturate(140%) brightness(1.5);
+                0 12px 35px rgba(0, 0, 0, 0.2),
+                0 0 20px rgba(100, 180, 255, 0.3); /* 增强悬浮时的外发光 */
+            outline: 1px solid rgba(255, 255, 255, 0.6);
+            /* 进一步增强模糊和饱和度，提高亮度 */
+            backdrop-filter: blur(15px) saturate(140%) brightness(1.1);
+            -webkit-backdrop-filter: blur(15px) saturate(140%) brightness(1.1);
             z-index: 2;
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         .link-container a:active {
-            transform: translateY(-5px) scale(1.5);
+            transform: translateY(-2px) scale(1.02);
             box-shadow: 
-                0 10px 35px rgba(100, 180, 255, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.15);
-            outline: 1px solid rgba(0, 255, 255, 0.5);
-            backdrop-filter: blur(10px) saturate(140%) brightness(1.5);
-            -webkit-backdrop-filter: blur(10px) saturate(140%) brightness(1.5);
+                0 6px 20px rgba(0, 0, 0, 0.3),
+                0 0 25px rgba(0, 255, 255, 0.4);
+            outline: 1px solid rgba(0, 255, 255, 0.7);
+            backdrop-filter: blur(15px) saturate(140%) brightness(1.2);
+            -webkit-backdrop-filter: blur(15px) saturate(140%) brightness(1.2);
+            border-color: rgba(0, 255, 255, 0.5);
         }
         
         /* ===== 响应式设计 ===== */
@@ -270,7 +276,6 @@
             const bgLuminance = relativeLuminance(0x0b, 0x11, 0x20);
 
             // HSL 转 RGB
-            // @description 将 HSL 颜色值转换为 [R,G,B] 数组，用于后续 RGBA 构造
             function hslToRgb(h, s, l) {
                 h /= 360; s /= 100; l /= 100;
                 let r, g, b;
@@ -295,7 +300,6 @@
             }
 
             // 计算相对亮度（WCAG 标准）
-            // @description 根据 WCAG 2.0 标准计算颜色相对亮度，用于对比度判断
             function relativeLuminance(r, g, b) {
                 const rs = r / 255, gs = g / 255, bs = b / 255;
                 const R = rs <= 0.03928 ? rs / 12.92 : Math.pow((rs + 0.055) / 1.055, 2.4);
@@ -305,54 +309,56 @@
             }
 
             // 生成 rgba 字符串
-            // @description 快速构造 rgba() 字符串，用于设置 background
             function rgbaStr(r, g, b, a) {
                 return `rgba(${r}, ${g}, ${b}, ${a})`;
             }
 
-            // 定义可用色彩调色板（替代原 safeHueRanges）
-            // @description 分类命名色系，便于后期扩展或调整偏好
+            // 定义可用色彩调色板
             const COLOR_PALETTES = [
-                { name: 'blue-to-violet',   range: [200, 280] },   // 蓝 → 紫罗兰
-                { name: 'soft-pink',        range: [330, 360] },   // 柔粉 / 珊瑚粉
-                { name: 'warm-pink',        range: [0, 10] },      // 极少量暖粉
-                { name: 'mint-green',       range: [45, 75] },     // 薄荷绿 / 青柠黄
-                { name: 'magenta-to-purple', range: [285, 315] }   // 品红 → 紫粉
+                { name: 'vibrant-blue',     range: [190, 230] },
+                { name: 'bright-cyan',      range: [170, 185] },
+                { name: 'electric-purple',  range: [260, 290] },
+                { name: 'hot-pink',         range: [340, 355] },
+                { name: 'coral',            range: [0, 20] },
+                { name: 'lime-green',       range: [70, 85] },
+                { name: 'sunshine-yellow',  range: [45, 60] },
+                { name: 'teal',             range: [150, 165] }
             ];
 
-            // 生成一个明亮、鲜艳、不刺眼的颜色
-            // @description 在指定色域内生成高饱和、高明度但不刺眼的颜色，并确保与背景和相邻按钮有足够区分
+            // 生成一个明亮、鲜艳、与背景对比度高的颜色
             function generateVibrantColor(excludeRGBs = []) {
                 let color;
                 let attempts = 0;
 
-                while (!color && attempts < 40) {
+                while (!color && attempts < 50) {
                     const palette = COLOR_PALETTES[Math.floor(Math.random() * COLOR_PALETTES.length)];
-                    const [min, max] = palette.range;
-                    const hue = Math.floor(Math.random() * (max - min) + min);
-                    const saturation = Math.floor(Math.random() * 20 + 80); // 80~100%
+                    const [minHue, maxHue] = palette.range;
+                    const hue = Math.floor(Math.random() * (maxHue - minHue) + minHue);
+                    const saturation = Math.floor(Math.random() * 25 + 75); // 75~100%
                     const lightness = Math.floor(Math.random() * 20 + 70); // 70~90%
 
                     const [r, g, b] = hslToRgb(hue, saturation, lightness);
                     const fgLuminance = relativeLuminance(r, g, b);
-                    const contrast = (fgLuminance + 0.05) / (bgLuminance + 0.05);
+                    const contrast = (Math.max(fgLuminance, bgLuminance) + 0.05) / (Math.min(fgLuminance, bgLuminance) + 0.05);
 
-                    if (contrast > 2.2 && isDistinctEnough([r, g, b], excludeRGBs)) {
-                        color = { r, g, b, alpha: 0.5, alphaHover: 0.65 };
+                    // 保持较高的对比度要求
+                    if (contrast > 4.0 && isDistinctEnough([r, g, b], excludeRGBs)) {
+                        // 降低 alpha 值，从 0.55 降至 0.35，以增强毛玻璃的通透感
+                        // 同时提高 hover 时的 alpha，让颜色变化更明显
+                        color = { r, g, b, alpha: 0.35, alphaHover: 0.55 };
                     }
                     attempts++;
                 }
 
-                // 失败后备方案：使用默认天蓝色
+                // 失败后备方案
                 if (!color) {
-                    const [r, g, b] = hslToRgb(210, 90, 76);
-                    color = { r, g, b, alpha: 0.5, alphaHover: 0.65 };
+                    const [r, g, b] = hslToRgb(175, 95, 75);
+                    color = { r, g, b, alpha: 0.4, alphaHover: 0.6 };
                 }
                 return color;
             }
 
-            // 判断颜色差异是否足够（RGB 欧氏距离 > 75）
-            // @description 防止相邻按钮颜色过于接近，造成视觉混淆
+            // 判断颜色差异是否足够
             function isDistinctEnough(newRGB, existingRGBs) {
                 for (let rgb of existingRGBs) {
                     const d = Math.sqrt(
@@ -360,13 +366,12 @@
                         Math.pow(newRGB[1] - rgb[1], 2) +
                         Math.pow(newRGB[2] - rgb[2], 2)
                     );
-                    if (d < 75) return false;
+                    if (d < 90) return false;
                 }
                 return true;
             }
 
-            // 为所有按钮分配颜色（重点防相邻重复）
-            // @description 主流程：遍历按钮，排除相邻色，生成并应用随机亮色，同时更新背景氛围
+            // 为所有按钮分配颜色
             function assignColors() {
                 const usedRGBs = [];
 
@@ -380,15 +385,28 @@
                     const hover  = rgbaStr(color.r, color.g, color.b, color.alphaHover);
 
                     btn.style.background = normal;
-
-                    const setHover = () => btn.style.background = hover;
-                    const setNormal = () => btn.style.background = normal;
-
-                    btn.addEventListener('mouseenter', setHover);
-                    btn.addEventListener('mouseleave', setNormal);
-                    btn.addEventListener('touchstart', setHover);
-                    btn.addEventListener('touchend', setNormal);
-                    btn.addEventListener('touchcancel', setNormal);
+                    btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.3);
+                    
+                    btn.addEventListener('mouseenter', () => {
+                        btn.style.background = hover;
+                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.6);
+                    });
+                    btn.addEventListener('mouseleave', () => {
+                        btn.style.background = normal;
+                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.3);
+                    });
+                    btn.addEventListener('touchstart', () => {
+                        btn.style.background = hover;
+                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.6);
+                    });
+                    btn.addEventListener('touchend', () => {
+                        btn.style.background = normal;
+                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.3);
+                    });
+                    btn.addEventListener('touchcancel', () => {
+                        btn.style.background = normal;
+                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.3);
+                    });
 
                     usedRGBs.push([color.r, color.g, color.b]);
 
@@ -399,7 +417,7 @@
                             radial-gradient(circle at 85% 75%, rgba(255, 150, 200, 0.14) 0%, transparent 38%),
                             radial-gradient(circle at 50% 45%, rgba(140, 230, 200, 0.12) 0%, transparent 42%),
                             linear-gradient(135deg, #0b1120, #161e33, #0d1428),
-                            radial-gradient(circle at center, rgba(${color.r}, ${color.g}, ${color.b}, 0.14), transparent 45%)
+                            radial-gradient(circle at center, rgba(${color.r}, ${color.g}, ${color.b}, 0.15), transparent 50%)
                         `;
                     }
                 });
