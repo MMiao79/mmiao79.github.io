@@ -7,20 +7,19 @@
     <style>
         /* ===== CSS变量定义 ===== */
         :root {
-            /* 科技感主色调 */
-            --color-primary: #7c9cff;
-            --color-bg-main: #0f121c;
-            --color-text-main: #e6e6f0;
-            --color-text-secondary: #a3b1f0;
-            --color-border: rgba(255, 255, 255, 0.08);
+            /* 背景色调整为更柔和的深空蓝，提升明亮按钮对比度 */
+            --color-bg-main: #0d1422;
+            --color-text-main: #f0f4ff;
+            --color-text-secondary: #bbc7f5;
+            --color-border: rgba(255, 255, 255, 0.1);
             
-            /* 尺寸变量 - 缩小了整体尺寸 */
+            /* 尺寸：适配移动端小屏，按钮更饱满 */
             --size-container-max-width: 300px;
-            --size-button-padding: 12px 8px;
-            --size-button-radius: 10px;
-            --size-spacing-unit: 12px;
-            --size-title-margin-bottom: 16px;
-            --size-font-title: 1.4rem;
+            --size-button-padding: 14px 10px;
+            --size-button-radius: 12px;
+            --size-spacing-unit: 14px;
+            --size-title-margin-bottom: 18px;
+            --size-font-title: 1.5rem;
         }
         
         /* ===== 基础样式重置 ===== */
@@ -28,14 +27,14 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
         
         html, body {
             width: 100%;
             height: 100%;
             max-width: 100%;
-            overflow-x: hidden; /* 防止水平滚动 */
+            overflow-x: hidden;
             position: relative;
         }
         
@@ -43,22 +42,22 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             margin: 0 auto;
-            padding: 12px;
+            padding: 14px;
             line-height: 1.5;
-            /* 渐变背景与径向渐变叠加 */
+            /* 背景：三层柔光径向渐变 + 深空蓝线性底 */
             background: 
-                radial-gradient(circle at 10% 20%, rgba(28, 58, 103, 0.7) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(103, 28, 90, 0.7) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(28, 103, 76, 0.5) 0%, transparent 60%),
-                linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
+                radial-gradient(circle at 20% 30%, rgba(100, 180, 255, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(255, 160, 200, 0.12) 0%, transparent 35%),
+                radial-gradient(circle at 50% 50%, rgba(150, 230, 200, 0.1) 0%, transparent 50%),
+                linear-gradient(140deg, #0c121f, #121a2d, #0c121f);
             color: var(--color-text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* 改为顶部对齐 */
+            justify-content: flex-start;
             position: relative;
-            overflow-y: auto; /* 允许垂直滚动，但正常情况下不会触发 */
+            overflow-y: auto;
         }
         
         /* ===== 内容容器 ===== */
@@ -70,102 +69,77 @@
             align-items: center;
             position: relative;
             z-index: 1;
-            margin-top: 20px; /* 添加顶部间距 */
-            padding-bottom: 20px; /* 添加底部间距 */
+            margin-top: 24px;
+            padding-bottom: 24px;
         }
         
         /* ===== 背景动画元素 ===== */
         .bg-element {
-            position: fixed; /* 改为fixed，避免影响布局 */
+            position: fixed;
             border-radius: 50%;
-            filter: blur(40px);
+            filter: blur(50px);
             z-index: 0;
-            opacity: 0.7;
-            animation: float 20s infinite linear;
+            opacity: 0.6;
+            animation: float 25s infinite ease-in-out;
         }
         
-        /* 背景元素1 - 蓝色光斑 */
         .bg-element:nth-child(1) {
-            width: 200px;
-            height: 200px;
-            background: rgba(124, 156, 255, 0.15);
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-        
-        /* 背景元素2 - 青色光斑 */
-        .bg-element:nth-child(2) {
-            width: 180px;
-            height: 180px;
-            background: rgba(101, 232, 255, 0.1);
-            top: 70%;
-            left: 80%;
-            animation-delay: -5s;
-            animation-direction: reverse;
-        }
-        
-        /* 背景元素3 - 紫色光斑 */
-        .bg-element:nth-child(3) {
             width: 220px;
             height: 220px;
-            background: rgba(171, 102, 255, 0.1);
-            top: 40%;
-            left: 70%;
-            animation-delay: -10s;
+            background: rgba(120, 200, 255, 0.18);
+            top: 15%;
+            left: 12%;
         }
         
-        /* 背景元素4 - 红色光斑 */
-        .bg-element:nth-child(4) {
-            width: 150px;
-            height: 150px;
-            background: rgba(255, 107, 107, 0.1);
-            top: 80%;
-            left: 20%;
-            animation-delay: -15s;
+        .bg-element:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 180, 220, 0.15);
+            top: 75%;
+            left: 85%;
+            animation-delay: -7s;
             animation-direction: reverse;
         }
         
-        /* 背景元素浮动动画 */
+        .bg-element:nth-child(3) {
+            width: 240px;
+            height: 240px;
+            background: rgba(160, 240, 210, 0.14);
+            top: 45%;
+            left: 75%;
+            animation-delay: -12s;
+        }
+        
         @keyframes float {
-            0% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-            33% {
-                transform: translate(30px, -50px) rotate(120deg);
-            }
-            66% {
-                transform: translate(-20px, 20px) rotate(240deg);
-            }
-            100% {
-                transform: translate(0, 0) rotate(360deg);
-            }
+            0% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(20px, -30px) rotate(120deg); }
+            66% { transform: translate(-15px, 15px) rotate(240deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
         }
         
         /* ===== 标题样式 ===== */
         h1 {
-            color: var(--color-primary);
+            color: #a0c0ff;
             text-align: center;
             margin-bottom: var(--size-title-margin-bottom);
             font-size: var(--size-font-title);
-            font-weight: 700;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            font-weight: 800;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             letter-spacing: -0.5px;
             position: relative;
             padding-bottom: 6px;
             width: 100%;
         }
         
-        /* 标题下方装饰线 */
         h1:after {
             content: '';
             position: absolute;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 50px;
-            height: 2px;
-            background: linear-gradient(to right, transparent, var(--color-primary), transparent);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #8abaff, #ffb3d9, #a0f0d0, transparent);
             border-radius: 2px;
         }
         
@@ -185,141 +159,73 @@
             color: white;
             text-align: center;
             text-decoration: none;
-            font-weight: 500;
-            /* 添加浏览器兼容前缀的过渡效果 */
-            -webkit-transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
-            -moz-transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+            font-weight: 600;
             transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
-            font-size: 0.9rem;
-            min-height: 46px;
-            /* 多层阴影效果 */
+            font-size: 0.95rem;
+            min-height: 50px;
             box-shadow: 
-                0 4px 12px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                0 4px 16px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
             overflow: hidden;
             text-overflow: ellipsis;
             display: flex;
             align-items: center;
             justify-content: center;
             white-space: nowrap;
-            /* 毛玻璃效果 */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px) saturate(120%);
+            -webkit-backdrop-filter: blur(16px) saturate(120%);
             position: relative;
-            /* 半透明背景 */
-            background: rgba(30, 30, 46, 0.4);
-            /* 初始变换状态 */
-            -webkit-transform: translateY(0) scale(1);
-            -moz-transform: translateY(0) scale(1);
+            background: rgba(40, 45, 65, 0.35);
             transform: translateY(0) scale(1);
         }
         
         /* ===== 按钮悬浮效果 ===== */
         .link-container a:hover,
-        .link-container a:active { /* 添加移动端点击效果 */
-            -webkit-transform: translateY(-4px) scale(1.03);
-            -moz-transform: translateY(-4px) scale(1.03);
-            transform: translateY(-4px) scale(1.03);
+        .link-container a:active {
+            transform: translateY(-5px) scale(1.04);
             box-shadow: 
-                0 8px 20px rgba(124, 156, 255, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+                0 10px 24px rgba(90, 140, 255, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.35);
             z-index: 2;
         }
         
         /* ===== 响应式设计 ===== */
         @media (max-width: 480px) {
-            body {
-                padding: 10px;
-                justify-content: flex-start;
-            }
-            
-            .content-wrapper {
-                margin-top: 15px;
-            }
-            
-            h1 {
-                font-size: 1.3rem;
-                margin-bottom: 14px;
-            }
-            
-            .link-container {
-                gap: 10px;
-            }
-            
+            body { padding: 12px; }
+            .content-wrapper { margin-top: 20px; }
+            h1 { font-size: 1.4rem; margin-bottom: 16px; }
+            .link-container { gap: 12px; }
             .link-container a {
-                font-size: 0.85rem;
-                padding: 10px 6px;
-                min-height: 42px;
-            }
-            
-            /* 进一步缩小背景元素 */
-            .bg-element:nth-child(1) {
-                width: 150px;
-                height: 150px;
-            }
-            
-            .bg-element:nth-child(2) {
-                width: 130px;
-                height: 130px;
-            }
-            
-            .bg-element:nth-child(3) {
-                width: 170px;
-                height: 170px;
-            }
-            
-            .bg-element:nth-child(4) {
-                width: 120px;
-                height: 120px;
+                font-size: 0.9rem;
+                padding: 12px 8px;
+                min-height: 48px;
             }
         }
         
         @media (max-width: 360px) {
-            h1 {
-                font-size: 1.2rem;
-            }
-            
-            .link-container a {
-                font-size: 0.8rem;
-                padding: 9px 5px;
-                min-height: 40px;
-            }
+            h1 { font-size: 1.3rem; }
+            .link-container a { font-size: 0.85rem; padding: 11px 6px; min-height: 46px; }
         }
         
-        /* 安全区域适配 - 针对有刘海的手机 */
         @supports(padding: max(0px)) {
             body {
-                padding-left: max(10px, env(safe-area-inset-left));
-                padding-right: max(10px, env(safe-area-inset-right));
-                padding-top: max(10px, env(safe-area-inset-top));
-                padding-bottom: max(10px, env(safe-area-inset-bottom));
+                padding-left: max(12px, env(safe-area-inset-left));
+                padding-right: max(12px, env(safe-area-inset-right));
+                padding-top: max(12px, env(safe-area-inset-top));
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
             }
         }
         
-        /* 针对非常小的屏幕高度 */
         @media (max-height: 600px) {
-            .content-wrapper {
-                margin-top: 10px;
-            }
-            
-            h1 {
-                margin-bottom: 10px;
-            }
-            
-            .link-container {
-                gap: 8px;
-            }
-            
-            .link-container a {
-                min-height: 40px;
-                font-size: 0.85rem;
-            }
+            .content-wrapper { margin-top: 14px; }
+            h1 { margin-bottom: 12px; }
+            .link-container { gap: 10px; }
+            .link-container a { min-height: 46px; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
     <!-- 背景动画元素 -->
-    <div class="bg-element"></div>
     <div class="bg-element"></div>
     <div class="bg-element"></div>
     <div class="bg-element"></div>
@@ -332,103 +238,171 @@
             ===== 按钮管理说明 =====
             添加新按钮：复制下方任意<a>标签，在href中指定新路径
             删除按钮：直接移除对应<a>标签
-            系统会自动适应按钮数量变化
+            系统会自动：
+              - 适配任意数量按钮（1~N 个均可）
+              - 为每个按钮生成明亮鲜艳但不炸眼的随机色
+              - 严格防止相邻按钮颜色相近（视觉混淆）
+              - 保证按钮与背景有足够对比度（易读性）
             -->
             <a href="./expansion/crypto-qr.html" target="_blank" rel="noopener">加密/解密 & 二维码</a>
             <a href="./mm-TrendRadar/" target="_blank" rel="noopener">每日新闻热点追踪</a>
             <a href="./expansion/five.html" target="_blank" rel="noopener">人机对战【五子棋】</a>
             <a href="./expansion/sudoku.html" target="_blank" rel="noopener">单人挑战【数独】</a>
             <a href="./expansion/ts-conv.html" target="_blank" rel="noopener">时间戳转换</a>
-            <!-- 预留位置 - 添加新按钮时取消注释并修改路径 -->
+            <!--
+            ===== 预留位置 =====
+            添加新工具时，取消下方注释并修改路径与名称
+            -->
             <!-- <a href="./path/to/new-tool.html" target="_blank" rel="noopener">新工具名称</a> -->
         </div>
     </div>
     
     <script>
-        // 页面加载完成后执行
+        /*
+        ===== 配色逻辑说明 =====
+        - 每次刷新生成全新配色（不保存状态）
+        - 颜色明亮鲜艳，但避开大红/大绿/荧光黄等刺眼色
+        - 主要色相范围：200~280°（蓝紫）、330~360°（柔粉）、45~75°（薄荷青）
+        - 自动检测相邻按钮颜色，确保视觉差异明显
+        - 若随机失败（极低概率），使用默认柔和天蓝
+        */
+
         document.addEventListener('DOMContentLoaded', function() {
-            // 获取所有按钮元素
-            const buttons = document.querySelectorAll('.link-container a');
-            
-            // 科技感配色方案 - 半透明版本
-            const techColors = [
-                'rgba(124, 156, 255, 0.25)',  // 蓝色
-                'rgba(101, 232, 255, 0.25)',  // 青色
-                'rgba(171, 102, 255, 0.25)',  // 紫色
-                'rgba(255, 107, 107, 0.25)',  // 红色
-                'rgba(72, 219, 151, 0.25)',   // 绿色
-                'rgba(255, 171, 92, 0.25)',   // 橙色
-                'rgba(255, 107, 229, 0.25)',  // 粉色
-                'rgba(107, 255, 176, 0.25)',  // 浅绿
-                'rgba(255, 245, 107, 0.25)',  // 黄色
-                'rgba(107, 185, 255, 0.25)'   // 天蓝
-            ];
-            
-            // 随机打乱数组函数
-            function shuffleArray(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-                return array;
-            }
-            
-            // 为所有按钮应用随机科技感配色
-            const shuffledColors = shuffleArray([...techColors]);
-            
-            buttons.forEach((button, index) => {
-                // 循环使用颜色数组
-                const colorIndex = index % shuffledColors.length;
-                const baseColor = shuffledColors[colorIndex];
-                
-                // 应用半透明背景
-                button.style.background = baseColor;
-                
-                // 添加悬浮光效
-                button.addEventListener('mouseenter', function() {
-                    // 悬浮时增加透明度
-                    this.style.background = baseColor.replace('0.25', '0.4');
-                });
-                
-                button.addEventListener('mouseleave', function() {
-                    // 恢复原始透明度
-                    this.style.background = baseColor;
-                });
-                
-                // 移动端触摸效果
-                button.addEventListener('touchstart', function() {
-                    this.style.background = baseColor.replace('0.25', '0.4');
-                });
-                
-                button.addEventListener('touchend', function() {
-                    this.style.background = baseColor;
-                });
-            });
-            
-            // 防止页面缩放导致的布局问题
-            document.addEventListener('touchmove', function(e) {
-                if(e.scale !== 1) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-            
-            // 确保页面高度适应内容
-            function adjustLayout() {
-                const contentHeight = document.querySelector('.content-wrapper').offsetHeight;
-                const windowHeight = window.innerHeight;
-                
-                // 如果内容高度小于窗口高度，调整垂直居中
-                if (contentHeight < windowHeight) {
-                    document.body.style.justifyContent = "center";
+            const buttons = Array.from(document.querySelectorAll('.link-container a'));
+            const bgLuminance = relativeLuminance(0x0d, 0x14, 0x22);
+
+            // HSL 转 RGB
+            function hslToRgb(h, s, l) {
+                h /= 360; s /= 100; l /= 100;
+                let r, g, b;
+                if (s === 0) {
+                    r = g = b = l;
                 } else {
-                    document.body.style.justifyContent = "flex-start";
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1/6) return p + (q - p) * 6 * t;
+                        if (t < 1/2) return q;
+                        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                        return p;
+                    };
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    const p = 2 * l - q;
+                    r = hue2rgb(p, q, h + 1/3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1/3);
+                }
+                return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+            }
+
+            // 计算相对亮度（WCAG 标准）
+            function relativeLuminance(r, g, b) {
+                const rs = r / 255, gs = g / 255, bs = b / 255;
+                const R = rs <= 0.03928 ? rs / 12.92 : Math.pow((rs + 0.055) / 1.055, 2.4);
+                const G = gs <= 0.03928 ? gs / 12.92 : Math.pow((gs + 0.055) / 1.055, 2.4);
+                const B = bs <= 0.03928 ? bs / 12.92 : Math.pow((bs + 0.055) / 1.055, 2.4);
+                return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+            }
+
+            // 生成 rgba 字符串
+            function rgbaStr(r, g, b, a) {
+                return `rgba(${r}, ${g}, ${b}, ${a})`;
+            }
+
+            // 生成一个明亮、鲜艳、不刺眼的颜色
+            function generateVibrantColor(excludeRGBs = []) {
+                const safeHueRanges = [
+                    [200, 280],   // 天蓝 → 紫罗兰
+                    [330, 360],   // 柔粉 / 珊瑚粉
+                    [0, 10],      // 极少量暖粉
+                    [45, 75],     // 薄荷绿 / 青柠黄
+                    [285, 315]    // 品红 → 紫粉
+                ];
+                
+                let color;
+                let attempts = 0;
+
+                while (!color && attempts < 40) {
+                    const range = safeHueRanges[Math.floor(Math.random() * safeHueRanges.length)];
+                    const hue = Math.floor(Math.random() * (range[1] - range[0]) + range[0]);
+                    const saturation = Math.floor(Math.random() * 20 + 80); // 80~100%
+                    const lightness = Math.floor(Math.random() * 20 + 68); // 68~88%
+
+                    const [r, g, b] = hslToRgb(hue, saturation, lightness);
+                    const fgLuminance = relativeLuminance(r, g, b);
+                    const contrast = (fgLuminance + 0.05) / (bgLuminance + 0.05);
+
+                    if (contrast > 2.2 && isDistinctEnough([r, g, b], excludeRGBs)) {
+                        color = { r, g, b, alpha: 0.32, alphaHover: 0.48 };
+                    }
+                    attempts++;
+                }
+
+                if (!color) {
+                    const [r, g, b] = hslToRgb(210, 90, 76);
+                    color = { r, g, b, alpha: 0.32, alphaHover: 0.48 };
+                }
+                return color;
+            }
+
+            // 判断颜色差异是否足够（RGB 欧氏距离 > 75）
+            function isDistinctEnough(newRGB, existingRGBs) {
+                for (let rgb of existingRGBs) {
+                    const d = Math.sqrt(
+                        Math.pow(newRGB[0] - rgb[0], 2) +
+                        Math.pow(newRGB[1] - rgb[1], 2) +
+                        Math.pow(newRGB[2] - rgb[2], 2)
+                    );
+                    if (d < 75) return false;
+                }
+                return true;
+            }
+
+            // 为所有按钮分配颜色（重点防相邻重复）
+            function assignColors() {
+                const usedRGBs = [];
+
+                buttons.forEach((btn, i) => {
+                    const exclude = [];
+                    if (i > 0) exclude.push(usedRGBs[i-1]);
+                    if (i > 1) exclude.push(usedRGBs[i-2]);
+
+                    const color = generateVibrantColor(exclude);
+                    const normal = rgbaStr(color.r, color.g, color.b, color.alpha);
+                    const hover  = rgbaStr(color.r, color.g, color.b, color.alphaHover);
+
+                    btn.style.background = normal;
+
+                    const setHover = () => btn.style.background = hover;
+                    const setNormal = () => btn.style.background = normal;
+
+                    btn.addEventListener('mouseenter', setHover);
+                    btn.addEventListener('mouseleave', setNormal);
+                    btn.addEventListener('touchstart', setHover);
+                    btn.addEventListener('touchend', setNormal);
+                    btn.addEventListener('touchcancel', setNormal);
+
+                    usedRGBs.push([color.r, color.g, color.b]);
+                });
+            }
+
+            // 启动配色
+            assignColors();
+
+            // 防止缩放干扰布局
+            document.addEventListener('touchmove', e => { 
+                if (e.scale !== 1) e.preventDefault(); 
+            }, { passive: false });
+
+            // 内容不足一屏时垂直居中
+            function adjustLayout() {
+                const wrapper = document.querySelector('.content-wrapper');
+                if (wrapper) {
+                    document.body.style.justifyContent = 
+                        wrapper.offsetHeight < window.innerHeight ? "center" : "flex-start";
                 }
             }
-            
-            // 初始调整
             adjustLayout();
-            
-            // 窗口大小变化时调整
             window.addEventListener('resize', adjustLayout);
         });
     </script>
