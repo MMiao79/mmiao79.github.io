@@ -69,7 +69,7 @@
             align-items: center;
             position: relative;
             z-index: 1;
-            margin-top: 12px;
+            margin-top: 0px;
             padding-bottom: 24px;
         }
         
@@ -172,10 +172,10 @@
             align-items: center;
             justify-content: center;
             white-space: nowrap;
-            backdrop-filter: blur(16px) saturate(120%);
-            -webkit-backdrop-filter: blur(16px) saturate(120%);
+            backdrop-filter: blur(16px) saturate(140%) brightness(1.1);
+            -webkit-backdrop-filter: blur(16px) saturate(140%) brightness(1.1);
             position: relative;
-            background: rgba(40, 45, 65, 0.35);
+            background: rgba(100, 180, 255, 0.25); /* 🔗 改为此明亮色调 */
             transform: translateY(0) scale(1);
         }
         
@@ -184,8 +184,8 @@
         .link-container a:active {
             transform: translateY(-5px) scale(1.04);
             box-shadow: 
-                0 10px 24px rgba(90, 140, 255, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.35);
+                0 10px 28px rgba(100, 160, 255, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
             z-index: 2;
         }
         
