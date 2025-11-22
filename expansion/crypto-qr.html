@@ -550,7 +550,9 @@
                 <div class="char-counter" id="textAreaCounter">0</div>
             </div>
             <div class="placeholder-hint" id="textAreaHint">
-                加密限制：原文≤8000字符 | 解密限制：密文≤40000字符 | 生成二维码：原文≤2300字符
+                ｜ 加密前，文字内容字数限制：原文≤8000字符<br>
+                ｜ 解密前，密文内容字数限制：密文≤40000字符<br>
+                ｜ 生成二维码时：原文≤2200字符（无标点时，最多775个汉字）
             </div>
         </div>
         <!-- 密钥区域 -->
@@ -575,7 +577,8 @@
                 <div class="result-counter" id="resultAreaCounter">0</div>
             </div>
             <div class="placeholder-hint" id="resultAreaHint">
-                生成二维码时密文全部内容必须≤2300字符（智能回链≤2200字符）！
+                ｜生成二维码的密文字数限制：必须≤2300字符！<br>
+                ｜启用智能回链时的字数限制：必须≤2200字符！
             </div>
         </div>
         <!-- 按钮区域 -->
@@ -606,7 +609,7 @@
             <p><strong>⚠️ 技术限制与补充说明：</strong></p>
             <ul style="margin: 5px 0; padding-left: 15px;">
                 <li>
-                    <strong>字符数量：</strong>本工具在不同操作中对输入内容有严格的字符数量上限
+                    <strong>字符数量：</strong>本工具有严格的字符数量上限
                     <ul>
                         <li><strong>加密原文：</strong>直接加密时，输入的原文总长度<strong>不能超过8000个字符。</strong></li>
                         <li><strong>解密密文：</strong>还原解密时，输入的密文总长度<strong>不能超过40000个字符。</strong></li>
