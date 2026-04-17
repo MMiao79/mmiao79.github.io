@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>简易首页</title>
+    <title>M's Tech Hub | 科技导航</title>
     <style>
         /* ===== CSS变量定义 ===== */
         :root {
-            --color-text-main: #f0f6ff;
-            --color-text-secondary: #c7d4ff;
-            --size-container-max-width: 300px;
-            --size-button-padding: 14px 10px;
-            --size-button-radius: 12px;
-            --size-spacing-unit: 14px;
-            --size-title-margin-bottom: 20px;
-            --size-font-title: 1.5rem;
+            --color-text-main: #e0f2ff;
+            --color-text-secondary: #a8d4ff;
+            --color-accent-cyan: #00f0ff;
+            --color-accent-purple: #b829ff;
+            --color-accent-blue: #0080ff;
+            --size-container-max-width: 380px;
+            --size-button-padding: 16px 14px;
+            --size-button-radius: 16px;
+            --size-spacing-unit: 16px;
+            --size-title-margin-bottom: 24px;
+            --size-font-title: 2rem;
+            --glow-intensity: 0.6;
         }
         
         /* ===== 基础样式重置 ===== */
@@ -35,15 +39,15 @@
         
         /* ===== 页面主体样式 ===== */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0 auto;
-            padding: 14px;
-            line-height: 1.5;
+            padding: 20px;
+            line-height: 1.6;
             background: 
-                radial-gradient(circle at 15% 25%, rgba(130, 190, 255, 0.18) 0%, transparent 32%),
-                radial-gradient(circle at 85% 75%, rgba(255, 150, 200, 0.14) 0%, transparent 38%),
-                radial-gradient(circle at 50% 45%, rgba(140, 230, 200, 0.12) 0%, transparent 42%),
-                linear-gradient(135deg, #0b1120, #161e33, #0d1428);
+                radial-gradient(ellipse at 20% 30%, rgba(0, 240, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(184, 41, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 128, 255, 0.08) 0%, transparent 60%),
+                linear-gradient(135deg, #0a0e1a 0%, #0d1525 25%, #0f1829 50%, #0a1220 75%, #080d18 100%);
             color: var(--color-text-main);
             min-height: 100vh;
             display: flex;
@@ -52,6 +56,29 @@
             justify-content: flex-start;
             position: relative;
             overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        /* 网格背景效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
         }
         
         /* ===== 内容容器 ===== */
@@ -63,70 +90,123 @@
             align-items: center;
             position: relative;
             z-index: 1;
-            margin-top: 0px;
-            padding-bottom: 24px;
+            margin-top: 20px;
+            padding-bottom: 30px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         /* ===== 背景动画元素 ===== */
         .bg-element {
             position: fixed;
             border-radius: 50%;
-            filter: blur(60px);
+            filter: blur(80px);
             z-index: 0;
-            opacity: 0.7;
-            animation: float 28s infinite ease-in-out;
+            opacity: 0.5;
+            animation: float 30s infinite ease-in-out;
             pointer-events: none;
         }
         
         .bg-element:nth-child(1) {
-            width: 240px;
-            height: 240px;
-            background: rgba(100, 170, 255, 0.22);
-            top: 10%;
-            left: 10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.3), transparent 70%);
+            top: 5%;
+            left: 5%;
             animation-delay: 0s;
         }
         
         .bg-element:nth-child(2) {
-            width: 220px;
-            height: 220px;
-            background: rgba(255, 140, 190, 0.18);
-            top: 78%;
-            right: 12%;
-            animation-delay: -8s;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(184, 41, 255, 0.25), transparent 70%);
+            top: 70%;
+            right: 8%;
+            animation-delay: -10s;
             animation-direction: reverse;
         }
         
         .bg-element:nth-child(3) {
-            width: 260px;
-            height: 260px;
-            background: rgba(150, 240, 200, 0.16);
-            top: 40%;
-            left: 70%;
-            animation-delay: -13s;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(0, 128, 255, 0.2), transparent 70%);
+            top: 35%;
+            left: 65%;
+            animation-delay: -15s;
         }
         
         @keyframes float {
-            0% { transform: translate(0, 0) rotate(0deg); filter: blur(60px); }
-            33% { transform: translate(25px, -40px) rotate(120deg); filter: blur(65px); }
-            66% { transform: translate(-20px, 20px) rotate(240deg); filter: blur(62px); }
-            100% { transform: translate(0, 0) rotate(360deg); filter: blur(60px); }
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -50px) scale(1.1); }
+            50% { transform: translate(-20px, 30px) scale(0.95); }
+            75% { transform: translate(25px, 20px) scale(1.05); }
         }
         
-        /* ===== 标题样式 ===== */
-        h1 {
-            color: #a8cfff;
+        /* ===== 标题区域样式 ===== */
+        .header-section {
             text-align: center;
             margin-bottom: var(--size-title-margin-bottom);
-            font-size: var(--size-font-title);
-            font-weight: 800;
-            text-shadow: 
-                0 1px 2px rgba(0, 0, 0, 0.2),
-                0 3px 12px rgba(100, 180, 255, 0.4);
-            letter-spacing: -0.5px;
-            position: relative;
-            padding-bottom: 8px;
             width: 100%;
+            position: relative;
+        }
+        
+        h1 {
+            color: var(--color-accent-cyan);
+            text-align: center;
+            margin: 0 0 10px 0;
+            font-size: var(--size-font-title);
+            font-weight: 900;
+            text-shadow: 
+                0 0 10px rgba(0, 240, 255, 0.5),
+                0 0 20px rgba(0, 240, 255, 0.3),
+                0 0 30px rgba(0, 240, 255, 0.2);
+            letter-spacing: 2px;
+            position: relative;
+            padding-bottom: 12px;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                text-shadow: 
+                    0 0 10px rgba(0, 240, 255, 0.5),
+                    0 0 20px rgba(0, 240, 255, 0.3),
+                    0 0 30px rgba(0, 240, 255, 0.2);
+            }
+            to {
+                text-shadow: 
+                    0 0 15px rgba(0, 240, 255, 0.8),
+                    0 0 30px rgba(0, 240, 255, 0.5),
+                    0 0 45px rgba(0, 240, 255, 0.3),
+                    0 0 60px rgba(0, 240, 255, 0.2);
+            }
+        }
+        
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            margin: 0;
+        }
+        
+        .header-line {
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--color-accent-cyan), transparent);
+            margin: 12px auto 0;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
         }
         
         /* ===== 链接容器样式 ===== */
@@ -140,91 +220,130 @@
         /* ===== 按钮样式 ===== */
         .link-container a {
             padding: var(--size-button-padding);
-            border: 1px solid rgba(255, 255, 255, 0.15); /* 稍微降低边框透明度 */
+            border: 1px solid rgba(0, 240, 255, 0.3);
             outline: none;
             border-radius: var(--size-button-radius);
             color: white;
-            text-align: center;
+            text-align: left;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.95rem;
-            min-height: 50px;
+            min-height: 56px;
             box-shadow: 
-                0 4px 20px rgba(0, 0, 0, 0.25),
-                0 0 10px rgba(100, 180, 255, 0.1); /* 降低外发光强度 */
+                0 4px 20px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(0, 240, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             overflow: hidden;
             text-overflow: ellipsis;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 12px;
             white-space: nowrap;
-            /* 增强模糊效果，降低饱和度以突出通透感 */
-            backdrop-filter: blur(12px) saturate(120%);
-            -webkit-backdrop-filter: blur(12px) saturate(120%);
+            backdrop-filter: blur(15px) saturate(150%);
+            -webkit-backdrop-filter: blur(15px) saturate(150%);
             position: relative;
-            background: rgba(110, 190, 255, 0.2); /* 降低 fallback 色的透明度 */
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(184, 41, 255, 0.1));
             transform: translateY(0) scale(1);
         }
         
-        /* ===== 按钮悬浮效果 ===== */
+        /* 按钮图标 */
+        .link-container a .btn-icon {
+            font-size: 1.4rem;
+            min-width: 28px;
+            text-align: center;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        
+        .link-container a .btn-text {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 按钮光效边框 */
+        .link-container a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        /* 按钮悬浮效果 */
         .link-container a:hover,
         .link-container a:focus {
-            transform: translateY(-5px) scale(1.04);
+            transform: translateY(-6px) scale(1.03);
             box-shadow: 
-                0 12px 35px rgba(0, 0, 0, 0.2),
-                0 0 20px rgba(100, 180, 255, 0.3); /* 增强悬浮时的外发光 */
-            outline: 1px solid rgba(255, 255, 255, 0.6);
-            /* 进一步增强模糊和饱和度，提高亮度 */
-            backdrop-filter: blur(15px) saturate(140%) brightness(1.1);
-            -webkit-backdrop-filter: blur(15px) saturate(140%) brightness(1.1);
+                0 15px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(0, 240, 255, 0.4),
+                0 0 60px rgba(0, 240, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-color: rgba(0, 240, 255, 0.6);
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(184, 41, 255, 0.2));
             z-index: 2;
-            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .link-container a:hover::before {
+            left: 100%;
         }
 
         .link-container a:active {
-            transform: translateY(-2px) scale(1.02);
+            transform: translateY(-3px) scale(1.01);
             box-shadow: 
-                0 6px 20px rgba(0, 0, 0, 0.3),
-                0 0 25px rgba(0, 255, 255, 0.4);
-            outline: 1px solid rgba(0, 255, 255, 0.7);
-            backdrop-filter: blur(15px) saturate(140%) brightness(1.2);
-            -webkit-backdrop-filter: blur(15px) saturate(140%) brightness(1.2);
-            border-color: rgba(0, 255, 255, 0.5);
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(0, 240, 255, 0.5);
+            border-color: rgba(0, 240, 255, 0.8);
+            transition-duration: 0.1s;
         }
         
         /* ===== 响应式设计 ===== */
         @media (max-width: 480px) {
-            body { padding: 12px; }
-            .content-wrapper { margin-top: 20px; }
-            h1 { font-size: 1.4rem; margin-bottom: 16px; }
-            .link-container { gap: 12px; }
+            body { padding: 16px; }
+            .content-wrapper { margin-top: 15px; }
+            h1 { font-size: 1.7rem; }
+            .subtitle { font-size: 0.85rem; }
+            .link-container { gap: 14px; }
             .link-container a {
                 font-size: 0.9rem;
-                padding: 12px 8px;
-                min-height: 48px;
+                padding: 14px 12px;
+                min-height: 52px;
+            }
+            .link-container a .btn-icon {
+                font-size: 1.3rem;
+                min-width: 24px;
             }
         }
         
         @media (max-width: 360px) {
-            h1 { font-size: 1.3rem; }
-            .link-container a { font-size: 0.85rem; padding: 11px 6px; min-height: 46px; }
+            h1 { font-size: 1.5rem; }
+            .subtitle { font-size: 0.8rem; }
+            .link-container a { 
+                font-size: 0.85rem; 
+                padding: 12px 10px; 
+                min-height: 50px; 
+            }
         }
         
         @supports(padding: max(0px)) {
             body {
-                padding-left: max(12px, env(safe-area-inset-left));
-                padding-right: max(12px, env(safe-area-inset-right));
-                padding-top: max(12px, env(safe-area-inset-top));
-                padding-bottom: max(12px, env(safe-area-inset-bottom));
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+                padding-top: max(16px, env(safe-area-inset-top));
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
             }
         }
         
         @media (max-height: 600px) {
-            .content-wrapper { margin-top: 14px; }
-            h1 { margin-bottom: 12px; }
-            .link-container { gap: 10px; }
-            .link-container a { min-height: 46px; font-size: 0.9rem; }
+            .content-wrapper { margin-top: 10px; }
+            .header-section { margin-bottom: 16px; }
+            h1 { font-size: 1.5rem; margin-bottom: 6px; }
+            .subtitle { font-size: 0.8rem; }
+            .link-container { gap: 12px; }
+            .link-container a { min-height: 50px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -235,7 +354,11 @@
     <div class="bg-element" aria-hidden="true"></div>
     
     <div class="content-wrapper">
-        <h1>简易首页</h1>
+        <div class="header-section">
+            <h1>M's Tech Hub</h1>
+            <p class="subtitle">探索科技 · 链接未来</p>
+            <div class="header-line"></div>
+        </div>
         
         <div class="link-container">
             <!--
@@ -244,37 +367,57 @@
             删除按钮：直接移除对应<a>标签
             系统会自动：
                 - 适配任意数量按钮（1~N 个均可）
-                - 为每个按钮生成明亮鲜艳但不炸眼的随机色
+                - 为每个按钮生成科技感配色
                 - 严格防止相邻按钮颜色相近（视觉混淆）
                 - 保证按钮与背景有足够对比度（易读性）
             -->
-            <a href="./mm-WeChat-Markdown-Editor/" target="_blank" rel="noopener">微信 Markdown 编辑器</a>
-            <a href="./expansion/crypto-qr.html" target="_blank" rel="noopener">加密/解密 & 二维码</a>
-            <a href="./mm-TrendRadar/" target="_blank" rel="noopener">每日新闻热点追踪</a>
-            <a href="./expansion/five.html" target="_blank" rel="noopener">人机对战【五子棋】</a>
-            <a href="./expansion/sudoku.html" target="_blank" rel="noopener">单人挑战【数独】</a>
-            <a href="./expansion/ts-conv.html" target="_blank" rel="noopener">时间戳转换</a>
+            <a href="./mm-WeChat-Markdown-Editor/" target="_blank" rel="noopener">
+                <span class="btn-icon">📝</span>
+                <span class="btn-text">微信 Markdown 编辑器</span>
+            </a>
+            <a href="./expansion/crypto-qr.html" target="_blank" rel="noopener">
+                <span class="btn-icon">🔐</span>
+                <span class="btn-text">加密/解密 & 二维码</span>
+            </a>
+            <a href="./mm-TrendRadar/" target="_blank" rel="noopener">
+                <span class="btn-icon">📡</span>
+                <span class="btn-text">每日新闻热点追踪</span>
+            </a>
+            <a href="./expansion/five.html" target="_blank" rel="noopener">
+                <span class="btn-icon">⚫</span>
+                <span class="btn-text">人机对战【五子棋】</span>
+            </a>
+            <a href="./expansion/sudoku.html" target="_blank" rel="noopener">
+                <span class="btn-icon">🔢</span>
+                <span class="btn-text">单人挑战【数独】</span>
+            </a>
+            <a href="./expansion/ts-conv.html" target="_blank" rel="noopener">
+                <span class="btn-icon">⏱️</span>
+                <span class="btn-text">时间戳转换</span>
+            </a>
             <!--
             ===== 添加新按钮时复制 <a> 到 </a> 的标记并修改路径与名称即可 =====
-            <a href="./path/new-Button.html" target="_blank" rel="noopener">新按钮</a>
+            <a href="./path/new-Button.html" target="_blank" rel="noopener">
+                <span class="btn-icon">🚀</span>
+                <span class="btn-text">新按钮</span>
+            </a>
             -->
         </div>
     </div>
     
     <script>
         /*
-        ===== 配色逻辑说明 =====
+        ===== 科技感配色逻辑说明 =====
         - 每次刷新生成全新配色（不保存状态）
-        - 颜色明亮鲜艳，但避开大红/大绿/荧光黄等刺眼色
-        - 主要色相范围：200~280°（蓝紫）、330~360°（柔粉）、45~75°（薄荷青）
+        - 使用科技蓝、霓虹紫、电光青等色系
         - 自动检测相邻按钮颜色，确保视觉差异明显
-        - 若随机失败（极低概率），使用默认柔和天蓝
+        - 若随机失败（极低概率），使用默认科技蓝
         */
 
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = Array.from(document.querySelectorAll('.link-container a'));
-            // 计算背景基色（#0b1120）的相对亮度，用于对比度检测
-            const bgLuminance = relativeLuminance(0x0b, 0x11, 0x20);
+            // 计算背景基色（#0a0e1a）的相对亮度，用于对比度检测
+            const bgLuminance = relativeLuminance(0x0a, 0x0e, 0x1a);
 
             // HSL 转 RGB
             function hslToRgb(h, s, l) {
@@ -314,47 +457,46 @@
                 return `rgba(${r}, ${g}, ${b}, ${a})`;
             }
 
-            // 定义可用色彩调色板
+            // 定义科技风色彩调色板
             const COLOR_PALETTES = [
-                { name: 'vibrant-blue',     range: [190, 230] },
-                { name: 'bright-cyan',      range: [170, 185] },
-                { name: 'electric-purple',  range: [260, 290] },
-                { name: 'hot-pink',         range: [340, 355] },
-                { name: 'coral',            range: [0, 20] },
-                { name: 'lime-green',       range: [70, 85] },
-                { name: 'sunshine-yellow',  range: [45, 60] },
-                { name: 'teal',             range: [150, 165] }
+                { name: 'neon-cyan',      range: [175, 195], saturation: [85, 100], lightness: [60, 75] },
+                { name: 'electric-blue',  range: [200, 230], saturation: [80, 100], lightness: [55, 70] },
+                { name: 'cyber-purple',   range: [260, 290], saturation: [75, 95],  lightness: [55, 70] },
+                { name: 'plasma-pink',    range: [320, 350], saturation: [80, 100], lightness: [60, 75] },
+                { name: 'digital-green',  range: [140, 165], saturation: [75, 95],  lightness: [55, 70] },
+                { name: 'quantum-orange', range: [20, 40],   saturation: [85, 100], lightness: [60, 75] }
             ];
 
-            // 生成一个明亮、鲜艳、与背景对比度高的颜色
-            function generateVibrantColor(excludeRGBs = []) {
+            // 生成一个科技感强、与背景对比度高的颜色
+            function generateTechColor(excludeRGBs = []) {
                 let color;
                 let attempts = 0;
 
                 while (!color && attempts < 50) {
                     const palette = COLOR_PALETTES[Math.floor(Math.random() * COLOR_PALETTES.length)];
                     const [minHue, maxHue] = palette.range;
+                    const [minSat, maxSat] = palette.saturation;
+                    const [minLight, maxLight] = palette.lightness;
+                    
                     const hue = Math.floor(Math.random() * (maxHue - minHue) + minHue);
-                    const saturation = Math.floor(Math.random() * 25 + 75); // 75~100%
-                    const lightness = Math.floor(Math.random() * 20 + 70); // 70~90%
+                    const saturation = Math.floor(Math.random() * (maxSat - minSat) + minSat);
+                    const lightness = Math.floor(Math.random() * (maxLight - minLight) + minLight);
 
                     const [r, g, b] = hslToRgb(hue, saturation, lightness);
                     const fgLuminance = relativeLuminance(r, g, b);
                     const contrast = (Math.max(fgLuminance, bgLuminance) + 0.05) / (Math.min(fgLuminance, bgLuminance) + 0.05);
 
                     // 保持较高的对比度要求
-                    if (contrast > 4.0 && isDistinctEnough([r, g, b], excludeRGBs)) {
-                        // 降低 alpha 值，从 0.55 降至 0.35，以增强毛玻璃的通透感
-                        // 同时提高 hover 时的 alpha，让颜色变化更明显
-                        color = { r, g, b, alpha: 0.35, alphaHover: 0.55 };
+                    if (contrast > 4.5 && isDistinctEnough([r, g, b], excludeRGBs)) {
+                        color = { r, g, b, alpha: 0.25, alphaHover: 0.45 };
                     }
                     attempts++;
                 }
 
-                // 失败后备方案
+                // 失败后备方案：科技蓝
                 if (!color) {
-                    const [r, g, b] = hslToRgb(175, 95, 75);
-                    color = { r, g, b, alpha: 0.4, alphaHover: 0.6 };
+                    const [r, g, b] = hslToRgb(190, 90, 65);
+                    color = { r, g, b, alpha: 0.3, alphaHover: 0.5 };
                 }
                 return color;
             }
@@ -367,7 +509,7 @@
                         Math.pow(newRGB[1] - rgb[1], 2) +
                         Math.pow(newRGB[2] - rgb[2], 2)
                     );
-                    if (d < 90) return false;
+                    if (d < 85) return false;
                 }
                 return true;
             }
@@ -381,32 +523,47 @@
                     if (i > 0) exclude.push(usedRGBs[i-1]);
                     if (i > 1) exclude.push(usedRGBs[i-2]);
 
-                    const color = generateVibrantColor(exclude);
+                    const color = generateTechColor(exclude);
                     const normal = rgbaStr(color.r, color.g, color.b, color.alpha);
                     const hover  = rgbaStr(color.r, color.g, color.b, color.alphaHover);
+                    const borderColor = rgbaStr(color.r, color.g, color.b, 0.4);
+                    const borderHover = rgbaStr(color.r, color.g, color.b, 0.7);
 
-                    btn.style.background = normal;
-                    btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.3);
+                    // 设置渐变背景
+                    btn.style.background = `linear-gradient(135deg, ${normal}, rgba(${color.r}, ${color.g}, ${color.b}, ${color.alpha * 0.6}))`;
+                    btn.style.borderColor = borderColor;
+                    
+                    // 图标颜色
+                    const iconEl = btn.querySelector('.btn-icon');
+                    if (iconEl) {
+                        iconEl.style.color = rgbaStr(color.r, color.g, color.b, 1);
+                    }
                     
                     btn.addEventListener('mouseenter', () => {
-                        btn.style.background = hover;
-                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.6);
+                        btn.style.background = `linear-gradient(135deg, ${hover}, rgba(${color.r}, ${color.g}, ${color.b}, ${color.alphaHover * 0.7}))`;
+                        btn.style.borderColor = borderHover;
+                        if (iconEl) {
+                            iconEl.style.filter = `drop-shadow(0 0 12px rgba(${color.r}, ${color.g}, ${color.b}, 0.8))`;
+                        }
                     });
                     btn.addEventListener('mouseleave', () => {
-                        btn.style.background = normal;
-                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.3);
+                        btn.style.background = `linear-gradient(135deg, ${normal}, rgba(${color.r}, ${color.g}, ${color.b}, ${color.alpha * 0.6}))`;
+                        btn.style.borderColor = borderColor;
+                        if (iconEl) {
+                            iconEl.style.filter = `drop-shadow(0 0 8px currentColor)`;
+                        }
                     });
                     btn.addEventListener('touchstart', () => {
-                        btn.style.background = hover;
-                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.6);
+                        btn.style.background = `linear-gradient(135deg, ${hover}, rgba(${color.r}, ${color.g}, ${color.b}, ${color.alphaHover * 0.7}))`;
+                        btn.style.borderColor = borderHover;
                     });
                     btn.addEventListener('touchend', () => {
-                        btn.style.background = normal;
-                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.3);
+                        btn.style.background = `linear-gradient(135deg, ${normal}, rgba(${color.r}, ${color.g}, ${color.b}, ${color.alpha * 0.6}))`;
+                        btn.style.borderColor = borderColor;
                     });
                     btn.addEventListener('touchcancel', () => {
-                        btn.style.background = normal;
-                        btn.style.borderColor = rgbaStr(color.r, color.g, color.b, 0.3);
+                        btn.style.background = `linear-gradient(135deg, ${normal}, rgba(${color.r}, ${color.g}, ${color.b}, ${color.alpha * 0.6}))`;
+                        btn.style.borderColor = borderColor;
                     });
 
                     usedRGBs.push([color.r, color.g, color.b]);
@@ -414,11 +571,10 @@
                     // 第一个按钮的颜色作为主色调，影响背景氛围
                     if (i === 0) {
                         document.body.style.background = `
-                            radial-gradient(circle at 15% 25%, rgba(130, 190, 255, 0.18) 0%, transparent 32%),
-                            radial-gradient(circle at 85% 75%, rgba(255, 150, 200, 0.14) 0%, transparent 38%),
-                            radial-gradient(circle at 50% 45%, rgba(140, 230, 200, 0.12) 0%, transparent 42%),
-                            linear-gradient(135deg, #0b1120, #161e33, #0d1428),
-                            radial-gradient(circle at center, rgba(${color.r}, ${color.g}, ${color.b}, 0.15), transparent 50%)
+                            radial-gradient(ellipse at 20% 30%, rgba(${color.r}, ${color.g}, ${color.b}, 0.2) 0%, transparent 50%),
+                            radial-gradient(ellipse at 80% 70%, rgba(184, 41, 255, 0.15) 0%, transparent 50%),
+                            radial-gradient(ellipse at 50% 50%, rgba(0, 128, 255, 0.1) 0%, transparent 60%),
+                            linear-gradient(135deg, #0a0e1a 0%, #0d1525 25%, #0f1829 50%, #0a1220 75%, #080d18 100%)
                         `;
                     }
                 });
