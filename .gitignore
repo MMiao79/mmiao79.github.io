@@ -1,1 +1,4 @@
 /mm-TrendRadar
+
+# 本地配置文件（包含敏感信息，不推送到远程）
+CLOUDFLARE-R2-SETUP-GUIDE.md
