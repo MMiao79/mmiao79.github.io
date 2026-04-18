@@ -1,4 +1,14 @@
 /mm-TrendRadar
 
+# ========================================
 # 本地配置文件（包含敏感信息，不推送到远程）
+# ========================================
+
+# TrendRadar 相关配置和指南
 CLOUDFLARE-R2-SETUP-GUIDE.md
+TRENDARADAR-AUTO-CHECKIN-GUIDE.md
+TRENDARADAR-UPGRADE-REPORT.md
+
+# 自动续期脚本（包含 GitHub Token）
+trendradar-auto-checkin.ps1
+trendradar-auto-checkin.bat
