@@ -49,7 +49,7 @@
     <div class="container">
         <h1>🎮 FC 游戏启动器</h1>
         <p>请选择本地的 .nes ROM 文件开始游戏</p>
-        <input type="file" id="romInput" accept=".nes">
+        <input type="file" id="romInput" accept=".nes,.zip">
         <br>
         <button class="btn" onclick="startGame()">开始游戏</button>
         <div class="info">
@@ -57,6 +57,7 @@
         </div>
     </div>
 
+    <script src="lib/jszip.min.js"></script>
     <script>
         function startGame() {
             const fileInput = document.getElementById('romInput');
@@ -65,10 +66,18 @@
                 return;
             }
             const file = fileInput.files[0];
+            
+            if (file.name.endsWith('.zip')) {
+                handleZipFile(file);
+            } else {
+                handleNesFile(file);
+            }
+        }
+
+        function handleNesFile(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const romData = e.target.result;
-                // 将 ROM 数据存入 sessionStorage 以便游戏页面读取
                 try {
                     sessionStorage.setItem('fc_rom_data', romData);
                     window.location.href = 'game.html';
@@ -77,6 +86,37 @@
                 }
             };
             reader.readAsBinaryString(file);
+        }
+
+        async function handleZipFile(file) {
+            try {
+                const zip = new JSZip();
+                const content = await zip.loadAsync(file);
+                let nesFile = null;
+                
+                // 查找 .nes 文件
+                for (const filename in content.files) {
+                    if (filename.toLowerCase().endsWith('.nes')) {
+                        nesFile = content.files[filename];
+                        break;
+                    }
+                }
+
+                if (!nesFile) {
+                    alert('ZIP 压缩包中未找到 .nes 格式的 ROM 文件！');
+                    return;
+                }
+
+                const romData = await nesFile.async("binarystring");
+                try {
+                    sessionStorage.setItem('fc_rom_data', romData);
+                    window.location.href = 'game.html';
+                } catch (err) {
+                    alert('ROM 文件过大，无法在本地存储。请尝试较小的 ROM 文件。');
+                }
+            } catch (e) {
+                alert('解压 ZIP 文件失败：' + e.message);
+            }
         }
     </script>
 </body>
