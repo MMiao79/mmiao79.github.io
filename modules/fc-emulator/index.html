@@ -174,8 +174,8 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 45%; /* Occupy bottom part of screen */
-            padding: 10px 20px 30px;
+            height: 40%;
+            padding: 20px;
             box-sizing: border-box;
             justify-content: space-between;
             align-items: flex-end;
@@ -188,105 +188,101 @@
             .mobile-controls { display: flex; }
             .controls-hint { display: none; }
             #game-screen canvas {
-                margin-top: 5vh; /* Push canvas up in portrait */
-                max-height: 50vh;
+                margin-top: 5vh;
+                max-height: 55vh;
             }
         }
-        /* Landscape optimization for mobile */
         @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
             .mobile-controls {
                 height: 100%;
-                padding: 0 40px;
+                padding: 0 30px;
                 align-items: center;
             }
             #game-screen canvas {
                 margin-top: 0;
-                max-height: 90vh;
+                max-height: 85vh;
             }
-            .d-pad { transform: scale(1.2); }
-            .action-buttons { transform: scale(1.2); }
         }
         
-        /* D-Pad as a continuous cross shape */
+        /* D-Pad Grid Layout for Multi-touch */
         .d-pad {
-            position: relative;
-            width: 140px;
-            height: 140px;
+            display: grid;
+            grid-template-columns: repeat(3, 50px);
+            grid-template-rows: repeat(3, 50px);
+            gap: 2px;
             flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .d-btn {
-            position: absolute;
-            width: 46px;
-            height: 46px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 1.2rem;
+            transition: all 0.1s;
         }
-        .d-btn:active { color: #00f0ff; }
-        .d-up { top: 5px; left: 47px; }
-        .d-down { bottom: 5px; left: 47px; }
-        .d-left { top: 47px; left: 5px; }
-        .d-right { top: 47px; right: 5px; }
+        .d-btn.active { 
+            background: rgba(0, 240, 255, 0.4); 
+            border-color: #00f0ff;
+            color: white;
+        }
+        .d-up { grid-column: 2; grid-row: 1; }
+        .d-left { grid-column: 1; grid-row: 2; }
+        .d-right { grid-column: 3; grid-row: 2; }
+        .d-down { grid-column: 2; grid-row: 3; }
         .d-center { 
-            top: 47px; left: 47px; 
-            width: 46px; height: 46px; 
-            background: rgba(0,0,0,0.2); 
-            border-radius: 5px;
+            grid-column: 2; grid-row: 2; 
+            background: rgba(0, 0, 0, 0.2); 
+            border: none;
         }
         
         .action-group {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
             flex-shrink: 0;
         }
         .ab-row {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             align-items: flex-end;
         }
         .a-btn, .b-btn {
-            width: 60px;
-            height: 60px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.2);
             color: rgba(255, 255, 255, 0.9);
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .a-btn:active, .b-btn:active { 
-            background: rgba(0, 240, 255, 0.3); 
+        .a-btn.active, .b-btn.active { 
+            background: rgba(0, 240, 255, 0.4); 
             border-color: #00f0ff;
         }
         
         .menu-row {
             display: flex;
-            gap: 30px;
-            margin-top: 10px;
+            gap: 20px;
         }
         .m-btn {
-            padding: 8px 25px;
+            padding: 8px 20px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #aaa;
-            border-radius: 20px;
+            border-radius: 15px;
             font-size: 0.75rem;
-            letter-spacing: 1px;
         }
-        .m-btn:active { 
-            background: rgba(0, 240, 255, 0.25); 
+        .m-btn.active { 
+            background: rgba(0, 240, 255, 0.3); 
             color: white;
-            border-color: #00f0ff;
         }
     </style>
 </head>
@@ -440,37 +436,41 @@
             }
         });
 
-        // Mobile Touch Controls
-        const touchButtons = document.querySelectorAll('.d-btn, .a-btn, .b-btn, .m-btn');
-        touchButtons.forEach(btn => {
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                const key = parseInt(btn.getAttribute('data-key'));
-                const btnClass = btn.classList;
-                
-                // If turbo is on for this button, don't hold it down manually
-                if ((btnClass.contains('a-btn') && turboMode.A) || (btnClass.contains('b-btn') && turboMode.B)) {
-                    return;
-                }
+        // Mobile Touch Controls (Multi-touch support)
+        const activeTouches = new Map();
 
-                if (KEYMAP[key] !== undefined) {
-                    nes.buttonDown(1, KEYMAP[key]);
-                }
-            });
-            btn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                const key = parseInt(btn.getAttribute('data-key'));
-                const btnClass = btn.classList;
-                
-                if ((btnClass.contains('a-btn') && turboMode.A) || (btnClass.contains('b-btn') && turboMode.B)) {
-                    return;
-                }
+        function handleTouch(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            
+            for (let i = 0; i < touches.length; i++) {
+                const touch = touches[i];
+                const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (!element) continue;
 
-                if (KEYMAP[key] !== undefined) {
-                    nes.buttonUp(1, KEYMAP[key]);
+                const key = parseInt(element.getAttribute('data-key'));
+                const type = element.getAttribute('data-type');
+                
+                if (e.type === 'touchstart') {
+                    if (KEYMAP[key] !== undefined) {
+                        nes.buttonDown(1, KEYMAP[key]);
+                        element.classList.add('active');
+                        activeTouches.set(touch.identifier, { element, key });
+                    }
+                } else if (e.type === 'touchend' || e.type === 'touchcancel') {
+                    const active = activeTouches.get(touch.identifier);
+                    if (active && KEYMAP[active.key] !== undefined) {
+                        nes.buttonUp(1, KEYMAP[active.key]);
+                        active.element.classList.remove('active');
+                        activeTouches.delete(touch.identifier);
+                    }
                 }
-            });
-        });
+            }
+        }
+
+        document.addEventListener('touchstart', handleTouch, { passive: false });
+        document.addEventListener('touchend', handleTouch, { passive: false });
+        document.addEventListener('touchcancel', handleTouch, { passive: false });
 
         function toggleTurbo(button) {
             const type = button.getAttribute('data-type');
