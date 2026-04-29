@@ -119,6 +119,42 @@
             border-radius: 20px;
             backdrop-filter: blur(4px);
         }
+        .turbo-controls {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            align-items: center;
+        }
+        @media (hover: none) and (pointer: coarse) {
+            .turbo-controls { display: flex; }
+        }
+        .turbo-btn {
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        .turbo-btn.active {
+            background: #00f0ff;
+            color: #000;
+            border-color: #00f0ff;
+        }
+        .rate-selector {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+        }
         .scale-btn {
             padding: 5px 10px;
             background: rgba(255, 255, 255, 0.1);
@@ -297,6 +333,15 @@
                 </div>
             </div>
         </div>
+        <div class="turbo-controls">
+            <button class="turbo-btn" data-type="B" onclick="toggleTurbo(this)">B 连发</button>
+            <button class="turbo-btn" data-type="A" onclick="toggleTurbo(this)">A 连发</button>
+            <div class="rate-selector">
+                <button class="turbo-btn rate-btn active" onclick="setTurboRate(10, this)">10次/s</button>
+                <button class="turbo-btn rate-btn" onclick="setTurboRate(20, this)">20次/s</button>
+                <button class="turbo-btn rate-btn" onclick="setTurboRate(30, this)">30次/s</button>
+            </div>
+        </div>
     </div>
 
     <script src="lib/jszip.min.js"></script>
@@ -313,6 +358,9 @@
         let audio_ctx, script_processor;
         let isRunning = false;
         let currentScale = 1.5;
+        let turboMode = { A: false, B: false };
+        let turboRate = 10; // frames per second
+        let frameCount = 0;
 
         const AUDIO_BUFFERING = 512;
         const SAMPLE_COUNT = 4 * 1024;
@@ -351,6 +399,20 @@
             window.requestAnimationFrame(onAnimationFrame);
             image.data.set(framebuffer_u8);
             canvas_ctx.putImageData(image, 0, 0);
+            
+            // Handle Turbo Logic
+            frameCount++;
+            const shouldFire = frameCount % Math.floor(60 / turboRate) === 0;
+            
+            if (turboMode.A && shouldFire) {
+                nes.buttonDown(1, jsnes.Controller.BUTTON_A);
+                setTimeout(() => nes.buttonUp(1, jsnes.Controller.BUTTON_A), 50);
+            }
+            if (turboMode.B && shouldFire) {
+                nes.buttonDown(1, jsnes.Controller.BUTTON_B);
+                setTimeout(() => nes.buttonUp(1, jsnes.Controller.BUTTON_B), 50);
+            }
+            
             nes.frame();
         }
 
@@ -384,6 +446,13 @@
             btn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 const key = parseInt(btn.getAttribute('data-key'));
+                const btnClass = btn.classList;
+                
+                // If turbo is on for this button, don't hold it down manually
+                if ((btnClass.contains('a-btn') && turboMode.A) || (btnClass.contains('b-btn') && turboMode.B)) {
+                    return;
+                }
+
                 if (KEYMAP[key] !== undefined) {
                     nes.buttonDown(1, KEYMAP[key]);
                 }
@@ -391,11 +460,29 @@
             btn.addEventListener('touchend', (e) => {
                 e.preventDefault();
                 const key = parseInt(btn.getAttribute('data-key'));
+                const btnClass = btn.classList;
+                
+                if ((btnClass.contains('a-btn') && turboMode.A) || (btnClass.contains('b-btn') && turboMode.B)) {
+                    return;
+                }
+
                 if (KEYMAP[key] !== undefined) {
                     nes.buttonUp(1, KEYMAP[key]);
                 }
             });
         });
+
+        function toggleTurbo(button) {
+            const type = button.getAttribute('data-type');
+            turboMode[type] = !turboMode[type];
+            button.classList.toggle('active');
+        }
+
+        function setTurboRate(rate, btn) {
+            turboRate = rate;
+            document.querySelectorAll('.rate-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
 
         function loadRomToScreen(romData) {
             document.getElementById('selector-ui').classList.add('hidden');
