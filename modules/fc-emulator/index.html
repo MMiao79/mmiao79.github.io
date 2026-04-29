@@ -88,6 +88,16 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        #fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #00f0ff;
+        }
         .scale-controls {
             position: absolute;
             top: 10px;
@@ -238,6 +248,7 @@
 
     <!-- Game UI -->
     <div id="game-screen" class="hidden">
+        <button id="fullscreen-btn" class="btn" onclick="toggleFullScreen()">📺 横屏/全屏</button>
         <div class="scale-controls">
             <button class="scale-btn" onclick="changeScale(-0.5)">-</button>
             <button class="scale-btn" id="scale-display" style="cursor: default">1x</button>
@@ -415,6 +426,20 @@
             if (script_processor) script_processor.disconnect();
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('selector-ui').classList.remove('hidden');
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        }
+
+        function toggleFullScreen() {
+            const elem = document.documentElement;
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => {
+                    alert(`无法进入全屏模式: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
         }
 
         // --- File Handling Logic ---
