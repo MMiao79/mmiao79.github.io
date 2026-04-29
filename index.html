@@ -76,6 +76,31 @@
             animation: gridMove 20s linear infinite;
         }
         
+        /* 移动端流光特效 */
+        .mobile-shine {
+            display: none;
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(0, 240, 255, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+            animation: mobileShineRotate 15s linear infinite;
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .mobile-shine { display: block; }
+            body::before { opacity: 0.5; }
+        }
+        
+        @keyframes mobileShineRotate {
+            0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
+            50% { transform: rotate(180deg) scale(1.2); opacity: 0.8; }
+            100% { transform: rotate(360deg) scale(1); opacity: 0.5; }
+        }
+                
         @keyframes gridMove {
             0% { transform: translate(0, 0); }
             100% { transform: translate(50px, 50px); }
@@ -349,6 +374,7 @@
 </head>
 <body>
     <!-- 背景动画元素 -->
+    <div class="mobile-shine" aria-hidden="true"></div>
     <div class="bg-element" aria-hidden="true"></div>
     <div class="bg-element" aria-hidden="true"></div>
     <div class="bg-element" aria-hidden="true"></div>
