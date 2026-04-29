@@ -114,79 +114,113 @@
             position: absolute;
             bottom: 20px;
             width: 100%;
-            padding: 0 20px;
+            padding: 0 30px;
             box-sizing: border-box;
             justify-content: space-between;
+            align-items: flex-end;
             z-index: 20;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: none;
         }
         @media (hover: none) and (pointer: coarse) {
             .mobile-controls { display: flex; }
             .controls-hint { display: none; }
         }
+        /* Landscape optimization for mobile */
+        @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+            .mobile-controls {
+                padding: 0 50px;
+                bottom: 10px;
+            }
+            .d-pad { transform: scale(1.1); }
+            .action-buttons { transform: scale(1.1); }
+            .menu-buttons { bottom: 20px; }
+        }
         .d-pad {
             position: relative;
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
+            flex-shrink: 0;
         }
         .d-btn {
             position: absolute;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
+            width: 46px;
+            height: 46px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.4rem;
+            backdrop-filter: blur(4px);
         }
-        .d-btn:active { background: rgba(0, 240, 255, 0.4); }
-        .d-up { top: 0; left: 40px; }
-        .d-down { bottom: 0; left: 40px; }
-        .d-left { top: 40px; left: 0; }
-        .d-right { top: 40px; right: 0; }
+        .d-btn:active { 
+            background: rgba(0, 240, 255, 0.3); 
+            border-color: rgba(0, 240, 255, 0.6);
+        }
+        .d-up { top: 0; left: 47px; }
+        .d-down { bottom: 0; left: 47px; }
+        .d-left { top: 47px; left: 0; }
+        .d-right { top: 47px; right: 0; }
         
         .action-buttons {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             align-items: flex-end;
+            flex-shrink: 0;
         }
         .a-btn, .b-btn {
-            width: 60px;
-            height: 60px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(4px);
         }
-        .a-btn:active, .b-btn:active { background: rgba(0, 240, 255, 0.4); }
-        .b-btn { margin-bottom: 20px; }
+        .a-btn:active, .b-btn:active { 
+            background: rgba(0, 240, 255, 0.3); 
+            border-color: rgba(0, 240, 255, 0.6);
+        }
+        .b-btn { margin-bottom: 25px; }
 
         .menu-buttons {
             position: absolute;
-            bottom: 40px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 15px;
+            gap: 20px;
+            width: auto;
+            padding: 0;
+        }
+        @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+            .menu-buttons {
+                bottom: 15px;
+            }
         }
         .m-btn {
-            padding: 5px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #aaa;
-            border-radius: 10px;
-            font-size: 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            backdrop-filter: blur(4px);
         }
-        .m-btn:active { background: rgba(0, 240, 255, 0.3); }
+        .m-btn:active { 
+            background: rgba(0, 240, 255, 0.25); 
+            color: white;
+        }
     </style>
 </head>
 <body>
