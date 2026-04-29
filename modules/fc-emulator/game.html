@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>FC 游戏运行中</title>
+    <style>
+        body { background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        canvas { image-rendering: pixelated; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
+        .controls { position: absolute; bottom: 10px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <canvas id="screen" width="256" height="240"></canvas>
+    <div class="controls">方向键:移动 | Z:A | X:B | Enter:Start | Shift:Select</div>
+
+    <script src="lib/jsnes.min.js"></script>
+    <script>
+        const SCREEN_WIDTH = 256;
+        const SCREEN_HEIGHT = 240;
+        const FRAMEBUFFER_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT;
+
+        let canvas_ctx, image;
+        let framebuffer_u8, framebuffer_u32;
+
+        const AUDIO_BUFFERING = 512;
+        const SAMPLE_COUNT = 4 * 1024;
+        const SAMPLE_MASK = SAMPLE_COUNT - 1;
+        const audio_samples_L = new Float32Array(SAMPLE_COUNT);
+        const audio_samples_R = new Float32Array(SAMPLE_COUNT);
+        let audio_write_cursor = 0, audio_read_cursor = 0;
+
+        let nes = new jsnes.NES({
+            onFrame: function(framebuffer_24) {
+                for (let i = 0; i < FRAMEBUFFER_SIZE; i++) {
+                    framebuffer_u32[i] = 0xFF000000 | framebuffer_24[i];
+                }
+            },
+            onAudioSample: function(l, r) {
+                audio_samples_L[audio_write_cursor] = l;
+                audio_samples_R[audio_write_cursor] = r;
+                audio_write_cursor = (audio_write_cursor + 1) & SAMPLE_MASK;
+            }
+        });
+
+        function onAnimationFrame() {
+            window.requestAnimationFrame(onAnimationFrame);
+            image.data.set(framebuffer_u8);
+            canvas_ctx.putImageData(image, 0, 0);
+            nes.frame();
+        }
+
+        function audio_remain() {
+            return (audio_write_cursor - audio_read_cursor) & SAMPLE_MASK;
+        }
+
+        function audio_callback(event) {
+            const dst = event.outputBuffer;
+            const len = dst.length;
+            const dst_l = dst.getChannelData(0);
+            const dst_r = dst.getChannelData(1);
+            for (let i = 0; i < len; i++) {
+                const src_idx = (audio_read_cursor + i) & SAMPLE_MASK;
+                dst_l[i] = audio_samples_L[src_idx];
+                dst_r[i] = audio_samples_R[src_idx];
+            }
+            audio_read_cursor = (audio_read_cursor + len) & SAMPLE_MASK;
+        }
+
+        // 键盘控制映射
+        const KEYMAP = {
+            88: jsnes.Controller.BUTTON_A,      // X
+            90: jsnes.Controller.BUTTON_B,      // Z
+            17: jsnes.Controller.BUTTON_SELECT, // Right Ctrl / Shift
+            13: jsnes.Controller.BUTTON_START,  // Enter
+            38: jsnes.Controller.BUTTON_UP,     // Up Arrow
+            40: jsnes.Controller.BUTTON_DOWN,   // Down Arrow
+            37: jsnes.Controller.BUTTON_LEFT,   // Left Arrow
+            39: jsnes.Controller.BUTTON_RIGHT   // Right Arrow
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (KEYMAP[e.keyCode] !== undefined) {
+                nes.buttonDown(1, KEYMAP[e.keyCode]);
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (KEYMAP[e.keyCode] !== undefined) {
+                nes.buttonUp(1, KEYMAP[e.keyCode]);
+            }
+        });
+
+        window.onload = function() {
+            const canvas = document.getElementById('screen');
+            canvas_ctx = canvas.getContext('2d');
+            image = canvas_ctx.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            
+            canvas_ctx.fillStyle = 'black';
+            canvas_ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+            const buffer = new ArrayBuffer(image.data.length);
+            framebuffer_u8 = new Uint8ClampedArray(buffer);
+            framebuffer_u32 = new Uint32Array(buffer);
+
+            const romData = sessionStorage.getItem('fc_rom_data');
+            if (romData) {
+                nes.loadROM(romData);
+                window.requestAnimationFrame(onAnimationFrame);
+                
+                // 初始化音频
+                const audio_ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const script_processor = audio_ctx.createScriptProcessor(AUDIO_BUFFERING, 0, 2);
+                script_processor.onaudioprocess = audio_callback;
+                script_processor.connect(audio_ctx.destination);
+            } else {
+                alert('未找到游戏数据，请返回重新选择 ROM。');
+            }
+        };
+    </script>
+</body>
+</html>

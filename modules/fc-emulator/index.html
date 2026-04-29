@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FC 红白机模拟器</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+        }
+        h1 { color: #00f0ff; text-shadow: 0 0 10px #00f0ff; }
+        input[type="file"] {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #2a2a2a;
+            color: #fff;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: #0080ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        .btn:hover { background: #00f0ff; box-shadow: 0 0 15px #00f0ff; }
+        .info { margin-top: 20px; font-size: 0.9rem; color: #aaa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 FC 游戏启动器</h1>
+        <p>请选择本地的 .nes ROM 文件开始游戏</p>
+        <input type="file" id="romInput" accept=".nes">
+        <br>
+        <button class="btn" onclick="startGame()">开始游戏</button>
+        <div class="info">
+            <p>操作说明：方向键移动，Z 为 A 键，X 为 B 键，Enter 为 Start，Shift 为 Select</p>
+        </div>
+    </div>
+
+    <script>
+        function startGame() {
+            const fileInput = document.getElementById('romInput');
+            if (fileInput.files.length === 0) {
+                alert('请先选择一个 ROM 文件！');
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const romData = e.target.result;
+                // 将 ROM 数据存入 sessionStorage 以便游戏页面读取
+                try {
+                    sessionStorage.setItem('fc_rom_data', romData);
+                    window.location.href = 'game.html';
+                } catch (err) {
+                    alert('ROM 文件过大，无法在本地存储。请尝试较小的 ROM 文件。');
+                }
+            };
+            reader.readAsBinaryString(file);
+        }
+    </script>
+</body>
+</html>
