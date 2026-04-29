@@ -121,9 +121,11 @@
         .mobile-controls {
             display: none;
             position: absolute;
-            bottom: 20px;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            padding: 0 30px;
+            height: 45%; /* Occupy bottom part of screen */
+            padding: 10px 20px 30px;
             box-sizing: border-box;
             justify-content: space-between;
             align-items: flex-end;
@@ -135,100 +137,106 @@
         @media (hover: none) and (pointer: coarse) {
             .mobile-controls { display: flex; }
             .controls-hint { display: none; }
+            #game-screen canvas {
+                margin-top: 5vh; /* Push canvas up in portrait */
+                max-height: 50vh;
+            }
         }
         /* Landscape optimization for mobile */
         @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
             .mobile-controls {
-                padding: 0 50px;
-                bottom: 10px;
+                height: 100%;
+                padding: 0 40px;
+                align-items: center;
             }
-            .d-pad { transform: scale(1.1); }
-            .action-buttons { transform: scale(1.1); }
-            .menu-buttons { bottom: 20px; }
+            #game-screen canvas {
+                margin-top: 0;
+                max-height: 90vh;
+            }
+            .d-pad { transform: scale(1.2); }
+            .action-buttons { transform: scale(1.2); }
         }
+        
+        /* D-Pad as a continuous cross shape */
         .d-pad {
             position: relative;
             width: 140px;
             height: 140px;
             flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .d-btn {
             position: absolute;
             width: 46px;
             height: 46px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.4rem;
-            backdrop-filter: blur(4px);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
         }
-        .d-btn:active { 
-            background: rgba(0, 240, 255, 0.3); 
-            border-color: rgba(0, 240, 255, 0.6);
+        .d-btn:active { color: #00f0ff; }
+        .d-up { top: 5px; left: 47px; }
+        .d-down { bottom: 5px; left: 47px; }
+        .d-left { top: 47px; left: 5px; }
+        .d-right { top: 47px; right: 5px; }
+        .d-center { 
+            top: 47px; left: 47px; 
+            width: 46px; height: 46px; 
+            background: rgba(0,0,0,0.2); 
+            border-radius: 5px;
         }
-        .d-up { top: 0; left: 47px; }
-        .d-down { bottom: 0; left: 47px; }
-        .d-left { top: 47px; left: 0; }
-        .d-right { top: 47px; right: 0; }
         
-        .action-buttons {
+        .action-group {
             display: flex;
-            gap: 25px;
-            align-items: flex-end;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
             flex-shrink: 0;
         }
+        .ab-row {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+        }
         .a-btn, .b-btn {
-            width: 65px;
-            height: 65px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.2);
             color: rgba(255, 255, 255, 0.9);
             font-weight: bold;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(4px);
         }
         .a-btn:active, .b-btn:active { 
             background: rgba(0, 240, 255, 0.3); 
-            border-color: rgba(0, 240, 255, 0.6);
+            border-color: #00f0ff;
         }
-        .b-btn { margin-bottom: 25px; }
-
-        .menu-buttons {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+        
+        .menu-row {
             display: flex;
-            gap: 20px;
-            width: auto;
-            padding: 0;
-        }
-        @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-            .menu-buttons {
-                bottom: 15px;
-            }
+            gap: 30px;
+            margin-top: 10px;
         }
         .m-btn {
-            padding: 8px 20px;
+            padding: 8px 25px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #aaa;
-            border-radius: 15px;
+            border-radius: 20px;
             font-size: 0.75rem;
             letter-spacing: 1px;
-            backdrop-filter: blur(4px);
         }
         .m-btn:active { 
             background: rgba(0, 240, 255, 0.25); 
             color: white;
+            border-color: #00f0ff;
         }
     </style>
 </head>
@@ -264,15 +272,18 @@
                 <div class="d-btn d-down" data-key="40">▼</div>
                 <div class="d-btn d-left" data-key="37">◀</div>
                 <div class="d-btn d-right" data-key="39">▶</div>
+                <div class="d-btn d-center"></div>
             </div>
-            <div class="action-buttons">
-                <div class="b-btn" data-key="90">B</div>
-                <div class="a-btn" data-key="88">A</div>
+            <div class="action-group">
+                <div class="ab-row">
+                    <div class="b-btn" data-key="90">B</div>
+                    <div class="a-btn" data-key="88">A</div>
+                </div>
+                <div class="menu-row">
+                    <div class="m-btn" data-key="17">SELECT</div>
+                    <div class="m-btn" data-key="13">START</div>
+                </div>
             </div>
-        </div>
-        <div class="mobile-controls menu-buttons">
-            <div class="m-btn" data-key="17">SELECT</div>
-            <div class="m-btn" data-key="13">START</div>
         </div>
     </div>
 
