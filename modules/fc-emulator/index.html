@@ -108,6 +108,85 @@
         .scale-btn:hover {
             background: rgba(0, 240, 255, 0.3);
         }
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+            justify-content: space-between;
+            z-index: 20;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        @media (hover: none) and (pointer: coarse) {
+            .mobile-controls { display: flex; }
+            .controls-hint { display: none; }
+        }
+        .d-pad {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        .d-btn {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        .d-btn:active { background: rgba(0, 240, 255, 0.4); }
+        .d-up { top: 0; left: 40px; }
+        .d-down { bottom: 0; left: 40px; }
+        .d-left { top: 40px; left: 0; }
+        .d-right { top: 40px; right: 0; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+        }
+        .a-btn, .b-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .a-btn:active, .b-btn:active { background: rgba(0, 240, 255, 0.4); }
+        .b-btn { margin-bottom: 20px; }
+
+        .menu-buttons {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+        .m-btn {
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #aaa;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        .m-btn:active { background: rgba(0, 240, 255, 0.3); }
     </style>
 </head>
 <body>
@@ -133,6 +212,24 @@
         <canvas id="screen" width="256" height="240"></canvas>
         <div class="controls-hint">方向键:移动 | Z:A | X:B | Enter:Start | Shift:Select</div>
         <button id="back-btn" class="btn" onclick="stopGame()">返回选择</button>
+        
+        <!-- Mobile Controls -->
+        <div class="mobile-controls">
+            <div class="d-pad">
+                <div class="d-btn d-up" data-key="38">▲</div>
+                <div class="d-btn d-down" data-key="40">▼</div>
+                <div class="d-btn d-left" data-key="37">◀</div>
+                <div class="d-btn d-right" data-key="39">▶</div>
+            </div>
+            <div class="action-buttons">
+                <div class="b-btn" data-key="90">B</div>
+                <div class="a-btn" data-key="88">A</div>
+            </div>
+        </div>
+        <div class="mobile-controls menu-buttons">
+            <div class="m-btn" data-key="17">SELECT</div>
+            <div class="m-btn" data-key="13">START</div>
+        </div>
     </div>
 
     <script src="lib/jszip.min.js"></script>
@@ -212,6 +309,25 @@
             if (isRunning && KEYMAP[e.keyCode] !== undefined) {
                 nes.buttonUp(1, KEYMAP[e.keyCode]);
             }
+        });
+
+        // Mobile Touch Controls
+        const touchButtons = document.querySelectorAll('.d-btn, .a-btn, .b-btn, .m-btn');
+        touchButtons.forEach(btn => {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const key = parseInt(btn.getAttribute('data-key'));
+                if (KEYMAP[key] !== undefined) {
+                    nes.buttonDown(1, KEYMAP[key]);
+                }
+            });
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const key = parseInt(btn.getAttribute('data-key'));
+                if (KEYMAP[key] !== undefined) {
+                    nes.buttonUp(1, KEYMAP[key]);
+                }
+            });
         });
 
         function loadRomToScreen(romData) {
