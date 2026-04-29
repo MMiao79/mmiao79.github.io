@@ -15,14 +15,21 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
         .container {
             text-align: center;
             max-width: 600px;
             width: 100%;
             padding: 20px;
+            position: absolute;
+            z-index: 10;
+            background: rgba(26, 26, 26, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
         }
-        h1 { color: #00f0ff; text-shadow: 0 0 10px #00f0ff; }
+        .hidden { display: none !important; }
+        h1 { color: #00f0ff; text-shadow: 0 0 10px #00f0ff; margin-bottom: 10px; }
         input[type="file"] {
             margin: 20px 0;
             padding: 10px;
@@ -40,15 +47,55 @@
             cursor: pointer;
             font-size: 1rem;
             transition: 0.3s;
+            margin: 5px;
         }
         .btn:hover { background: #00f0ff; box-shadow: 0 0 15px #00f0ff; }
         .info { margin-top: 20px; font-size: 0.9rem; color: #aaa; }
+        
+        /* Game Screen Styles */
+        #game-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #000;
+            z-index: 1;
+        }
+        canvas { 
+            image-rendering: pixelated; 
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); 
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .controls-hint { 
+            position: absolute; 
+            bottom: 10px; 
+            color: #666; 
+            font-size: 12px; 
+            z-index: 2;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        #back-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Selection UI -->
+    <div class="container" id="selector-ui">
         <h1>🎮 FC 游戏启动器</h1>
-        <p>请选择本地的 .nes ROM 文件开始游戏</p>
+        <p>请选择本地的 .nes ROM 文件或 .zip 压缩包</p>
         <input type="file" id="romInput" accept=".nes,.zip">
         <br>
         <button class="btn" onclick="startGame()">开始游戏</button>
@@ -57,8 +104,133 @@
         </div>
     </div>
 
+    <!-- Game UI -->
+    <div id="game-screen" class="hidden">
+        <canvas id="screen" width="256" height="240"></canvas>
+        <div class="controls-hint">方向键:移动 | Z:A | X:B | Enter:Start | Shift:Select</div>
+        <button id="back-btn" class="btn" onclick="stopGame()">返回选择</button>
+    </div>
+
     <script src="lib/jszip.min.js"></script>
+    <script src="lib/jsnes.min.js"></script>
     <script>
+        // --- Game Engine Logic ---
+        const SCREEN_WIDTH = 256;
+        const SCREEN_HEIGHT = 240;
+        const FRAMEBUFFER_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT;
+
+        let canvas_ctx, image;
+        let framebuffer_u8, framebuffer_u32;
+        let nes;
+        let audio_ctx, script_processor;
+        let isRunning = false;
+
+        const AUDIO_BUFFERING = 512;
+        const SAMPLE_COUNT = 4 * 1024;
+        const SAMPLE_MASK = SAMPLE_COUNT - 1;
+        const audio_samples_L = new Float32Array(SAMPLE_COUNT);
+        const audio_samples_R = new Float32Array(SAMPLE_COUNT);
+        let audio_write_cursor = 0, audio_read_cursor = 0;
+
+        function initAudio() {
+            if (!audio_ctx) {
+                audio_ctx = new (window.AudioContext || window.webkitAudioContext)();
+                script_processor = audio_ctx.createScriptProcessor(AUDIO_BUFFERING, 0, 2);
+                script_processor.onaudioprocess = audio_callback;
+                script_processor.connect(audio_ctx.destination);
+            }
+            if (audio_ctx.state === 'suspended') {
+                audio_ctx.resume();
+            }
+        }
+
+        function audio_callback(event) {
+            const dst = event.outputBuffer;
+            const len = dst.length;
+            const dst_l = dst.getChannelData(0);
+            const dst_r = dst.getChannelData(1);
+            for (let i = 0; i < len; i++) {
+                const src_idx = (audio_read_cursor + i) & SAMPLE_MASK;
+                dst_l[i] = audio_samples_L[src_idx];
+                dst_r[i] = audio_samples_R[src_idx];
+            }
+            audio_read_cursor = (audio_read_cursor + len) & SAMPLE_MASK;
+        }
+
+        function onAnimationFrame() {
+            if (!isRunning) return;
+            window.requestAnimationFrame(onAnimationFrame);
+            image.data.set(framebuffer_u8);
+            canvas_ctx.putImageData(image, 0, 0);
+            nes.frame();
+        }
+
+        const KEYMAP = {
+            88: jsnes.Controller.BUTTON_A,      // X
+            90: jsnes.Controller.BUTTON_B,      // Z
+            17: jsnes.Controller.BUTTON_SELECT, // Right Ctrl / Shift
+            13: jsnes.Controller.BUTTON_START,  // Enter
+            38: jsnes.Controller.BUTTON_UP,     // Up Arrow
+            40: jsnes.Controller.BUTTON_DOWN,   // Down Arrow
+            37: jsnes.Controller.BUTTON_LEFT,   // Left Arrow
+            39: jsnes.Controller.BUTTON_RIGHT   // Right Arrow
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (isRunning && KEYMAP[e.keyCode] !== undefined) {
+                nes.buttonDown(1, KEYMAP[e.keyCode]);
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (isRunning && KEYMAP[e.keyCode] !== undefined) {
+                nes.buttonUp(1, KEYMAP[e.keyCode]);
+            }
+        });
+
+        function loadRomToScreen(romData) {
+            document.getElementById('selector-ui').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            const canvas = document.getElementById('screen');
+            canvas_ctx = canvas.getContext('2d');
+            image = canvas_ctx.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            
+            canvas_ctx.fillStyle = 'black';
+            canvas_ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+            const buffer = new ArrayBuffer(image.data.length);
+            framebuffer_u8 = new Uint8ClampedArray(buffer);
+            framebuffer_u32 = new Uint32Array(buffer);
+
+            nes = new jsnes.NES({
+                onFrame: function(framebuffer_24) {
+                    for (let i = 0; i < FRAMEBUFFER_SIZE; i++) {
+                        framebuffer_u32[i] = 0xFF000000 | framebuffer_24[i];
+                    }
+                },
+                onAudioSample: function(l, r) {
+                    audio_samples_L[audio_write_cursor] = l;
+                    audio_samples_R[audio_write_cursor] = r;
+                    audio_write_cursor = (audio_write_cursor + 1) & SAMPLE_MASK;
+                }
+            });
+
+            nes.loadROM(romData);
+            initAudio();
+            isRunning = true;
+            window.requestAnimationFrame(onAnimationFrame);
+        }
+
+        function stopGame() {
+            isRunning = false;
+            if (script_processor) script_processor.disconnect();
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('selector-ui').classList.remove('hidden');
+        }
+
+        // --- File Handling Logic ---
         function startGame() {
             const fileInput = document.getElementById('romInput');
             if (fileInput.files.length === 0) {
@@ -66,7 +238,6 @@
                 return;
             }
             const file = fileInput.files[0];
-            
             if (file.name.endsWith('.zip')) {
                 handleZipFile(file);
             } else {
@@ -77,13 +248,7 @@
         function handleNesFile(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const romData = e.target.result;
-                try {
-                    sessionStorage.setItem('fc_rom_data', romData);
-                    window.location.href = 'game.html';
-                } catch (err) {
-                    alert('ROM 文件过大，无法在本地存储。请尝试较小的 ROM 文件。');
-                }
+                loadRomToScreen(e.target.result);
             };
             reader.readAsBinaryString(file);
         }
@@ -93,27 +258,18 @@
                 const zip = new JSZip();
                 const content = await zip.loadAsync(file);
                 let nesFile = null;
-                
-                // 查找 .nes 文件
                 for (const filename in content.files) {
                     if (filename.toLowerCase().endsWith('.nes')) {
                         nesFile = content.files[filename];
                         break;
                     }
                 }
-
                 if (!nesFile) {
                     alert('ZIP 压缩包中未找到 .nes 格式的 ROM 文件！');
                     return;
                 }
-
                 const romData = await nesFile.async("binarystring");
-                try {
-                    sessionStorage.setItem('fc_rom_data', romData);
-                    window.location.href = 'game.html';
-                } catch (err) {
-                    alert('ROM 文件过大，无法在本地存储。请尝试较小的 ROM 文件。');
-                }
+                loadRomToScreen(romData);
             } catch (e) {
                 alert('解压 ZIP 文件失败：' + e.message);
             }
