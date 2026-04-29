@@ -116,25 +116,31 @@
             position: fixed;
             bottom: 0; left: 0; width: 100%; height: 45%;
             z-index: 40;
-            padding: 20px;
+            padding: 20px 30px 40px;
+            justify-content: space-between;
+            align-items: flex-end;
         }
         @media (hover: none) and (pointer: coarse) {
-            .mobile-controls { display: flex; justify-content: space-between; align-items: flex-end; }
+            .mobile-controls { display: flex; }
+        }
+        @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+            .mobile-controls { height: 100%; padding: 0 50px; align-items: center; }
         }
         
         .d-pad {
             display: grid;
-            grid-template-columns: repeat(3, 55px);
-            grid-template-rows: repeat(3, 55px);
-            gap: 2px;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 4px;
+            flex-shrink: 0;
         }
         .d-btn {
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.8rem;
         }
         .d-btn.active { background: rgba(0, 240, 255, 0.4); border-color: #00f0ff; }
         .d-up { grid-column: 2; grid-row: 1; }
@@ -143,50 +149,59 @@
         .d-down { grid-column: 2; grid-row: 3; }
         .d-center { grid-column: 2; grid-row: 2; background: rgba(0,0,0,0.2); border: none; }
 
-        .action-group { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-        .ab-row { display: flex; gap: 25px; }
+        .action-group { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 25px; 
+            flex-shrink: 0;
+        }
+        .ab-row { display: flex; gap: 30px; }
         .a-btn, .b-btn {
-            width: 70px; height: 70px;
+            width: 75px; height: 75px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.25);
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.5rem;
+            font-weight: bold; font-size: 1.8rem;
         }
         .a-btn.active, .b-btn.active { background: rgba(0, 240, 255, 0.4); border-color: #00f0ff; }
         
-        .menu-row { display: flex; gap: 20px; }
+        .menu-row { display: flex; gap: 25px; margin-top: 5px; }
         .m-btn {
-            padding: 8px 20px;
+            padding: 10px 25px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            font-size: 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
             color: #aaa;
+            letter-spacing: 1px;
         }
 
         .turbo-bar {
             display: none;
             position: fixed;
-            bottom: 10px; left: 50%;
+            bottom: 15px; left: 50%;
             transform: translateX(-50%);
             z-index: 45;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 5px 10px;
-            border-radius: 20px;
-            gap: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 25px;
+            gap: 12px;
             align-items: center;
+            backdrop-filter: blur(8px);
         }
         @media (hover: none) and (pointer: coarse) { .turbo-bar { display: flex; } }
         .t-btn {
-            padding: 5px 12px;
+            padding: 6px 14px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
+            border-radius: 15px;
             color: white;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
+            white-space: nowrap;
         }
-        .t-btn.active { background: #00f0ff; color: black; }
+        .t-btn.active { background: #00f0ff; color: black; border-color: #00f0ff; }
     </style>
 </head>
 <body>
