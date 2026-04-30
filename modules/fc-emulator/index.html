@@ -86,9 +86,12 @@
             border-radius: 5px;
             font-size: 0.9rem;
             backdrop-filter: blur(4px);
+            cursor: pointer;
         }
+        .overlay-btn:hover { background: rgba(0, 0, 0, 0.7); }
         #fullscreen-btn { top: 10px; left: 10px; }
         #back-btn { top: 10px; right: 10px; background: rgba(255, 0, 0, 0.3); }
+        #keymap-btn { top: 10px; left: 110px; }
         
         .scale-controls {
             position: absolute;
@@ -108,86 +111,148 @@
             color: white;
             padding: 5px 10px;
             font-size: 0.9rem;
+            cursor: pointer;
         }
 
-        /* Mobile Virtual Controls */
+        /* ===================== Mobile Virtual Controls ===================== */
         .mobile-controls {
             display: none;
             position: fixed;
-            bottom: 0; left: 0; width: 100%; height: 45%;
+            bottom: 0; left: 0; width: 100%;
             z-index: 40;
-            padding: 20px 30px 40px;
-            justify-content: space-between;
-            align-items: flex-end;
+            pointer-events: none;
         }
         @media (hover: none) and (pointer: coarse) {
             .mobile-controls { display: flex; }
         }
+        @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+            .mobile-controls {
+                height: 48%;
+                padding: 10px 15px 30px;
+                justify-content: space-between;
+                align-items: flex-end;
+            }
+        }
         @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-            .mobile-controls { height: 100%; padding: 0 50px; align-items: center; }
+            .mobile-controls {
+                height: 100%;
+                padding: 0 20px;
+                align-items: center;
+            }
         }
-        
-        .d-pad {
-            display: grid;
-            grid-template-columns: repeat(3, 60px);
-            grid-template-rows: repeat(3, 60px);
-            gap: 4px;
-            flex-shrink: 0;
-        }
-        .d-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.8rem;
-        }
-        .d-btn.active { background: rgba(0, 240, 255, 0.4); border-color: #00f0ff; }
-        .d-up { grid-column: 2; grid-row: 1; }
-        .d-left { grid-column: 1; grid-row: 2; }
-        .d-right { grid-column: 3; grid-row: 2; }
-        .d-down { grid-column: 2; grid-row: 3; }
-        .d-center { grid-column: 2; grid-row: 2; background: rgba(0,0,0,0.2); border: none; }
 
-        .action-group { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 25px; 
+        /* --- Virtual Joystick (left side) --- */
+        .joystick-zone {
+            pointer-events: auto;
+            position: relative;
+            width: 180px;
+            height: 180px;
             flex-shrink: 0;
         }
-        .ab-row { display: flex; gap: 30px; }
-        .a-btn, .b-btn {
-            width: 75px; height: 75px;
+        .joystick-base {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px; height: 150px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.25);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.8rem;
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.12);
         }
-        .a-btn.active, .b-btn.active { background: rgba(0, 240, 255, 0.4); border-color: #00f0ff; }
-        
-        .menu-row { display: flex; gap: 25px; margin-top: 5px; }
-        .m-btn {
-            padding: 10px 25px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: #aaa;
-            letter-spacing: 1px;
+        .joystick-base::before,
+        .joystick-base::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .joystick-base::before {
+            top: 50%; left: 15%; right: 15%;
+            height: 1px;
+            transform: translateY(-50%);
+        }
+        .joystick-base::after {
+            left: 50%; top: 15%; bottom: 15%;
+            width: 1px;
+            transform: translateX(-50%);
+        }
+        .joystick-thumb {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.35), rgba(255,255,255,0.12));
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            transition: box-shadow 0.15s;
+            box-shadow: 0 0 0 0 rgba(0, 240, 255, 0);
+        }
+        .joystick-thumb.active {
+            box-shadow: 0 0 15px 5px rgba(0, 240, 255, 0.3);
+            border-color: #00f0ff;
         }
 
+        /* --- Action Buttons (right side) --- */
+        .action-group {
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            flex-shrink: 0;
+        }
+        .ab-row {
+            display: flex;
+            gap: 20px;
+            position: relative;
+        }
+        .a-btn, .b-btn {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background: rgba(255, 80, 80, 0.15);
+            border: 2px solid rgba(255, 80, 80, 0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.6rem;
+            color: rgba(255, 255, 255, 0.9);
+            user-select: none;
+        }
+        .a-btn:active, .b-btn:active,
+        .a-btn.active, .b-btn.active {
+            background: rgba(255, 80, 80, 0.45);
+            border-color: #ff5050;
+            transform: scale(0.93);
+        }
+
+        .menu-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 5px;
+        }
+        .m-btn {
+            padding: 10px 22px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #888;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+        .m-btn:active, .m-btn.active {
+            background: rgba(0, 240, 255, 0.2);
+            border-color: #00f0ff;
+            color: #00f0ff;
+        }
+
+        /* --- Turbo bar (mobile) --- */
         .turbo-bar {
             display: none;
             position: fixed;
-            bottom: 15px; left: 50%;
+            bottom: 10px; left: 50%;
             transform: translateX(-50%);
             z-index: 45;
             background: rgba(0, 0, 0, 0.7);
             padding: 8px 15px;
             border-radius: 25px;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
             backdrop-filter: blur(8px);
         }
@@ -200,8 +265,85 @@
             color: white;
             font-size: 0.8rem;
             white-space: nowrap;
+            cursor: pointer;
         }
         .t-btn.active { background: #00f0ff; color: black; border-color: #00f0ff; }
+
+        /* ===================== PC Keymap Panel ===================== */
+        #keymap-panel {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            background: rgba(20, 20, 30, 0.95);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            min-width: 340px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+        }
+        #keymap-panel.show { display: block; }
+        #keymap-panel h2 {
+            color: #00f0ff;
+            margin: 0 0 20px 0;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        .keymap-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .keymap-row:last-child { border-bottom: none; }
+        .keymap-label {
+            color: #ccc;
+            font-size: 0.95rem;
+        }
+        .keymap-key {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 6px;
+            padding: 4px 14px;
+            color: #fff;
+            font-size: 0.9rem;
+            min-width: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .keymap-key:hover { border-color: #00f0ff; color: #00f0ff; }
+        .keymap-key.listening {
+            border-color: #ff5050;
+            color: #ff5050;
+            animation: pulse-border 0.8s infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 80, 80, 0.4); }
+            50% { box-shadow: 0 0 8px 3px rgba(255, 80, 80, 0.2); }
+        }
+        .keymap-close {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 30px;
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 8px;
+            color: #00f0ff;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .keymap-close:hover { background: rgba(0, 240, 255, 0.25); }
+        .keymap-hint {
+            text-align: center;
+            color: #666;
+            font-size: 0.78rem;
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -222,6 +364,7 @@
     <div id="game-screen" class="hidden">
         <button id="fullscreen-btn" class="overlay-btn" onclick="toggleFullScreen()">📺 全屏</button>
         <button id="back-btn" class="overlay-btn" onclick="stopGame()">❌</button>
+        <button id="keymap-btn" class="overlay-btn" onclick="toggleKeymapPanel()">⌨️ 按键</button>
         <div class="scale-controls">
             <button class="scale-btn" onclick="changeScale(-0.5)">-</button>
             <span id="scale-display" style="color:white; min-width: 30px; text-align:center;">1.5x</span>
@@ -229,22 +372,22 @@
         </div>
         <canvas id="screen" width="256" height="240"></canvas>
         
+        <!-- Mobile virtual controls -->
         <div class="mobile-controls">
-            <div class="d-pad">
-                <div class="d-btn d-up" data-key="38">▲</div>
-                <div class="d-btn d-left" data-key="37">◀</div>
-                <div class="d-btn d-center"></div>
-                <div class="d-btn d-right" data-key="39">▶</div>
-                <div class="d-btn d-down" data-key="40">▼</div>
+            <!-- Left: Virtual Joystick -->
+            <div class="joystick-zone" id="joystick-zone">
+                <div class="joystick-base"></div>
+                <div class="joystick-thumb" id="joystick-thumb"></div>
             </div>
+            <!-- Right: Action buttons -->
             <div class="action-group">
                 <div class="ab-row">
-                    <div class="b-btn" data-key="90">B</div>
-                    <div class="a-btn" data-key="88">A</div>
+                    <div class="b-btn" data-btn="B">B</div>
+                    <div class="a-btn" data-btn="A">A</div>
                 </div>
                 <div class="menu-row">
-                    <div class="m-btn" data-key="17">SELECT</div>
-                    <div class="m-btn" data-key="13">START</div>
+                    <div class="m-btn" data-btn="SELECT">SELECT</div>
+                    <div class="m-btn" data-btn="START">START</div>
                 </div>
             </div>
         </div>
@@ -257,16 +400,53 @@
         </div>
     </div>
 
+    <!-- PC Keymap Panel -->
+    <div id="keymap-panel">
+        <h2>⌨️ 按键设置</h2>
+        <div id="keymap-list"></div>
+        <button class="keymap-close" onclick="toggleKeymapPanel()">关 闭</button>
+        <div class="keymap-hint">点击按键名后按下新键即可修改绑定</div>
+    </div>
+
     <script src="lib/jszip.min.js"></script>
     <script src="lib/jsnes.min.js"></script>
     <script>
-        // --- Core Logic ---
+        // --- Core ---
         const SCREEN_WIDTH = 256, SCREEN_HEIGHT = 240;
         let nes, canvas_ctx, image, framebuffer_u8, framebuffer_u32;
         let audio_ctx, script_processor;
         let isRunning = false, currentScale = 1.5;
         let turboMode = { A: false, B: false }, turboRate = 10, frameCount = 0;
-        const KEYMAP = { 88: 0, 90: 1, 17: 2, 13: 3, 38: 4, 40: 5, 37: 6, 39: 7 }; // jsnes button indices
+
+        // Button names mapped to jsnes controller indices
+        // Player 1: A=0, B=1, SELECT=2, START=3, UP=4, DOWN=5, LEFT=6, RIGHT=7
+        const BUTTON_NAMES = ['A', 'B', 'SELECT', 'START', 'UP', 'DOWN', 'LEFT', 'RIGHT'];
+        const DEFAULT_KEYMAP = {
+            'A': 'KeyX', 'B': 'KeyZ', 'SELECT': 'ShiftRight', 'START': 'Enter',
+            'UP': 'ArrowUp', 'DOWN': 'ArrowDown', 'LEFT': 'ArrowLeft', 'RIGHT': 'ArrowRight'
+        };
+        let keymap = Object.assign({}, DEFAULT_KEYMAP);
+
+        // Reverse lookup: code -> button name
+        function codeToBtn(code) {
+            for (const [btn, c] of Object.entries(keymap)) { if (c === code) return btn; }
+            return null;
+        }
+        function btnToIndex(btn) { return BUTTON_NAMES.indexOf(btn); }
+
+        // Key code to display label
+        function codeToLabel(code) {
+            const map = {
+                'KeyX': 'X', 'KeyZ': 'Z', 'Enter': 'Enter', 'ShiftRight': 'R-Shift',
+                'ArrowUp': '↑', 'ArrowDown': '↓', 'ArrowLeft': '←', 'ArrowRight': '→',
+                'Space': 'Space', 'KeyC': 'C', 'KeyV': 'V', 'KeyA': 'A', 'KeyS': 'S',
+                'KeyD': 'D', 'KeyW': 'W', 'KeyQ': 'Q', 'KeyE': 'E', 'KeyR': 'R',
+                'KeyF': 'F', 'Tab': 'Tab', 'Backspace': 'Back', 'ShiftLeft': 'L-Shift',
+                'ControlLeft': 'L-Ctrl', 'ControlRight': 'R-Ctrl', 'AltLeft': 'L-Alt',
+                'AltRight': 'R-Alt', 'KeyN': 'N', 'KeyM': 'M',
+            };
+            return map[code] || code.replace('Key', '').replace('Digit', '');
+        }
 
         function initGame() {
             const canvas = document.getElementById('screen');
@@ -277,11 +457,10 @@
             framebuffer_u32 = new Uint32Array(buffer);
 
             nes = new jsnes.NES({
-                onFrame: (buf) => { for(let i=0; i<buf.length; i++) framebuffer_u32[i] = 0xFF000000 | buf[i]; },
-                onAudioSample: (l, r) => {} // Simplified for brevity
+                onFrame: (buf) => { for (let i = 0; i < buf.length; i++) framebuffer_u32[i] = 0xFF000000 | buf[i]; },
+                onAudioSample: (l, r) => {}
             });
-            
-            // Audio setup
+
             audio_ctx = new (window.AudioContext || window.webkitAudioContext)();
             script_processor = audio_ctx.createScriptProcessor(512, 0, 2);
             script_processor.connect(audio_ctx.destination);
@@ -302,7 +481,6 @@
             requestAnimationFrame(loop);
             image.data.set(framebuffer_u8);
             canvas_ctx.putImageData(image, 0, 0);
-            
             frameCount++;
             if (frameCount % Math.floor(60 / turboRate) === 0) {
                 if (turboMode.A) { nes.buttonDown(1, 0); setTimeout(() => nes.buttonUp(1, 0), 40); }
@@ -311,33 +489,142 @@
             nes.frame();
         }
 
-        // --- Input Handling ---
-        const activeTouches = new Map();
-        document.addEventListener('touchstart', (e) => {
-            for (let t of e.changedTouches) {
-                const el = document.elementFromPoint(t.clientX, t.clientY);
-                if (el && el.dataset.key) {
-                    nes.buttonDown(1, KEYMAP[el.dataset.key]);
-                    el.classList.add('active');
-                    activeTouches.set(t.identifier, el);
+        // --- Keyboard Input ---
+        const keysDown = new Set();
+        document.addEventListener('keydown', (e) => {
+            if (listeningBtn) {
+                e.preventDefault();
+                keymap[listeningBtn] = e.code;
+                listeningBtn = null;
+                renderKeymapPanel();
+                return;
+            }
+            const btn = codeToBtn(e.code);
+            if (btn) { e.preventDefault(); keysDown.add(e.code); nes.buttonDown(1, btnToIndex(btn)); }
+        });
+        document.addEventListener('keyup', (e) => {
+            const btn = codeToBtn(e.code);
+            if (btn) { keysDown.delete(e.code); nes.buttonUp(1, btnToIndex(btn)); }
+        });
+
+        // --- Mobile Touch: Joystick ---
+        const joystickZone = document.getElementById('joystick-zone');
+        const joystickThumb = document.getElementById('joystick-thumb');
+        let joystickTouch = null;
+        const JOYSTICK_RADIUS = 45; // max displacement px
+        const JOYSTICK_DEADZONE = 0.25; // ratio
+        let joystickDir = { up: false, down: false, left: false, right: false };
+
+        function updateJoystick(cx, cy) {
+            const rect = joystickZone.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            let dx = cx - centerX;
+            let dy = cy - centerY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > JOYSTICK_RADIUS) {
+                dx = dx / dist * JOYSTICK_RADIUS;
+                dy = dy / dist * JOYSTICK_RADIUS;
+            }
+            joystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+            joystickThumb.classList.add('active');
+
+            const normDist = dist / JOYSTICK_RADIUS;
+            const newDir = {
+                up: dy < -JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
+                down: dy > JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
+                left: dx < -JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
+                right: dx > JOYSTICK_RADIUS * JOYSTICK_DEADZONE
+            };
+            ['up', 'down', 'left', 'right'].forEach(d => {
+                if (newDir[d] !== joystickDir[d]) {
+                    joystickDir[d] = newDir[d];
+                    const idx = btnToIndex(d.toUpperCase());
+                    if (newDir[d]) nes.buttonDown(1, idx);
+                    else nes.buttonUp(1, idx);
+                }
+            });
+        }
+
+        function resetJoystick() {
+            joystickThumb.style.transform = 'translate(-50%, -50%)';
+            joystickThumb.classList.remove('active');
+            ['up', 'down', 'left', 'right'].forEach(d => {
+                if (joystickDir[d]) {
+                    joystickDir[d] = false;
+                    nes.buttonUp(1, btnToIndex(d.toUpperCase()));
+                }
+            });
+        }
+
+        joystickZone.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (joystickTouch === null && e.changedTouches.length > 0) {
+                joystickTouch = e.changedTouches[0].identifier;
+                updateJoystick(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+            }
+        }, { passive: false });
+
+        joystickZone.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            for (const t of e.changedTouches) {
+                if (t.identifier === joystickTouch) {
+                    updateJoystick(t.clientX, t.clientY);
                 }
             }
-        }, {passive: false});
+        }, { passive: false });
 
-        document.addEventListener('touchend', (e) => {
-            for (let t of e.changedTouches) {
-                const el = activeTouches.get(t.identifier);
-                if (el) {
-                    nes.buttonUp(1, KEYMAP[el.dataset.key]);
-                    el.classList.remove('active');
-                    activeTouches.delete(t.identifier);
+        joystickZone.addEventListener('touchend', (e) => {
+            for (const t of e.changedTouches) {
+                if (t.identifier === joystickTouch) {
+                    joystickTouch = null;
+                    resetJoystick();
+                }
+            }
+        });
+        joystickZone.addEventListener('touchcancel', (e) => {
+            for (const t of e.changedTouches) {
+                if (t.identifier === joystickTouch) {
+                    joystickTouch = null;
+                    resetJoystick();
                 }
             }
         });
 
-        // Keyboard fallback
-        document.addEventListener('keydown', (e) => { if(KEYMAP[e.keyCode]!==undefined) nes.buttonDown(1, KEYMAP[e.keyCode]); });
-        document.addEventListener('keyup', (e) => { if(KEYMAP[e.keyCode]!==undefined) nes.buttonUp(1, KEYMAP[e.keyCode]); });
+        // --- Mobile Touch: Action Buttons ---
+        const touchBtns = new Map();
+        document.querySelectorAll('.a-btn, .b-btn, .m-btn').forEach(el => {
+            el.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const btnName = el.dataset.btn;
+                const idx = btnToIndex(btnName);
+                if (idx >= 0) {
+                    nes.buttonDown(1, idx);
+                    el.classList.add('active');
+                    for (const t of e.changedTouches) touchBtns.set(t.identifier, { el, idx });
+                }
+            }, { passive: false });
+            el.addEventListener('touchend', (e) => {
+                for (const t of e.changedTouches) {
+                    const info = touchBtns.get(t.identifier);
+                    if (info) {
+                        nes.buttonUp(1, info.idx);
+                        info.el.classList.remove('active');
+                        touchBtns.delete(t.identifier);
+                    }
+                }
+            });
+            el.addEventListener('touchcancel', (e) => {
+                for (const t of e.changedTouches) {
+                    const info = touchBtns.get(t.identifier);
+                    if (info) {
+                        nes.buttonUp(1, info.idx);
+                        info.el.classList.remove('active');
+                        touchBtns.delete(t.identifier);
+                    }
+                }
+            });
+        });
 
         // --- UI Functions ---
         function changeScale(d) { currentScale = Math.max(0.5, Math.min(5, currentScale + d)); updateScale(); }
@@ -353,6 +640,7 @@
             isRunning = false;
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('selector-ui').classList.remove('hidden');
+            document.getElementById('keymap-panel').classList.remove('show');
             if (document.fullscreenElement) document.exitFullscreen();
         }
         function toggleTurbo(btn) {
@@ -362,15 +650,47 @@
         }
         function setRate(r, btn) {
             turboRate = r;
-            document.querySelectorAll('.turbo-bar .t-btn').forEach(b => { if(!b.dataset.type) b.classList.remove('active'); });
+            document.querySelectorAll('.turbo-bar .t-btn').forEach(b => { if (!b.dataset.type) b.classList.remove('active'); });
             btn.classList.add('active');
+        }
+
+        // --- Keymap Panel ---
+        let listeningBtn = null;
+
+        function toggleKeymapPanel() {
+            const panel = document.getElementById('keymap-panel');
+            panel.classList.toggle('show');
+            if (panel.classList.contains('show')) renderKeymapPanel();
+        }
+
+        function renderKeymapPanel() {
+            const list = document.getElementById('keymap-list');
+            list.innerHTML = '';
+            BUTTON_NAMES.forEach(btn => {
+                const row = document.createElement('div');
+                row.className = 'keymap-row';
+                const label = document.createElement('span');
+                label.className = 'keymap-label';
+                label.textContent = btn;
+                const key = document.createElement('span');
+                key.className = 'keymap-key';
+                key.textContent = codeToLabel(keymap[btn]);
+                key.dataset.btn = btn;
+                if (listeningBtn === btn) key.classList.add('listening');
+                key.addEventListener('click', () => {
+                    listeningBtn = btn;
+                    renderKeymapPanel();
+                });
+                row.appendChild(label);
+                row.appendChild(key);
+                list.appendChild(row);
+            });
         }
 
         // --- File Loading ---
         document.getElementById('romInput').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            
             if (file.name.endsWith('.zip')) {
                 const zip = await JSZip.loadAsync(file);
                 const nesFile = Object.values(zip.files).find(f => f.name.toLowerCase().endsWith('.nes'));
