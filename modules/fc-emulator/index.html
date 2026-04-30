@@ -138,7 +138,7 @@
         @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
             .mobile-controls {
                 height: 48%;
-                padding: 10px 10px 30px;
+                padding: 6px 8px 20px;
                 justify-content: space-between;
                 align-items: flex-end;
             }
@@ -159,15 +159,15 @@
         .joystick-zone {
             pointer-events: auto;
             position: relative;
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             flex-shrink: 0;
         }
         .joystick-base {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 130px; height: 130px;
+            width: 110px; height: 110px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.06);
             border: 2px solid rgba(255, 255, 255, 0.12);
@@ -192,7 +192,7 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 60px; height: 60px;
+            width: 48px; height: 48px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.35), rgba(255,255,255,0.12));
             border: 2px solid rgba(255, 255, 255, 0.25);
@@ -210,22 +210,22 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
             flex-shrink: 0;
             max-width: 50vw;
         }
         .ab-row {
             display: flex;
-            gap: 14px;
+            gap: 10px;
             position: relative;
         }
         .a-btn, .b-btn {
-            width: 62px; height: 62px;
+            width: 54px; height: 54px;
             border-radius: 50%;
             background: rgba(255, 80, 80, 0.15);
             border: 2px solid rgba(255, 80, 80, 0.3);
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.4rem;
+            font-weight: bold; font-size: 1.2rem;
             color: rgba(255, 255, 255, 0.9);
             user-select: none;
         }
@@ -238,11 +238,11 @@
 
         .menu-row {
             display: flex;
-            gap: 14px;
-            margin-top: 2px;
+            gap: 10px;
+            margin-top: 0;
         }
         .m-btn {
-            padding: 10px 18px;
+            padding: 7px 14px;
             background: rgba(0, 240, 255, 0.1);
             border: 1.5px solid rgba(0, 240, 255, 0.3);
             border-radius: 20px;
@@ -261,20 +261,20 @@
         .turbo-bar {
             display: none;
             background: rgba(0, 0, 0, 0.5);
-            padding: 6px 10px;
-            border-radius: 20px;
-            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 16px;
+            gap: 4px;
             align-items: center;
             backdrop-filter: blur(8px);
         }
         @media (hover: none) and (pointer: coarse) { .turbo-bar { display: flex; } }
         .t-btn {
-            padding: 6px 14px;
+            padding: 4px 10px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
+            border-radius: 12px;
             color: white;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             white-space: nowrap;
             cursor: pointer;
         }
@@ -534,7 +534,7 @@
         const joystickZone = document.getElementById('joystick-zone');
         const joystickThumb = document.getElementById('joystick-thumb');
         let joystickTouch = null;
-        const JOYSTICK_RADIUS = 45; // max displacement px
+        const JOYSTICK_RADIUS = 38; // max displacement px
         const JOYSTICK_DEADZONE = 0.25; // ratio
         let joystickDir = { up: false, down: false, left: false, right: false };
 
