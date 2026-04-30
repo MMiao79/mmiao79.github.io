@@ -250,17 +250,13 @@
             border-color: #00f0ff;
         }
 
-        /* --- Turbo bar (mobile) --- */
+        /* --- Turbo bar (mobile, inside action-group) --- */
         .turbo-bar {
             display: none;
-            position: fixed;
-            bottom: 10px; left: 50%;
-            transform: translateX(-50%);
-            z-index: 45;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 15px;
-            border-radius: 25px;
-            gap: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px 10px;
+            border-radius: 20px;
+            gap: 6px;
             align-items: center;
             backdrop-filter: blur(8px);
         }
@@ -388,6 +384,12 @@
             </div>
             <!-- Right: Action buttons -->
             <div class="action-group">
+                <div class="turbo-bar">
+                    <button class="t-btn" data-type="B" onclick="toggleTurbo(this)">B连发</button>
+                    <button class="t-btn" data-type="A" onclick="toggleTurbo(this)">A连发</button>
+                    <button class="t-btn active" onclick="setRate(10, this)">10/s</button>
+                    <button class="t-btn" onclick="setRate(20, this)">20/s</button>
+                </div>
                 <div class="ab-row">
                     <div class="b-btn" data-btn="B">B</div>
                     <div class="a-btn" data-btn="A">A</div>
@@ -397,13 +399,6 @@
                     <div class="m-btn" data-btn="START">START</div>
                 </div>
             </div>
-        </div>
-
-        <div class="turbo-bar">
-            <button class="t-btn" data-type="B" onclick="toggleTurbo(this)">B连发</button>
-            <button class="t-btn" data-type="A" onclick="toggleTurbo(this)">A连发</button>
-            <button class="t-btn active" onclick="setRate(10, this)">10/s</button>
-            <button class="t-btn" onclick="setRate(20, this)">20/s</button>
         </div>
     </div>
 
