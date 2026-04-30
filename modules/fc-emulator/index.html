@@ -51,15 +51,6 @@
             transition: 0.2s;
         }
         .file-input-label:active { background: #0060cc; transform: scale(0.98); }
-        #romInput {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
 
         /* Game Screen */
         #game-screen {
@@ -369,14 +360,10 @@
         <h1>🎮 FC 游戏启动器</h1>
         <p>请选择本地的 .nes ROM 文件或 .zip 压缩包</p>
         <div class="file-input-wrapper">
-            <label class="file-input-label" for="romInput">📂 选择 ROM 文件</label>
-            <input type="file" id="romInput" accept=".nes,.zip">
-        </div>
-        <div class="file-input-wrapper">
-            <label class="file-input-label" id="dir-pick-label" style="background: #0066cc;">📁 从文件夹选择</label>
+            <label class="file-input-label" id="rom-pick-btn">📂 选择 ROM 文件</label>
         </div>
         <div style="color: #666; font-size: 0.8rem; margin-top: 20px;">
-            支持格式：.nes, .zip（文件夹模式会记住上次打开位置）
+            支持格式：.nes, .zip
         </div>
     </div>
 
@@ -707,39 +694,37 @@
             });
         }
 
-        // --- File Loading ---
-        const LAST_DIR_KEY = 'fc-emulator-lastdir';
-
-        // Restore last opened directory handle if supported
-        let dirHandle = null;
-        async function restoreDirHandle() {
-            try {
-                if ('showDirectoryPicker' in window) {
-                    const id = localStorage.getItem(LAST_DIR_KEY);
-                    if (id) {
-                        dirHandle = await window.showDirectoryPicker({ id, startIn: id });
-                    }
-                }
-            } catch (e) {
-                dirHandle = null;
+        // --- File Loading (uses File System Access API to remember last directory) ---
+        async function pickAndLoadROM() {
+            let file;
+            // Prefer showOpenFilePicker: remembers last directory via id
+            if ('showOpenFilePicker' in window) {
+                try {
+                    [file] = await window.showOpenFilePicker({
+                        id: 'fc-rom-picker',
+                        types: [{
+                            description: 'NES ROM',
+                            accept: { 'application/octet-stream': ['.nes', '.zip'] }
+                        }]
+                    });
+                } catch (e) { return; } // user cancelled
+            } else {
+                // Fallback: native file input
+                return new Promise(resolve => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.nes,.zip';
+                    input.onchange = () => {
+                        if (input.files[0]) loadFile(input.files[0]);
+                        resolve();
+                    };
+                    input.click();
+                });
             }
+            if (file) loadFile(await file.getFile());
         }
 
-        document.getElementById('romInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            // Try to remember the parent directory via File System Access API
-            try {
-                if ('showDirectoryPicker' in window && file.webkitRelativePath === '' && file.name) {
-                    // Attempt to get directory handle from the file's parent
-                    // We can't directly, so we'll prompt once and remember
-                    const dirName = file.name.substring(0, file.name.lastIndexOf('.nes')) || 'nes';
-                    // Store the fact we opened a file so we can try next time
-                    localStorage.setItem(LAST_DIR_KEY + '-file', file.webkitRelativePath || file.name);
-                }
-            } catch (e) {}
-
+        async function loadFile(file) {
             if (file.name.endsWith('.zip')) {
                 const zip = await JSZip.loadAsync(file);
                 const nesFile = Object.values(zip.files).find(f => f.name.toLowerCase().endsWith('.nes'));
@@ -750,48 +735,11 @@
                 reader.onload = (ev) => loadROM(ev.target.result);
                 reader.readAsBinaryString(file);
             }
-        });
-
-        // Try to use File System Access API for directory-based file picking
-        async function pickROMFromDir() {
-            try {
-                if (!('showDirectoryPicker' in window)) return false;
-                const handle = await window.showDirectoryPicker({
-                    id: 'fc-rom-picker',
-                    startIn: 'documents',
-                    mode: 'read'
-                });
-                dirHandle = handle;
-                localStorage.setItem(LAST_DIR_KEY, 'fc-rom-picker');
-                for await (const entry of handle.values()) {
-                    const name = entry.name.toLowerCase();
-                    if (name.endsWith('.nes')) {
-                        const file = await entry.getFile();
-                        const reader = new FileReader();
-                        reader.onload = (ev) => loadROM(ev.target.result);
-                        reader.readAsBinaryString(file);
-                        return true;
-                    } else if (name.endsWith('.zip')) {
-                        const file = await entry.getFile();
-                        const zip = await JSZip.loadAsync(file);
-                        const nesFile = Object.values(zip.files).find(f => f.name.toLowerCase().endsWith('.nes'));
-                        if (nesFile) {
-                            loadROM(await nesFile.async("binarystring"));
-                            return true;
-                        }
-                    }
-                }
-                alert('所选目录中未找到 .nes 或 .zip 文件');
-            } catch (e) {
-                if (e.name !== 'AbortError') console.warn('Directory picker error:', e);
-            }
-            return false;
         }
 
-        // Bind directory picker button
-        document.getElementById('dir-pick-label').addEventListener('click', async (e) => {
+        document.getElementById('rom-pick-btn').addEventListener('click', (e) => {
             e.preventDefault();
-            await pickROMFromDir();
+            pickAndLoadROM();
         });
     </script>
 </body>
