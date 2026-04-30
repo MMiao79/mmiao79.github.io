@@ -261,11 +261,18 @@
         .turbo-bar {
             display: none;
             background: rgba(0, 0, 0, 0.5);
-            padding: 4px 8px;
-            border-radius: 16px;
-            gap: 4px;
+            padding: 4px 6px;
+            border-radius: 12px;
+            gap: 3px;
             align-items: center;
             backdrop-filter: blur(8px);
+            flex-direction: column;
+        }
+        .turbo-row {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
         }
         @media (hover: none) and (pointer: coarse) { .turbo-bar { display: flex; } }
         .t-btn {
@@ -392,10 +399,14 @@
             <!-- Right: Action buttons -->
             <div class="action-group">
                 <div class="turbo-bar">
-                    <button class="t-btn" data-type="B" onclick="toggleTurbo(this)">B连发</button>
-                    <button class="t-btn" data-type="A" onclick="toggleTurbo(this)">A连发</button>
-                    <button class="t-btn active" onclick="setRate(10, this)">10/s</button>
-                    <button class="t-btn" onclick="setRate(20, this)">20/s</button>
+                    <div class="turbo-row">
+                        <button class="t-btn" data-type="B" onclick="toggleTurbo(this)">B连发</button>
+                        <button class="t-btn" data-type="A" onclick="toggleTurbo(this)">A连发</button>
+                    </div>
+                    <div class="turbo-row">
+                        <button class="t-btn active" onclick="setRate(10, this)">10/s</button>
+                        <button class="t-btn" onclick="setRate(20, this)">20/s</button>
+                    </div>
                 </div>
                 <div class="ab-row">
                     <div class="b-btn" data-btn="B">B</div>
