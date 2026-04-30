@@ -427,7 +427,12 @@
             'A': 'KeyX', 'B': 'KeyZ', 'SELECT': 'ShiftRight', 'START': 'Enter',
             'UP': 'ArrowUp', 'DOWN': 'ArrowDown', 'LEFT': 'ArrowLeft', 'RIGHT': 'ArrowRight'
         };
+        const DEFAULT_TURBO_KEYMAP = {
+            'Turbo A': 'KeyC', 'Turbo B': 'KeyV'
+        };
         let keymap = Object.assign({}, DEFAULT_KEYMAP);
+        let turboKeymap = Object.assign({}, DEFAULT_TURBO_KEYMAP);
+        let turboKeyHeld = { 'Turbo A': false, 'Turbo B': false };
 
         // Reverse lookup: code -> button name
         function codeToBtn(code) {
@@ -485,26 +490,35 @@
             canvas_ctx.putImageData(image, 0, 0);
             frameCount++;
             if (frameCount % Math.floor(60 / turboRate) === 0) {
-                if (turboMode.A) { nes.buttonDown(1, 0); setTimeout(() => nes.buttonUp(1, 0), 40); }
-                if (turboMode.B) { nes.buttonDown(1, 1); setTimeout(() => nes.buttonUp(1, 1), 40); }
+                if (turboMode.A || turboKeyHeld['Turbo A']) { nes.buttonDown(1, 0); setTimeout(() => nes.buttonUp(1, 0), 40); }
+                if (turboMode.B || turboKeyHeld['Turbo B']) { nes.buttonDown(1, 1); setTimeout(() => nes.buttonUp(1, 1), 40); }
             }
             nes.frame();
         }
 
         // --- Keyboard Input ---
         const keysDown = new Set();
+        function turboCodeToName(code) {
+            for (const [name, c] of Object.entries(turboKeymap)) { if (c === code) return name; }
+            return null;
+        }
         document.addEventListener('keydown', (e) => {
             if (listeningBtn) {
                 e.preventDefault();
-                keymap[listeningBtn] = e.code;
+                if (listeningTurbo) { turboKeymap[listeningBtn] = e.code; listeningTurbo = null; }
+                else { keymap[listeningBtn] = e.code; }
                 listeningBtn = null;
                 renderKeymapPanel();
                 return;
             }
+            const turboName = turboCodeToName(e.code);
+            if (turboName) { e.preventDefault(); turboKeyHeld[turboName] = true; return; }
             const btn = codeToBtn(e.code);
             if (btn) { e.preventDefault(); keysDown.add(e.code); nes.buttonDown(1, btnToIndex(btn)); }
         });
         document.addEventListener('keyup', (e) => {
+            const turboName = turboCodeToName(e.code);
+            if (turboName) { turboKeyHeld[turboName] = false; return; }
             const btn = codeToBtn(e.code);
             if (btn) { keysDown.delete(e.code); nes.buttonUp(1, btnToIndex(btn)); }
         });
@@ -658,6 +672,7 @@
 
         // --- Keymap Panel ---
         let listeningBtn = null;
+        let listeningTurbo = false;
 
         function toggleKeymapPanel() {
             const panel = document.getElementById('keymap-panel');
@@ -678,9 +693,39 @@
                 key.className = 'keymap-key';
                 key.textContent = codeToLabel(keymap[btn]);
                 key.dataset.btn = btn;
-                if (listeningBtn === btn) key.classList.add('listening');
+                if (listeningBtn === btn && !listeningTurbo) key.classList.add('listening');
                 key.addEventListener('click', () => {
                     listeningBtn = btn;
+                    listeningTurbo = false;
+                    renderKeymapPanel();
+                });
+                row.appendChild(label);
+                row.appendChild(key);
+                list.appendChild(row);
+            });
+            // Turbo keys section
+            const sep = document.createElement('div');
+            sep.style.cssText = 'border-top: 1px solid rgba(0,240,255,0.2); padding: 8px 0 2px; margin-top: 4px;';
+            const sepLabel = document.createElement('span');
+            sepLabel.style.cssText = 'color: #00f0ff; font-size: 0.8rem;';
+            sepLabel.textContent = '连发按键（按住自动连发）';
+            sep.appendChild(sepLabel);
+            list.appendChild(sep);
+            Object.keys(turboKeymap).forEach(name => {
+                const row = document.createElement('div');
+                row.className = 'keymap-row';
+                const label = document.createElement('span');
+                label.className = 'keymap-label';
+                label.textContent = name;
+                label.style.color = '#ff9944';
+                const key = document.createElement('span');
+                key.className = 'keymap-key';
+                key.textContent = codeToLabel(turboKeymap[name]);
+                key.dataset.btn = name;
+                if (listeningBtn === name && listeningTurbo) key.classList.add('listening');
+                key.addEventListener('click', () => {
+                    listeningBtn = name;
+                    listeningTurbo = true;
                     renderKeymapPanel();
                 });
                 row.appendChild(label);
