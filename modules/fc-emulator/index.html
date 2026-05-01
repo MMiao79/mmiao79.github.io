@@ -440,6 +440,12 @@
         let isRunning = false, currentScale = 1.5;
         let turboMode = { A: false, B: false }, turboRate = 10, frameCount = 0;
 
+        // --- Audio ring buffer ---
+        const AUDIO_FIFO_SIZE = 16384;
+        let audioFifoL = new Float32Array(AUDIO_FIFO_SIZE);
+        let audioFifoR = new Float32Array(AUDIO_FIFO_SIZE);
+        let audioFifoHead = 0, audioFifoCount = 0;
+
         // Button names mapped to jsnes controller indices
         // Player 1: A=0, B=1, SELECT=2, START=3, UP=4, DOWN=5, LEFT=6, RIGHT=7
         const BUTTON_NAMES = ['A', 'B', 'SELECT', 'START', 'UP', 'DOWN', 'LEFT', 'RIGHT'];
@@ -485,11 +491,31 @@
 
             nes = new jsnes.NES({
                 onFrame: (buf) => { for (let i = 0; i < buf.length; i++) framebuffer_u32[i] = 0xFF000000 | buf[i]; },
-                onAudioSample: (l, r) => {}
+                onAudioSample: (l, r) => {
+                    audioFifoL[audioFifoHead] = l;
+                    audioFifoR[audioFifoHead] = r;
+                    audioFifoHead = (audioFifoHead + 1) % AUDIO_FIFO_SIZE;
+                    if (audioFifoCount < AUDIO_FIFO_SIZE) audioFifoCount++;
+                }
             });
 
             audio_ctx = new (window.AudioContext || window.webkitAudioContext)();
-            script_processor = audio_ctx.createScriptProcessor(512, 0, 2);
+            script_processor = audio_ctx.createScriptProcessor(2048, 0, 2);
+            script_processor.onaudioprocess = (e) => {
+                const outL = e.outputBuffer.getChannelData(0);
+                const outR = e.outputBuffer.getChannelData(1);
+                for (let i = 0; i < outL.length; i++) {
+                    if (audioFifoCount > 0) {
+                        const idx = (audioFifoHead - audioFifoCount + AUDIO_FIFO_SIZE) % AUDIO_FIFO_SIZE;
+                        outL[i] = audioFifoL[idx];
+                        outR[i] = audioFifoR[idx];
+                        audioFifoCount--;
+                    } else {
+                        outL[i] = 0;
+                        outR[i] = 0;
+                    }
+                }
+            };
             script_processor.connect(audio_ctx.destination);
         }
 
@@ -497,7 +523,11 @@
             document.getElementById('selector-ui').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
             if (!nes) initGame();
+            // Reset audio FIFO
+            audioFifoHead = 0; audioFifoCount = 0;
             nes.loadROM(data);
+            // Resume AudioContext (needed after user gesture)
+            if (audio_ctx && audio_ctx.state === 'suspended') audio_ctx.resume();
             isRunning = true;
             updateScale();
             requestAnimationFrame(loop);
