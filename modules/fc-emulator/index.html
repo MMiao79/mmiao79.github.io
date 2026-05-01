@@ -67,9 +67,12 @@
             padding-top: 0 !important;
         }
         #game-screen.game-fullscreen #screen {
-            width: 100%;
+            width: auto;
             height: auto;
+            max-width: 100vw;
+            max-height: 100vh;
             box-shadow: none;
+            transform: scale(1) !important;
         }
         #game-screen.game-fullscreen .overlay-btn,
         #game-screen.game-fullscreen .scale-controls {
@@ -717,11 +720,16 @@
         function changeScale(d) { currentScale = Math.max(0.5, Math.min(5, currentScale + d)); updateScale(); }
         function updateScale() {
             const screen = document.getElementById('game-screen');
+            const canvas = document.getElementById('screen');
             const isFs = screen && screen.classList.contains('game-fullscreen');
             if (isFs) {
-                document.getElementById('screen').style.transform = '';
+                // 全屏模式：根据屏幕尺寸计算最大缩放比例，保持4:3比例
+                const scaleX = Math.floor((window.innerWidth - 20) / SCREEN_WIDTH);
+                const scaleY = Math.floor((window.innerHeight - 20) / SCREEN_HEIGHT);
+                const fitScale = Math.min(scaleX, scaleY, 5);
+                canvas.style.transform = `scale(${fitScale})`;
             } else {
-                document.getElementById('screen').style.transform = `scale(${currentScale})`;
+                canvas.style.transform = `scale(${currentScale})`;
             }
             document.getElementById('scale-display').textContent = currentScale + 'x';
         }
@@ -730,6 +738,7 @@
             const btn = document.getElementById('fullscreen-btn');
             screen.classList.toggle('game-fullscreen');
             btn.textContent = screen.classList.contains('game-fullscreen') ? '📺 退出' : '📺 全屏';
+            updateScale();
         }
         function stopGame() {
             isRunning = false;
@@ -860,6 +869,14 @@
         document.getElementById('rom-pick-btn').addEventListener('click', (e) => {
             e.preventDefault();
             pickAndLoadROM();
+        });
+
+        // 窗口大小变化时重新计算全屏缩放
+        window.addEventListener('resize', () => {
+            const screen = document.getElementById('game-screen');
+            if (screen && screen.classList.contains('game-fullscreen')) {
+                updateScale();
+            }
         });
     </script>
 </body>
