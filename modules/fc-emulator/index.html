@@ -66,11 +66,9 @@
             justify-content: center;
             padding-top: 0 !important;
         }
-        #game-screen.game-fullscreen canvas {
-            width: 100% !important;
-            height: 100% !important;
-            max-width: 100%;
-            max-height: 100%;
+        #game-screen.game-fullscreen #screen {
+            width: 100%;
+            height: auto;
             box-shadow: none;
         }
         #game-screen.game-fullscreen .overlay-btn,
@@ -711,7 +709,13 @@
         // --- UI Functions ---
         function changeScale(d) { currentScale = Math.max(0.5, Math.min(5, currentScale + d)); updateScale(); }
         function updateScale() {
-            document.getElementById('screen').style.transform = `scale(${currentScale})`;
+            const screen = document.getElementById('game-screen');
+            const isFs = screen && screen.classList.contains('game-fullscreen');
+            if (isFs) {
+                document.getElementById('screen').style.transform = '';
+            } else {
+                document.getElementById('screen').style.transform = `scale(${currentScale})`;
+            }
             document.getElementById('scale-display').textContent = currentScale + 'x';
         }
         function toggleFullScreen() {
