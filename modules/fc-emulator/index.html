@@ -62,6 +62,22 @@
             justify-content: center;
             align-items: center;
         }
+        #game-screen.game-fullscreen {
+            justify-content: center;
+            padding-top: 0 !important;
+        }
+        #game-screen.game-fullscreen canvas {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: none;
+        }
+        #game-screen.game-fullscreen .overlay-btn,
+        #game-screen.game-fullscreen .scale-controls {
+            opacity: 0;
+            pointer-events: none;
+        }
         /* PC: center canvas */
         @media (hover: hover) {
             #game-screen { justify-content: center; }
@@ -699,15 +715,18 @@
             document.getElementById('scale-display').textContent = currentScale + 'x';
         }
         function toggleFullScreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else document.exitFullscreen();
+            const screen = document.getElementById('game-screen');
+            const btn = document.getElementById('fullscreen-btn');
+            screen.classList.toggle('game-fullscreen');
+            btn.textContent = screen.classList.contains('game-fullscreen') ? '📺 退出' : '📺 全屏';
         }
         function stopGame() {
             isRunning = false;
             document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('game-fullscreen');
             document.getElementById('selector-ui').classList.remove('hidden');
             document.getElementById('keymap-panel').classList.remove('show');
-            if (document.fullscreenElement) document.exitFullscreen();
+            document.getElementById('fullscreen-btn').textContent = '📺 全屏';
         }
         function toggleTurbo(btn) {
             const type = btn.dataset.type;
