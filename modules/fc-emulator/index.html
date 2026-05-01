@@ -76,6 +76,13 @@
             opacity: 0;
             pointer-events: none;
         }
+        #game-screen.game-fullscreen #fullscreen-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #game-screen.game-fullscreen #fullscreen-btn:hover {
+            background: rgba(255, 0, 0, 0.6);
+        }
         /* PC: center canvas */
         @media (hover: hover) {
             #game-screen { justify-content: center; }
