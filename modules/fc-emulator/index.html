@@ -51,6 +51,22 @@
             transition: 0.2s;
         }
         .file-input-label:active { background: #0060cc; transform: scale(0.98); }
+        .resume-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto 0;
+            padding: 15px;
+            background: #28a745;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+            border: none;
+        }
+        .resume-btn:active { background: #1e7e34; transform: scale(0.98); }
 
         /* Game Screen */
         #game-screen {
@@ -420,6 +436,7 @@
         <div class="file-input-wrapper">
             <label class="file-input-label" id="rom-pick-btn">📂 选择 ROM 文件</label>
         </div>
+        <button id="resume-btn" class="resume-btn hidden" onclick="resumeGame()">▶️ 继续游戏</button>
         <div style="color: #666; font-size: 0.8rem; margin-top: 20px;">
             支持格式：.nes, .zip
         </div>
@@ -492,6 +509,9 @@
         let isRunning = false, currentScale = 1.5;
         let turboMode = { A: false, B: false }, turboRate = 10, frameCount = 0;
         let lastTime = 0, lag = 0;
+        // 保存当前ROM数据，支持关闭后恢复
+        let currentROMData = null;
+        let lastGameState = null; // 保存游戏状态用于恢复
 
         // --- Audio ring buffer ---
         const AUDIO_FIFO_SIZE = 16384;
@@ -572,7 +592,7 @@
             script_processor.connect(audio_ctx.destination);
         }
 
-        function loadROM(data) {
+        function loadROM(data, isResume = false) {
             document.getElementById('selector-ui').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
             if (!nes) initGame();
@@ -583,8 +603,18 @@
             if (audio_ctx && audio_ctx.state === 'suspended') audio_ctx.resume();
             isRunning = true;
             lastTime = 0; lag = 0; // 重置帧率计时器
+            // 保存ROM数据用于恢复
+            if (!isResume) {
+                currentROMData = data;
+            }
             updateScale();
             requestAnimationFrame(loop);
+        }
+
+        function resumeGame() {
+            if (currentROMData) {
+                loadROM(currentROMData, true);
+            }
         }
 
         function loop(timestamp) {
@@ -730,40 +760,102 @@
             }
         });
 
-        // --- Mobile Touch: Action Buttons ---
+        // --- Mobile Touch: Action Buttons (支持多点触控) ---
         const touchBtns = new Map();
-        document.querySelectorAll('.a-btn, .b-btn, .m-btn').forEach(el => {
+        const btnElements = document.querySelectorAll('.a-btn, .b-btn, .m-btn, .turbo-btn');
+        
+        btnElements.forEach(el => {
             el.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                const btnName = el.dataset.btn;
-                const idx = btnToIndex(btnName);
-                if (idx >= 0) {
-                    nes.buttonDown(1, idx);
-                    el.classList.add('active');
-                    for (const t of e.changedTouches) touchBtns.set(t.identifier, { el, idx });
-                }
-            }, { passive: false });
-            el.addEventListener('touchend', (e) => {
                 for (const t of e.changedTouches) {
-                    const info = touchBtns.get(t.identifier);
-                    if (info) {
-                        nes.buttonUp(1, info.idx);
-                        info.el.classList.remove('active');
-                        touchBtns.delete(t.identifier);
+                    const btnName = el.dataset.btn || el.dataset.type;
+                    // 判断是单发按钮还是连发按钮
+                    if (el.classList.contains('turbo-btn')) {
+                        // 连发按钮：切换状态
+                        const type = el.dataset.type;
+                        turboMode[type] = !turboMode[type];
+                        el.classList.toggle('active');
+                    } else {
+                        // 单发按钮：按下
+                        const idx = btnToIndex(btnName);
+                        if (idx >= 0) {
+                            nes.buttonDown(1, idx);
+                            touchBtns.set(t.identifier + '_' + btnName, { el, idx, btnName });
+                            el.classList.add('active');
+                        }
                     }
                 }
-            });
+            }, { passive: false });
+            
+            el.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                for (const t of e.changedTouches) {
+                    // 找到对应的按钮
+                    for (const [key, info] of touchBtns.entries()) {
+                        if (info.btnName && (t.clientX !== 0 || t.clientY !== 0)) {
+                            // 检查这个touch是否在这个按钮上
+                            const rect = info.el.getBoundingClientRect();
+                            if (t.clientX >= rect.left && t.clientX <= rect.right &&
+                                t.clientY >= rect.top && t.clientY <= rect.bottom) {
+                                nes.buttonUp(1, info.idx);
+                                info.el.classList.remove('active');
+                                touchBtns.delete(key);
+                            }
+                        }
+                    }
+                }
+            }, { passive: false });
+            
             el.addEventListener('touchcancel', (e) => {
                 for (const t of e.changedTouches) {
-                    const info = touchBtns.get(t.identifier);
-                    if (info) {
-                        nes.buttonUp(1, info.idx);
-                        info.el.classList.remove('active');
-                        touchBtns.delete(t.identifier);
+                    for (const [key, info] of touchBtns.entries()) {
+                        if (info.btnName) {
+                            nes.buttonUp(1, info.idx);
+                            info.el.classList.remove('active');
+                            touchBtns.delete(key);
+                        }
                     }
                 }
             });
         });
+        
+        // 新的多点触控处理：监听全局touch事件来处理AB同时按
+        document.addEventListener('touchstart', (e) => {
+            for (const t of e.changedTouches) {
+                const el = document.elementFromPoint(t.clientX, t.clientY);
+                if (el && (el.classList.contains('a-btn') || el.classList.contains('b-btn'))) {
+                    const btnName = el.dataset.btn;
+                    const idx = btnToIndex(btnName);
+                    if (idx >= 0) {
+                        nes.buttonDown(1, idx);
+                        touchBtns.set('ab_' + t.identifier, { el, idx, btnName });
+                        el.classList.add('active');
+                    }
+                }
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchend', (e) => {
+            for (const t of e.changedTouches) {
+                const info = touchBtns.get('ab_' + t.identifier);
+                if (info) {
+                    nes.buttonUp(1, info.idx);
+                    info.el.classList.remove('active');
+                    touchBtns.delete('ab_' + t.identifier);
+                }
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchcancel', (e) => {
+            for (const t of e.changedTouches) {
+                const info = touchBtns.get('ab_' + t.identifier);
+                if (info) {
+                    nes.buttonUp(1, info.idx);
+                    info.el.classList.remove('active');
+                    touchBtns.delete('ab_' + t.identifier);
+                }
+            }
+        }, { passive: true });
 
         // --- UI Functions ---
         function changeScale(d) { currentScale = Math.max(0.5, Math.min(5, currentScale + d)); updateScale(); }
@@ -797,6 +889,11 @@
             document.getElementById('selector-ui').classList.remove('hidden');
             document.getElementById('keymap-panel').classList.remove('show');
             document.getElementById('fullscreen-btn').textContent = '📺 全屏';
+            // 显示继续游戏按钮（如果有保存的ROM）
+            const resumeBtn = document.getElementById('resume-btn');
+            if (currentROMData) {
+                resumeBtn.classList.remove('hidden');
+            }
         }
         function toggleTurbo(btn) {
             const type = btn.dataset.type;
