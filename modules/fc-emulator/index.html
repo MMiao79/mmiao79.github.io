@@ -458,10 +458,13 @@
     <script>
         // --- Core ---
         const SCREEN_WIDTH = 256, SCREEN_HEIGHT = 240;
+        const FPS = 60;
+        const FRAME_TIME = 1000 / FPS;
         let nes, canvas_ctx, image, framebuffer_u8, framebuffer_u32;
         let audio_ctx, script_processor;
         let isRunning = false, currentScale = 1.5;
         let turboMode = { A: false, B: false }, turboRate = 10, frameCount = 0;
+        let lastTime = 0, lag = 0;
 
         // --- Audio ring buffer ---
         const AUDIO_FIFO_SIZE = 16384;
@@ -552,21 +555,41 @@
             // Resume AudioContext (needed after user gesture)
             if (audio_ctx && audio_ctx.state === 'suspended') audio_ctx.resume();
             isRunning = true;
+            lastTime = 0; lag = 0; // 重置帧率计时器
             updateScale();
             requestAnimationFrame(loop);
         }
 
-        function loop() {
+        function loop(timestamp) {
             if (!isRunning) return;
             requestAnimationFrame(loop);
+            
+            if (lastTime === 0) lastTime = timestamp;
+            const elapsed = timestamp - lastTime;
+            lastTime = timestamp;
+            lag += elapsed;
+            
+            // 固定时间步长：每秒最多处理60帧，防止卡顿时累积延迟导致疯狂追赶
+            let framesToRun = 0;
+            while (lag >= FRAME_TIME && framesToRun < 3) {
+                nes.frame();
+                lag -= FRAME_TIME;
+                framesToRun++;
+            }
+            
+            // 限制最大延迟，丢弃过时的帧
+            if (lag > FRAME_TIME * 3) lag = FRAME_TIME;
+            
+            // 渲染最新帧
             image.data.set(framebuffer_u8);
             canvas_ctx.putImageData(image, 0, 0);
+            
+            // Turbo处理
             frameCount++;
-            if (frameCount % Math.floor(60 / turboRate) === 0) {
+            if (frameCount % Math.floor(FPS / turboRate) === 0) {
                 if (turboMode.A || turboKeyHeld['Turbo A']) { nes.buttonDown(1, 0); setTimeout(() => nes.buttonUp(1, 0), 40); }
                 if (turboMode.B || turboKeyHeld['Turbo B']) { nes.buttonDown(1, 1); setTimeout(() => nes.buttonUp(1, 1), 40); }
             }
-            nes.frame();
         }
 
         // --- Keyboard Input ---
