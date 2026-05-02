@@ -311,6 +311,30 @@
         }
         .t-btn.active { background: #00f0ff; color: black; border-color: #00f0ff; }
 
+        /* --- Turbo A/B buttons (二楼) --- */
+        .turbo-ab-row {
+            display: none;
+            flex-direction: row;
+            gap: 10px;
+            margin: 6px 0;
+        }
+        @media (hover: none) and (pointer: coarse) { .turbo-ab-row { display: flex; } }
+        .turbo-btn {
+            width: 54px; height: 54px;
+            border-radius: 50%;
+            background: rgba(255, 150, 50, 0.15);
+            border: 2px solid rgba(255, 150, 50, 0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 0.85rem;
+            color: rgba(255, 180, 80, 0.9);
+            user-select: none;
+        }
+        .turbo-btn:active, .turbo-btn.active {
+            background: rgba(255, 150, 50, 0.4);
+            border-color: #ff9632;
+            transform: scale(0.93);
+        }
+
         /* ===================== PC Keymap Panel ===================== */
         #keymap-panel {
             display: none;
@@ -420,19 +444,22 @@
                 <div class="joystick-base"></div>
                 <div class="joystick-thumb" id="joystick-thumb"></div>
             </div>
-            <!-- Right: Action buttons -->
+            <!-- Right: Action buttons (从上到下: 速率选择 -> 连发按钮 -> 单发按钮) -->
             <div class="action-group">
+                <!-- 三楼: 速率选择 -->
                 <div class="turbo-bar">
-                    <div class="turbo-row">
-                        <button class="t-btn" data-type="B" onclick="toggleTurbo(this)">B连发</button>
-                        <button class="t-btn" data-type="A" onclick="toggleTurbo(this)">A连发</button>
-                    </div>
                     <div class="turbo-row">
                         <button class="t-btn active" onclick="setRate(10, this)">10/s</button>
                         <button class="t-btn" onclick="setRate(20, this)">20/s</button>
                         <button class="t-btn" onclick="setRate(30, this)">30/s</button>
                     </div>
                 </div>
+                <!-- 二楼: 连发按钮 -->
+                <div class="turbo-ab-row">
+                    <div class="turbo-btn" data-type="B" onclick="toggleTurbo(this)">B连</div>
+                    <div class="turbo-btn" data-type="A" onclick="toggleTurbo(this)">A连</div>
+                </div>
+                <!-- 一楼: 单发按钮 -->
                 <div class="ab-row">
                     <div class="b-btn" data-btn="B">B</div>
                     <div class="a-btn" data-btn="A">A</div>
