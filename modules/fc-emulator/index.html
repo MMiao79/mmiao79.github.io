@@ -536,14 +536,15 @@
                 </div>
             `;
             opt.addEventListener('click', async () => {
-                modal.classList.add('hidden');
+                hideLoading();
+                showLoading('正在加载核心...', c.name);
                 try {
                     await loadWithCore(c, pendingRomData, pendingRomName);
                 } catch (e) {
                     console.error(`Core ${c.name} failed:`, e);
-                    alert(`核心 ${c.name} 无法运行此 ROM: ${e.message}`);
-                    document.getElementById('selector-ui').classList.remove('hidden');
-                    document.getElementById('game-screen').classList.add('hidden');
+                    hideLoading();
+                    // Show picker again so user can try another core
+                    showCorePickerModal();
                 }
             });
             list.appendChild(opt);
