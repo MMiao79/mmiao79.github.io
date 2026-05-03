@@ -906,8 +906,31 @@
         function toggleFullScreen() {
             const screen = document.getElementById('game-screen');
             const btn = document.getElementById('fullscreen-btn');
+            const isEnteringFs = !screen.classList.contains('game-fullscreen');
+            
             screen.classList.toggle('game-fullscreen');
-            btn.textContent = screen.classList.contains('game-fullscreen') ? '📺 退出' : '📺 全屏';
+            btn.textContent = isEnteringFs ? '📺 退出' : '📺 全屏';
+            
+            // 手机上全屏时尝试切换到横屏
+            if (isEnteringFs) {
+                // 尝试使用 Screen Orientation API 锁定横屏
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(() => {});
+                } else if (screen.lockOrientation) {
+                    screen.lockOrientation('landscape');
+                } else if (screen.matchMedia('(orientation: portrait)').matches) {
+                    // 如果是竖屏，提示用户旋转手机
+                    // 大多数现代浏览器会自动响应屏幕方向变化
+                }
+            } else {
+                // 退出全屏时解除方向锁定
+                if (screen.orientation && screen.orientation.unlock) {
+                    screen.orientation.unlock();
+                } else if (screen.unlockOrientation) {
+                    screen.unlockOrientation();
+                }
+            }
+            
             updateScale();
         }
         function stopGame() {
