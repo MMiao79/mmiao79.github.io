@@ -538,14 +538,14 @@
                 </div>
             `;
             opt.addEventListener('click', async () => {
-                hideLoading();
+                const modal = document.getElementById('core-picker-modal');
+                modal.classList.add('hidden');
                 showLoading('正在加载核心...', c.name);
                 try {
                     await loadWithCore(c, pendingRomData, pendingRomName);
                 } catch (e) {
                     console.error(`Core ${c.name} failed:`, e);
                     hideLoading();
-                    // Show picker again so user can try another core
                     showCorePickerModal();
                 }
             });
