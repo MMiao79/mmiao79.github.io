@@ -14,425 +14,310 @@
             overflow: hidden;
             touch-action: none;
         }
-        
+
         /* Selector UI */
         #selector-ui {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #1a1a1a;
-            z-index: 1000;
-            padding: 20px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #1a1a1a; z-index: 1000; padding: 20px;
+            overflow-y: auto;
         }
         .hidden { display: none !important; }
-        
+
         h1 { color: #00f0ff; text-shadow: 0 0 10px #00f0ff; margin-bottom: 20px; font-size: 1.5rem; }
-        p { color: #aaa; margin-bottom: 30px; text-align: center; }
-        
-        .file-input-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 20px;
-        }
+        p { color: #aaa; margin-bottom: 15px; text-align: center; }
+
+        .file-input-wrapper { position: relative; width: 100%; max-width: 300px; margin-bottom: 20px; }
         .file-input-label {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background: #0080ff;
-            color: white;
-            text-align: center;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.2s;
+            display: block; width: 100%; padding: 15px;
+            background: #0080ff; color: white; text-align: center;
+            border-radius: 8px; cursor: pointer; font-size: 1rem; transition: 0.2s;
         }
         .file-input-label:active { background: #0060cc; transform: scale(0.98); }
         .resume-btn {
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            margin: 10px auto 0;
-            padding: 15px;
-            background: #28a745;
-            color: white;
-            text-align: center;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.2s;
-            border: none;
+            display: block; width: 100%; max-width: 300px; margin: 10px auto 0; padding: 15px;
+            background: #28a745; color: white; text-align: center;
+            border-radius: 8px; cursor: pointer; font-size: 1rem; transition: 0.2s; border: none;
         }
         .resume-btn:active { background: #1e7e34; transform: scale(0.98); }
 
+        /* Core Selector */
+        .core-section {
+            width: 100%; max-width: 400px; margin-bottom: 20px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 15px;
+        }
+        .core-section h3 {
+            margin: 0 0 10px 0; font-size: 0.85rem; color: #888;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .core-option {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; margin: 4px 0; border-radius: 8px;
+            cursor: pointer; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .core-option:hover { background: rgba(0,240,255,0.05); }
+        .core-option.selected { background: rgba(0,240,255,0.1); border-color: rgba(0,240,255,0.3); }
+        .core-radio {
+            width: 16px; height: 16px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .core-option.selected .core-radio { border-color: #00f0ff; }
+        .core-option.selected .core-radio::after {
+            content: ''; width: 8px; height: 8px; border-radius: 50%; background: #00f0ff;
+        }
+        .core-info { flex: 1; }
+        .core-name { font-size: 0.95rem; color: #ddd; font-weight: 500; }
+        .core-desc { font-size: 0.75rem; color: #666; margin-top: 2px; }
+        .core-badge {
+            font-size: 0.65rem; padding: 2px 6px; border-radius: 4px;
+            background: rgba(0,240,255,0.15); color: #00f0ff; white-space: nowrap;
+        }
+
+        /* Loading overlay */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .loading-spinner {
+            width: 40px; height: 40px; border: 3px solid rgba(0,240,255,0.2);
+            border-top-color: #00f0ff; border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: #00f0ff; font-size: 0.95rem; }
+        .loading-sub { color: #666; font-size: 0.8rem; margin-top: 5px; }
+
+        /* Core picker modal */
+        #core-picker-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 3000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .core-picker {
+            background: #1e1e2e; border: 1px solid rgba(0,240,255,0.3);
+            border-radius: 16px; padding: 25px; min-width: 320px; max-width: 400px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+        .core-picker h2 { color: #00f0ff; margin: 0 0 5px; font-size: 1.1rem; text-align: center; }
+        .core-picker p { color: #888; font-size: 0.8rem; margin: 0 0 15px; text-align: center; }
+        .core-picker-option {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; margin: 4px 0; border-radius: 8px;
+            cursor: pointer; transition: 0.2s;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .core-picker-option:hover { background: rgba(0,240,255,0.1); border-color: rgba(0,240,255,0.3); }
+        .core-picker-cancel {
+            display: block; width: 100%; margin-top: 12px; padding: 10px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #888; font-size: 0.9rem; cursor: pointer;
+            text-align: center;
+        }
+        .core-picker-cancel:hover { background: rgba(255,255,255,0.1); }
+
         /* Game Screen */
         #game-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-        #game-screen.game-fullscreen {
-            justify-content: center;
-            padding-top: 0 !important;
-        }
-        #game-screen.game-fullscreen #screen {
-            aspect-ratio: 256 / 240;
-            width: auto;
-            height: auto;
-            max-width: 100vw;
-            max-height: 100vh;
-            box-shadow: none;
+        #game-screen.game-fullscreen { justify-content: center; padding-top: 0 !important; }
+        #game-screen.game-fullscreen #canvas-container {
+            aspect-ratio: 256 / 240; width: auto; height: auto;
+            max-width: 100vw; max-height: 100vh; box-shadow: none;
         }
         #game-screen.game-fullscreen .overlay-btn,
-        #game-screen.game-fullscreen .scale-controls {
-            opacity: 0;
-            pointer-events: none;
-        }
-        #game-screen.game-fullscreen #fullscreen-btn {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        #game-screen.game-fullscreen #fullscreen-btn:hover {
-            background: rgba(255, 0, 0, 0.6);
-        }
-        /* PC: center canvas */
-        @media (hover: hover) {
-            #game-screen { justify-content: center; }
-        }
-        /* Mobile: push canvas to top */
+        #game-screen.game-fullscreen .scale-controls { opacity: 0; pointer-events: none; }
+        #game-screen.game-fullscreen #fullscreen-btn { opacity: 1; pointer-events: auto; }
+        #game-screen.game-fullscreen #fullscreen-btn:hover { background: rgba(255,0,0,0.6); }
+        @media (hover: hover) { #game-screen { justify-content: center; } }
         @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
-            #game-screen {
-                justify-content: flex-start;
-                padding-top: 50px;
-            }
+            #game-screen { justify-content: flex-start; padding-top: 50px; }
         }
         @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-            #game-screen {
-                justify-content: center;
-            }
+            #game-screen { justify-content: center; }
         }
-        canvas { 
-            image-rendering: pixelated; 
+
+        /* Canvas container */
+        #canvas-container {
+            position: relative;
+            image-rendering: pixelated;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            aspect-ratio: 256 / 240; /* 保持4:3 CRT比例 */
-            width: auto;
-            height: auto;
+            aspect-ratio: 256 / 240;
+            width: auto; height: auto;
         }
+        #canvas-container canvas {
+            display: block;
+            image-rendering: pixelated;
+            width: 100%; height: 100%;
+        }
+        #screen { display: block; }
+        #retroarch-canvas-container {
+            display: none;
+            width: 100%; height: 100%;
+        }
+        #retroarch-canvas-container canvas {
+            width: 100% !important; height: 100% !important;
+            image-rendering: pixelated;
+        }
+
+        /* Core indicator */
+        #core-indicator {
+            position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.7); border: 1px solid rgba(0,240,255,0.3);
+            border-radius: 12px; padding: 3px 12px; white-space: nowrap;
+            cursor: pointer; z-index: 50; backdrop-filter: blur(4px);
+            transition: 0.2s;
+        }
+        #core-indicator:hover { background: rgba(0,240,255,0.15); border-color: #00f0ff; }
+        #core-indicator .core-label { font-size: 0.7rem; color: #00f0ff; }
 
         /* Controls Overlay */
         .overlay-btn {
-            position: absolute;
-            z-index: 50;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            backdrop-filter: blur(4px);
-            cursor: pointer;
+            position: absolute; z-index: 50;
+            background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; padding: 8px 12px; border-radius: 5px;
+            font-size: 0.9rem; backdrop-filter: blur(4px); cursor: pointer;
         }
         .overlay-btn:hover { background: rgba(0, 0, 0, 0.7); }
         #fullscreen-btn { top: 10px; left: 10px; }
         #back-btn { top: 10px; right: 10px; background: rgba(255, 0, 0, 0.3); }
         #keymap-btn { top: 10px; left: 110px; }
-        
+
         .scale-controls {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
-            display: flex;
-            gap: 5px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px;
-            border-radius: 15px;
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+            z-index: 50; display: flex; gap: 5px;
+            background: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 15px;
         }
         .scale-btn {
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            font-size: 0.9rem;
-            cursor: pointer;
+            background: transparent; border: none; color: white;
+            padding: 5px 10px; font-size: 0.9rem; cursor: pointer;
         }
 
         /* ===================== Mobile Virtual Controls ===================== */
         .mobile-controls {
-            display: none;
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            z-index: 40;
-            pointer-events: none;
-            box-sizing: border-box;
-            overflow: hidden;
+            display: none; position: fixed; bottom: 0; left: 0; width: 100%;
+            z-index: 40; pointer-events: none; box-sizing: border-box; overflow: hidden;
         }
-        @media (hover: none) and (pointer: coarse) {
-            .mobile-controls { display: flex; }
-            #keymap-btn { display: none; }
-        }
+        @media (hover: none) and (pointer: coarse) { .mobile-controls { display: flex; } #keymap-btn { display: none; } }
         @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
-            .mobile-controls {
-                height: 48%;
-                padding: 6px 8px 20px;
-                justify-content: space-between;
-                align-items: flex-end;
-            }
-            .joystick-zone { margin-left: 0; }
-            .action-group { margin-right: 0; }
+            .mobile-controls { height: 48%; padding: 6px 8px 20px; justify-content: space-between; align-items: flex-end; }
+            .joystick-zone { margin-left: 0; } .action-group { margin-right: 0; }
         }
         @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-            .mobile-controls {
-                height: 100%;
-                padding: 0 10px;
-                align-items: center;
-            }
-            .joystick-zone { margin-left: 0; }
-            .action-group { margin-right: 0; }
+            .mobile-controls { height: 100%; padding: 0 10px; align-items: center; }
+            .joystick-zone { margin-left: 0; } .action-group { margin-right: 0; }
         }
 
-        /* --- Virtual Joystick (left side) --- */
-        .joystick-zone {
-            pointer-events: auto;
-            position: relative;
-            width: 120px;
-            height: 120px;
-            flex-shrink: 0;
-        }
+        .joystick-zone { pointer-events: auto; position: relative; width: 120px; height: 120px; flex-shrink: 0; }
         .joystick-base {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 110px; height: 110px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.06);
-            border: 2px solid rgba(255, 255, 255, 0.12);
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 110px; height: 110px; border-radius: 50%;
+            background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.12);
         }
-        .joystick-base::before,
-        .joystick-base::after {
-            content: '';
-            position: absolute;
-            background: rgba(255, 255, 255, 0.06);
-        }
-        .joystick-base::before {
-            top: 50%; left: 15%; right: 15%;
-            height: 1px;
-            transform: translateY(-50%);
-        }
-        .joystick-base::after {
-            left: 50%; top: 15%; bottom: 15%;
-            width: 1px;
-            transform: translateX(-50%);
-        }
+        .joystick-base::before, .joystick-base::after { content: ''; position: absolute; background: rgba(255,255,255,0.06); }
+        .joystick-base::before { top: 50%; left: 15%; right: 15%; height: 1px; transform: translateY(-50%); }
+        .joystick-base::after { left: 50%; top: 15%; bottom: 15%; width: 1px; transform: translateX(-50%); }
         .joystick-thumb {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 48px; height: 48px;
-            border-radius: 50%;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 48px; height: 48px; border-radius: 50%;
             background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.35), rgba(255,255,255,0.12));
-            border: 2px solid rgba(255, 255, 255, 0.25);
-            transition: box-shadow 0.15s;
+            border: 2px solid rgba(255,255,255,0.25); transition: box-shadow 0.15s;
             box-shadow: 0 0 0 0 rgba(0, 240, 255, 0);
         }
-        .joystick-thumb.active {
-            box-shadow: 0 0 15px 5px rgba(0, 240, 255, 0.3);
-            border-color: #00f0ff;
-        }
+        .joystick-thumb.active { box-shadow: 0 0 15px 5px rgba(0, 240, 255, 0.3); border-color: #00f0ff; }
 
-        /* --- Action Buttons (right side) --- */
-        .action-group {
-            pointer-events: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-            max-width: 50vw;
-        }
-        .ab-row {
-            display: flex;
-            gap: 10px;
-            position: relative;
-        }
+        .action-group { pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; max-width: 50vw; }
+        .ab-row { display: flex; gap: 10px; position: relative; }
         .a-btn, .b-btn {
-            width: 54px; height: 54px;
-            border-radius: 50%;
-            background: rgba(255, 80, 80, 0.15);
-            border: 2px solid rgba(255, 80, 80, 0.3);
+            width: 54px; height: 54px; border-radius: 50%;
+            background: rgba(255,80,80,0.15); border: 2px solid rgba(255,80,80,0.3);
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
-            user-select: none;
+            font-weight: bold; font-size: 1.2rem; color: rgba(255,255,255,0.9); user-select: none;
         }
-        .a-btn:active, .b-btn:active,
-        .a-btn.active, .b-btn.active {
-            background: rgba(255, 80, 80, 0.45);
-            border-color: #ff5050;
-            transform: scale(0.93);
+        .a-btn:active, .b-btn:active, .a-btn.active, .b-btn.active {
+            background: rgba(255,80,80,0.45); border-color: #ff5050; transform: scale(0.93);
         }
-
-        .menu-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 0;
-        }
+        .menu-row { display: flex; gap: 10px; margin-top: 0; }
         .m-btn {
-            padding: 7px 14px;
-            background: rgba(0, 240, 255, 0.1);
-            border: 1.5px solid rgba(0, 240, 255, 0.3);
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #00f0ff;
-            letter-spacing: 0.5px;
-            user-select: none;
-            font-weight: 500;
+            padding: 7px 14px; background: rgba(0,240,255,0.1);
+            border: 1.5px solid rgba(0,240,255,0.3); border-radius: 20px;
+            font-size: 0.75rem; color: #00f0ff; letter-spacing: 0.5px; user-select: none; font-weight: 500;
         }
-        .m-btn:active, .m-btn.active {
-            background: rgba(0, 240, 255, 0.3);
-            border-color: #00f0ff;
-        }
+        .m-btn:active, .m-btn.active { background: rgba(0,240,255,0.3); border-color: #00f0ff; }
 
-        /* --- Turbo bar (mobile, inside action-group) --- */
         .turbo-bar {
-            display: none;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 4px 6px;
-            border-radius: 12px;
-            gap: 3px;
-            align-items: center;
-            backdrop-filter: blur(8px);
-            flex-direction: column;
+            display: none; background: rgba(0,0,0,0.5); padding: 4px 6px;
+            border-radius: 12px; gap: 3px; align-items: center;
+            backdrop-filter: blur(8px); flex-direction: column;
         }
-        .turbo-row {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            justify-content: center;
-        }
+        .turbo-row { display: flex; gap: 4px; align-items: center; justify-content: center; }
         @media (hover: none) and (pointer: coarse) { .turbo-bar { display: flex; } }
         .t-btn {
-            padding: 4px 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            color: white;
-            font-size: 0.7rem;
-            white-space: nowrap;
-            cursor: pointer;
+            padding: 4px 10px; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 12px;
+            color: white; font-size: 0.7rem; white-space: nowrap; cursor: pointer;
         }
         .t-btn.active { background: #00f0ff; color: black; border-color: #00f0ff; }
 
-        /* --- Turbo A/B buttons (二楼) --- */
-        .turbo-ab-row {
-            display: none;
-            flex-direction: row;
-            gap: 10px;
-            margin: 6px 0;
-        }
+        .turbo-ab-row { display: none; flex-direction: row; gap: 10px; margin: 6px 0; }
         @media (hover: none) and (pointer: coarse) { .turbo-ab-row { display: flex; } }
         .turbo-btn {
-            width: 54px; height: 54px;
-            border-radius: 50%;
-            background: rgba(255, 150, 50, 0.15);
-            border: 2px solid rgba(255, 150, 50, 0.4);
+            width: 54px; height: 54px; border-radius: 50%;
+            background: rgba(255,150,50,0.15); border: 2px solid rgba(255,150,50,0.4);
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 0.85rem;
-            color: rgba(255, 180, 80, 0.9);
-            user-select: none;
+            font-weight: bold; font-size: 0.85rem; color: rgba(255,180,80,0.9); user-select: none;
         }
-        .turbo-btn:active, .turbo-btn.active {
-            background: rgba(255, 150, 50, 0.4);
-            border-color: #ff9632;
-            transform: scale(0.93);
-        }
+        .turbo-btn:active, .turbo-btn.active { background: rgba(255,150,50,0.4); border-color: #ff9632; transform: scale(0.93); }
 
         /* ===================== PC Keymap Panel ===================== */
         #keymap-panel {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 200;
-            background: rgba(20, 20, 30, 0.95);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 16px;
-            padding: 30px;
-            min-width: 340px;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); z-index: 200;
+            background: rgba(20,20,30,0.95); border: 1px solid rgba(0,240,255,0.3);
+            border-radius: 16px; padding: 30px; min-width: 340px;
+            backdrop-filter: blur(12px); box-shadow: 0 0 40px rgba(0,0,0,0.8);
         }
         #keymap-panel.show { display: block; }
-        #keymap-panel h2 {
-            color: #00f0ff;
-            margin: 0 0 20px 0;
-            font-size: 1.2rem;
-            text-align: center;
-        }
-        .keymap-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
+        #keymap-panel h2 { color: #00f0ff; margin: 0 0 20px 0; font-size: 1.2rem; text-align: center; }
+        .keymap-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
         .keymap-row:last-child { border-bottom: none; }
-        .keymap-label {
-            color: #ccc;
-            font-size: 0.95rem;
-        }
+        .keymap-label { color: #ccc; font-size: 0.95rem; }
         .keymap-key {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 6px;
-            padding: 4px 14px;
-            color: #fff;
-            font-size: 0.9rem;
-            min-width: 50px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
+            display: inline-block; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 6px;
+            padding: 4px 14px; color: #fff; font-size: 0.9rem;
+            min-width: 50px; text-align: center; cursor: pointer; transition: 0.2s;
         }
         .keymap-key:hover { border-color: #00f0ff; color: #00f0ff; }
-        .keymap-key.listening {
-            border-color: #ff5050;
-            color: #ff5050;
-            animation: pulse-border 0.8s infinite;
-        }
-        @keyframes pulse-border {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 80, 80, 0.4); }
-            50% { box-shadow: 0 0 8px 3px rgba(255, 80, 80, 0.2); }
-        }
-        .keymap-close {
-            display: block;
-            margin: 20px auto 0;
-            padding: 10px 30px;
-            background: rgba(0, 240, 255, 0.15);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 8px;
-            color: #00f0ff;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        .keymap-close:hover { background: rgba(0, 240, 255, 0.25); }
-        .keymap-hint {
-            text-align: center;
-            color: #666;
-            font-size: 0.78rem;
-            margin-top: 8px;
-        }
+        .keymap-key.listening { border-color: #ff5050; color: #ff5050; animation: pulse-border 0.8s infinite; }
+        @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,80,80,0.4); } 50% { box-shadow: 0 0 8px 3px rgba(255,80,80,0.2); } }
+        .keymap-close { display: block; margin: 20px auto 0; padding: 10px 30px; background: rgba(0,240,255,0.15); border: 1px solid rgba(0,240,255,0.3); border-radius: 8px; color: #00f0ff; font-size: 1rem; cursor: pointer; }
+        .keymap-close:hover { background: rgba(0,240,255,0.25); }
+        .keymap-hint { text-align: center; color: #666; font-size: 0.78rem; margin-top: 8px; }
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loading-text">正在加载...</div>
+        <div class="loading-sub" id="loading-sub"></div>
+    </div>
+
+    <!-- Core Picker Modal -->
+    <div id="core-picker-modal" class="hidden">
+        <div class="core-picker">
+            <h2>选择模拟核心</h2>
+            <p>所有核心均无法自动运行此 ROM，请手动选择一个核心尝试</p>
+            <div id="core-picker-list"></div>
+            <button class="core-picker-cancel" onclick="cancelCorePicker()">取消返回</button>
+        </div>
+    </div>
+
     <!-- Selection UI -->
     <div id="selector-ui">
         <h1>🎮 FC 游戏启动器</h1>
@@ -441,8 +326,15 @@
             <label class="file-input-label" id="rom-pick-btn">📂 选择 ROM 文件</label>
         </div>
         <button id="resume-btn" class="resume-btn hidden" onclick="resumeGame()">▶️ 继续游戏</button>
-        <div style="color: #666; font-size: 0.8rem; margin-top: 20px;">
-            支持格式：.nes, .zip
+
+        <!-- Core Selection -->
+        <div class="core-section">
+            <h3>模拟核心</h3>
+            <div id="core-selector"></div>
+        </div>
+
+        <div style="color: #666; font-size: 0.8rem; margin-top: 10px;">
+            支持格式：.nes, .zip | 默认自动选择最佳核心
         </div>
     </div>
 
@@ -456,18 +348,22 @@
             <span id="scale-display" style="color:white; min-width: 30px; text-align:center;">1.5x</span>
             <button class="scale-btn" onclick="changeScale(0.5)">+</button>
         </div>
-        <canvas id="screen" width="256" height="240"></canvas>
-        
+
+        <div id="canvas-container">
+            <div id="core-indicator" onclick="showCoreSwitcher()" title="点击切换核心">
+                <span class="core-label" id="core-label-text">JSNES</span>
+            </div>
+            <canvas id="screen" width="256" height="240"></canvas>
+            <div id="retroarch-canvas-container"></div>
+        </div>
+
         <!-- Mobile virtual controls -->
         <div class="mobile-controls">
-            <!-- Left: Virtual Joystick -->
             <div class="joystick-zone" id="joystick-zone">
                 <div class="joystick-base"></div>
                 <div class="joystick-thumb" id="joystick-thumb"></div>
             </div>
-            <!-- Right: Action buttons (从上到下: 速率选择 -> 连发按钮 -> 单发按钮) -->
             <div class="action-group">
-                <!-- 三楼: 速率选择 -->
                 <div class="turbo-bar">
                     <div class="turbo-row">
                         <button class="t-btn active" onclick="setRate(10, this)">10/s</button>
@@ -475,12 +371,10 @@
                         <button class="t-btn" onclick="setRate(30, this)">30/s</button>
                     </div>
                 </div>
-                <!-- 二楼: 连发按钮 -->
                 <div class="turbo-ab-row">
                     <div class="turbo-btn" data-type="B" onclick="toggleTurbo(this)">B连</div>
                     <div class="turbo-btn" data-type="A" onclick="toggleTurbo(this)">A连</div>
                 </div>
-                <!-- 一楼: 单发按钮 -->
                 <div class="ab-row">
                     <div class="b-btn" data-btn="B">B</div>
                     <div class="a-btn" data-btn="A">A</div>
@@ -504,117 +398,235 @@
     <script src="lib/jszip.min.js"></script>
     <script src="lib/jsnes.min.js"></script>
     <script>
-        // --- Core ---
-        const SCREEN_WIDTH = 256, SCREEN_HEIGHT = 240;
-        const FPS = 60;
-        const FRAME_TIME = 1000 / FPS;
-        let nes, canvas_ctx, image, framebuffer_u8, framebuffer_u32;
-        let audio_ctx, script_processor;
-        let isRunning = false, currentScale = 1.5;
-        let turboMode = { A: false, B: false }, turboRate = 10, frameCount = 0;
-        let lastTime = 0, lag = 0;
-        // 保存当前ROM数据，支持关闭后恢复
-        let currentROMData = null;
-        let lastGameState = null; // 保存游戏状态用于恢复
-        let currentROMName = null; // 保存当前ROM名称
-        
-        const SAVE_KEY_ROM = 'fc_emulator_rom';
-        const SAVE_KEY_STATE = 'fc_emulator_state';
-        const SAVE_KEY_NAME = 'fc_emulator_rom_name';
-        
-        // 页面加载时尝试恢复保存的状态
-        function tryRestoreSavedState() {
-            try {
-                const savedROM = localStorage.getItem(SAVE_KEY_ROM);
-                const savedState = localStorage.getItem(SAVE_KEY_STATE);
-                const savedName = localStorage.getItem(SAVE_KEY_NAME);
-                if (savedROM && savedState && savedName) {
-                    currentROMData = savedROM;
-                    lastGameState = savedState;
-                    currentROMName = savedName;
-                    // 显示继续游戏按钮
-                    document.getElementById('resume-btn').classList.remove('hidden');
-                    // 更新按钮文字，显示ROM名称
-                    document.getElementById('resume-btn').textContent = '▶️ 继续: ' + savedName;
-                    console.log('检测到保存的游戏状态:', savedName);
-                }
-            } catch (e) {
-                console.error('恢复保存状态失败:', e);
-            }
+    'use strict';
+
+    // ==================== Constants ====================
+    const SCREEN_WIDTH = 256, SCREEN_HEIGHT = 240;
+    const FPS = 60, FRAME_TIME = 1000 / FPS;
+    const BUTTON_NAMES = ['A', 'B', 'SELECT', 'START', 'UP', 'DOWN', 'LEFT', 'RIGHT'];
+
+    // Core definitions
+    const CORES = [
+        { id: 'jsnes',    name: 'JSNES',    desc: '快速启动 · 纯JS实现',    type: 'jsnes', priority: 0 },
+        { id: 'fceumm',   name: 'FCEUMM',   desc: '兼容性最强 · Mapper丰富', type: 'retroarch', coreName: 'fceumm',   jsPath: 'lib/fceumm_libretro.js',   wasmPath: 'lib/fceumm_libretro.wasm',   priority: 1 },
+        { id: 'nestopia', name: 'Nestopia', desc: '高精度模拟 · Cycle准确', type: 'retroarch', coreName: 'nestopia', jsPath: 'lib/nestopia_libretro.js', wasmPath: 'lib/nestopia_libretro.wasm', priority: 2 },
+        { id: 'quicknes', name: 'QuickNES', desc: '极速运行 · 轻量核心',    type: 'retroarch', coreName: 'quicknes', jsPath: 'lib/quicknes_libretro.js', wasmPath: 'lib/quicknes_libretro.wasm', priority: 3 },
+    ].filter(c => {
+        // Hide cores that don't have WASM files locally
+        if (c.type === 'retroarch') return typeof WebAssembly === 'object';
+        return true;
+    });
+
+    // ==================== State ====================
+    let activeCore = null;
+    let currentScale = 1.5, isRunning = false;
+    let turboMode = { A: false, B: false }, turboRate = 10, frameCount = 0;
+    let lastTime = 0, lag = 0;
+    let currentROMData = null, currentROMName = null, lastGameState = null;
+    let romCorePref = null; // null = auto detect, string = specific core id
+    let pendingRomData = null, pendingRomName = null;
+    let NostalgistModule = null; // cached Nostalgist.js module
+
+    const SAVE_KEY_ROM = 'fc_emulator_rom';
+    const SAVE_KEY_STATE = 'fc_emulator_state';
+    const SAVE_KEY_NAME = 'fc_emulator_rom_name';
+    const SAVE_KEY_CORE = 'fc_emulator_core';
+    const SAVE_KEY_CORE_PREF = 'fc_emulator_core_pref';
+
+    // ==================== Audio (shared ring buffer for jsnes) ====================
+    const AUDIO_FIFO_SIZE = 16384;
+    let audioFifoL = new Float32Array(AUDIO_FIFO_SIZE);
+    let audioFifoR = new Float32Array(AUDIO_FIFO_SIZE);
+    let audioFifoHead = 0, audioFifoCount = 0;
+
+    // ==================== Key mapping ====================
+    const DEFAULT_KEYMAP = {
+        'A': 'KeyX', 'B': 'KeyZ', 'SELECT': 'ShiftRight', 'START': 'Enter',
+        'UP': 'ArrowUp', 'DOWN': 'ArrowDown', 'LEFT': 'ArrowLeft', 'RIGHT': 'ArrowRight'
+    };
+    const DEFAULT_TURBO_KEYMAP = { 'Turbo A': 'KeyS', 'Turbo B': 'KeyA' };
+    let keymap = Object.assign({}, DEFAULT_KEYMAP);
+    let turboKeymap = Object.assign({}, DEFAULT_TURBO_KEYMAP);
+    let turboKeyHeld = { 'Turbo A': false, 'Turbo B': false };
+
+    function codeToBtn(code) { for (const [btn, c] of Object.entries(keymap)) { if (c === code) return btn; } return null; }
+    function turboCodeToName(code) { for (const [name, c] of Object.entries(turboKeymap)) { if (c === code) return name; } return null; }
+    function codeToLabel(code) {
+        const map = {
+            'KeyX':'X','KeyZ':'Z','Enter':'Enter','ShiftRight':'R-Shift',
+            'ArrowUp':'↑','ArrowDown':'↓','ArrowLeft':'←','ArrowRight':'→',
+            'Space':'Space','KeyC':'C','KeyV':'V','KeyA':'A','KeyS':'S',
+            'KeyD':'D','KeyW':'W','KeyQ':'Q','KeyE':'E','KeyR':'R','KeyF':'F',
+            'Tab':'Tab','Backspace':'Back','ShiftLeft':'L-Shift',
+            'ControlLeft':'L-Ctrl','ControlRight':'R-Ctrl','AltLeft':'L-Alt',
+            'AltRight':'R-Alt','KeyN':'N','KeyM':'M',
+        };
+        return map[code] || code.replace('Key','').replace('Digit','');
+    }
+
+    // ==================== UI Helpers ====================
+    function showLoading(text, sub) {
+        document.getElementById('loading-text').textContent = text || '正在加载...';
+        document.getElementById('loading-sub').textContent = sub || '';
+        document.getElementById('loading-overlay').classList.remove('hidden');
+    }
+    function hideLoading() { document.getElementById('loading-overlay').classList.add('hidden'); }
+
+    function updateCoreIndicator(core) {
+        document.getElementById('core-label-text').textContent = core.name;
+    }
+
+    function switchCanvasDisplay(core) {
+        const screen = document.getElementById('screen');
+        const raContainer = document.getElementById('retroarch-canvas-container');
+        if (core.type === 'jsnes') {
+            screen.style.display = 'block';
+            raContainer.style.display = 'none';
+        } else {
+            screen.style.display = 'none';
+            raContainer.style.display = 'block';
         }
-        
-        // 保存游戏状态到 localStorage
-        function saveGameState() {
-            if (currentROMData && lastGameState && currentROMName) {
+    }
+
+    // ==================== Core Selector UI (Launcher) ====================
+    function renderCoreSelector() {
+        const container = document.getElementById('core-selector');
+        container.innerHTML = '';
+        // Auto option
+        const autoOpt = createCoreOption('auto', '🤖 自动检测', '按优先级依次尝试所有核心', true);
+        container.appendChild(autoOpt);
+        CORES.forEach(c => {
+            const opt = createCoreOption(c.id, c.name, c.desc, false);
+            container.appendChild(opt);
+        });
+    }
+
+    function createCoreOption(id, name, desc, isSelected) {
+        const div = document.createElement('div');
+        div.className = 'core-option' + (isSelected ? ' selected' : '');
+        div.dataset.coreId = id;
+        div.innerHTML = `
+            <div class="core-radio"></div>
+            <div class="core-info">
+                <div class="core-name">${name}</div>
+                <div class="core-desc">${desc}</div>
+            </div>
+        `;
+        div.addEventListener('click', () => {
+            document.querySelectorAll('.core-option').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+            romCorePref = id === 'auto' ? null : id;
+        });
+        return div;
+    }
+
+    // ==================== Core Picker Modal ====================
+    function showCorePickerModal() {
+        const modal = document.getElementById('core-picker-modal');
+        const list = document.getElementById('core-picker-list');
+        list.innerHTML = '';
+        CORES.forEach(c => {
+            const opt = document.createElement('div');
+            opt.className = 'core-picker-option';
+            opt.innerHTML = `
+                <div class="core-radio"></div>
+                <div class="core-info">
+                    <div class="core-name">${c.name}</div>
+                    <div class="core-desc">${c.desc}</div>
+                </div>
+            `;
+            opt.addEventListener('click', async () => {
+                modal.classList.add('hidden');
                 try {
-                    localStorage.setItem(SAVE_KEY_ROM, currentROMData);
-                    localStorage.setItem(SAVE_KEY_STATE, lastGameState);
-                    localStorage.setItem(SAVE_KEY_NAME, currentROMName);
-                    console.log('游戏状态已保存到本地');
+                    await loadWithCore(c, pendingRomData, pendingRomName);
                 } catch (e) {
-                    console.error('保存游戏状态失败:', e);
-                    // 如果存储空间不足，尝试清理
-                    if (e.name === 'QuotaExceededError') {
-                        localStorage.removeItem(SAVE_KEY_ROM);
-                        localStorage.removeItem(SAVE_KEY_STATE);
-                        localStorage.removeItem(SAVE_KEY_NAME);
-                        console.log('存储空间不足，已清理旧数据');
+                    console.error(`Core ${c.name} failed:`, e);
+                    alert(`核心 ${c.name} 无法运行此 ROM: ${e.message}`);
+                    document.getElementById('selector-ui').classList.remove('hidden');
+                    document.getElementById('game-screen').classList.add('hidden');
+                }
+            });
+            list.appendChild(opt);
+        });
+        modal.classList.remove('hidden');
+    }
+
+    function cancelCorePicker() {
+        document.getElementById('core-picker-modal').classList.add('hidden');
+        document.getElementById('selector-ui').classList.remove('hidden');
+        document.getElementById('game-screen').classList.add('hidden');
+        hideLoading();
+    }
+
+    function showCoreSwitcher() {
+        // Paused game, show core switch
+        const wasRunning = isRunning;
+        if (isRunning && activeCore) {
+            activeCore.stop();
+            isRunning = false;
+        }
+        const modal = document.getElementById('core-picker-modal');
+        const list = document.getElementById('core-picker-list');
+        list.innerHTML = '';
+        CORES.forEach(c => {
+            if (c.id === (activeCore ? activeCore.id : null)) return;
+            const opt = document.createElement('div');
+            opt.className = 'core-picker-option';
+            opt.innerHTML = `
+                <div class="core-info">
+                    <div class="core-name">${c.name}</div>
+                    <div class="core-desc">${c.desc}</div>
+                </div>
+            `;
+            opt.addEventListener('click', async () => {
+                modal.classList.add('hidden');
+                showLoading('正在切换核心...', `${c.name}`);
+                try {
+                    await loadWithCore(c, currentROMData, currentROMName);
+                } catch (e) {
+                    console.error(`Core switch to ${c.name} failed:`, e);
+                    hideLoading();
+                    // Re-launch previous core
+                    if (wasRunning && currentROMData) {
+                        await loadWithCore(CORES.find(x => x.id === activeCore?.id), currentROMData, currentROMName);
                     }
                 }
-            }
+            });
+            list.appendChild(opt);
+        });
+        modal.classList.remove('hidden');
+    }
+
+    // ==================== JsnesCore Adapter ====================
+    class JsnesCore {
+        constructor() {
+            this.id = 'jsnes';
+            this.name = 'JSNES';
+            this.type = 'jsnes';
+            this._nes = null;
+            this._canvas = null;
+            this._ctx = null;
+            this._image = null;
+            this._fbU8 = null;
+            this._fbU32 = null;
+            this._audioCtx = null;
+            this._scriptProcessor = null;
+            this._animId = null;
         }
 
-        // --- Audio ring buffer ---
-        const AUDIO_FIFO_SIZE = 16384;
-        let audioFifoL = new Float32Array(AUDIO_FIFO_SIZE);
-        let audioFifoR = new Float32Array(AUDIO_FIFO_SIZE);
-        let audioFifoHead = 0, audioFifoCount = 0;
+        async loadROM(data) {
+            this._canvas = document.getElementById('screen');
+            this._ctx = this._canvas.getContext('2d');
+            this._image = this._ctx.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            const buffer = new ArrayBuffer(this._image.data.length);
+            this._fbU8 = new Uint8ClampedArray(buffer);
+            this._fbU32 = new Uint32Array(buffer);
 
-        // Button names mapped to jsnes controller indices
-        // Player 1: A=0, B=1, SELECT=2, START=3, UP=4, DOWN=5, LEFT=6, RIGHT=7
-        const BUTTON_NAMES = ['A', 'B', 'SELECT', 'START', 'UP', 'DOWN', 'LEFT', 'RIGHT'];
-        const DEFAULT_KEYMAP = {
-            'A': 'KeyX', 'B': 'KeyZ', 'SELECT': 'ShiftRight', 'START': 'Enter',
-            'UP': 'ArrowUp', 'DOWN': 'ArrowDown', 'LEFT': 'ArrowLeft', 'RIGHT': 'ArrowRight'
-        };
-        const DEFAULT_TURBO_KEYMAP = {
-            'Turbo A': 'KeyS', 'Turbo B': 'KeyA'
-        };
-        let keymap = Object.assign({}, DEFAULT_KEYMAP);
-        let turboKeymap = Object.assign({}, DEFAULT_TURBO_KEYMAP);
-        let turboKeyHeld = { 'Turbo A': false, 'Turbo B': false };
+            // Reset audio FIFO
+            audioFifoHead = 0; audioFifoCount = 0;
 
-        // Reverse lookup: code -> button name
-        function codeToBtn(code) {
-            for (const [btn, c] of Object.entries(keymap)) { if (c === code) return btn; }
-            return null;
-        }
-        function btnToIndex(btn) { return BUTTON_NAMES.indexOf(btn); }
-
-        // Key code to display label
-        function codeToLabel(code) {
-            const map = {
-                'KeyX': 'X', 'KeyZ': 'Z', 'Enter': 'Enter', 'ShiftRight': 'R-Shift',
-                'ArrowUp': '↑', 'ArrowDown': '↓', 'ArrowLeft': '←', 'ArrowRight': '→',
-                'Space': 'Space', 'KeyC': 'C', 'KeyV': 'V', 'KeyA': 'A', 'KeyS': 'S',
-                'KeyD': 'D', 'KeyW': 'W', 'KeyQ': 'Q', 'KeyE': 'E', 'KeyR': 'R',
-                'KeyF': 'F', 'Tab': 'Tab', 'Backspace': 'Back', 'ShiftLeft': 'L-Shift',
-                'ControlLeft': 'L-Ctrl', 'ControlRight': 'R-Ctrl', 'AltLeft': 'L-Alt',
-                'AltRight': 'R-Alt', 'KeyN': 'N', 'KeyM': 'M',
-            };
-            return map[code] || code.replace('Key', '').replace('Digit', '');
-        }
-
-        function initGame() {
-            const canvas = document.getElementById('screen');
-            canvas_ctx = canvas.getContext('2d');
-            image = canvas_ctx.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            const buffer = new ArrayBuffer(image.data.length);
-            framebuffer_u8 = new Uint8ClampedArray(buffer);
-            framebuffer_u32 = new Uint32Array(buffer);
-
-            nes = new jsnes.NES({
-                onFrame: (buf) => { for (let i = 0; i < buf.length; i++) framebuffer_u32[i] = 0xFF000000 | buf[i]; },
+            this._nes = new jsnes.NES({
+                onFrame: (buf) => { for (let i = 0; i < buf.length; i++) this._fbU32[i] = 0xFF000000 | buf[i]; },
                 onAudioSample: (l, r) => {
                     audioFifoL[audioFifoHead] = l;
                     audioFifoR[audioFifoHead] = r;
@@ -623,9 +635,10 @@
                 }
             });
 
-            audio_ctx = new (window.AudioContext || window.webkitAudioContext)();
-            script_processor = audio_ctx.createScriptProcessor(2048, 0, 2);
-            script_processor.onaudioprocess = (e) => {
+            // Init audio
+            this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            this._scriptProcessor = this._audioCtx.createScriptProcessor(2048, 0, 2);
+            this._scriptProcessor.onaudioprocess = (e) => {
                 const outL = e.outputBuffer.getChannelData(0);
                 const outR = e.outputBuffer.getChannelData(1);
                 for (let i = 0; i < outL.length; i++) {
@@ -634,519 +647,642 @@
                         outL[i] = audioFifoL[idx];
                         outR[i] = audioFifoR[idx];
                         audioFifoCount--;
-                    } else {
-                        outL[i] = 0;
-                        outR[i] = 0;
-                    }
+                    } else { outL[i] = 0; outR[i] = 0; }
                 }
             };
-            script_processor.connect(audio_ctx.destination);
+            this._scriptProcessor.connect(this._audioCtx.destination);
+
+            this._nes.loadROM(data);
         }
 
-        function loadROM(data, romName = null, isResume = false) {
-            document.getElementById('selector-ui').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-            if (!nes) initGame();
-            // Reset audio FIFO
-            audioFifoHead = 0; audioFifoCount = 0;
-            nes.loadROM(data);
-            // Resume AudioContext (needed after user gesture)
-            if (audio_ctx && audio_ctx.state === 'suspended') audio_ctx.resume();
-            isRunning = true;
-            lastTime = 0; lag = 0; // 重置帧率计时器
-            // 保存ROM数据用于恢复，如果是新ROM则清除旧的游戏状态
-            if (!isResume) {
-                currentROMData = data;
-                currentROMName = romName || '游戏';
-                lastGameState = null; // 清除旧的游戏状态
-                // 隐藏继续游戏按钮
-                document.getElementById('resume-btn').classList.add('hidden');
-            }
-            updateScale();
-            requestAnimationFrame(loop);
+        start() {
+            this._resumeAudio();
+            isRunning = true; lastTime = 0; lag = 0; frameCount = 0;
+            this._loop = this._loop.bind(this);
+            requestAnimationFrame(this._loop);
         }
 
-        function resumeGame() {
-            if (currentROMData) {
-                document.getElementById('selector-ui').classList.add('hidden');
-                document.getElementById('game-screen').classList.remove('hidden');
-                if (!nes) initGame();
-                // 重置音频缓冲区
-                audioFifoHead = 0; audioFifoCount = 0;
-                // 加载ROM
-                nes.loadROM(currentROMData);
-                // 恢复游戏状态
-                if (lastGameState) {
-                    try {
-                        nes.loadState(lastGameState);
-                        console.log('游戏状态已恢复');
-                    } catch (e) {
-                        console.error('恢复游戏状态失败:', e);
-                    }
-                }
-                // 恢复音频上下文
-                if (audio_ctx && audio_ctx.state === 'suspended') audio_ctx.resume();
-                isRunning = true;
-                lastTime = 0; lag = 0;
-                updateScale();
-                requestAnimationFrame(loop);
-            }
-        }
-
-        function loop(timestamp) {
-            if (!isRunning) return;
-            requestAnimationFrame(loop);
-            
+        _loop(timestamp) {
+            if (!isRunning || activeCore !== this) return;
+            this._animId = requestAnimationFrame(this._loop);
             if (lastTime === 0) lastTime = timestamp;
             const elapsed = timestamp - lastTime;
             lastTime = timestamp;
             lag += elapsed;
-            
-            // 固定时间步长：每秒最多处理60帧，防止卡顿时累积延迟导致疯狂追赶
             let framesToRun = 0;
             while (lag >= FRAME_TIME && framesToRun < 3) {
-                nes.frame();
+                this._nes.frame();
                 lag -= FRAME_TIME;
                 framesToRun++;
             }
-            
-            // 限制最大延迟，丢弃过时的帧
             if (lag > FRAME_TIME * 3) lag = FRAME_TIME;
-            
-            // 渲染最新帧
-            image.data.set(framebuffer_u8);
-            canvas_ctx.putImageData(image, 0, 0);
-            
-            // Turbo处理
+            this._image.data.set(this._fbU8);
+            this._ctx.putImageData(this._image, 0, 0);
+
+            // Turbo
             frameCount++;
             if (frameCount % Math.floor(FPS / turboRate) === 0) {
-                if (turboMode.A || turboKeyHeld['Turbo A']) { nes.buttonDown(1, 0); setTimeout(() => nes.buttonUp(1, 0), 40); }
-                if (turboMode.B || turboKeyHeld['Turbo B']) { nes.buttonDown(1, 1); setTimeout(() => nes.buttonUp(1, 1), 40); }
+                if (turboMode.A || turboKeyHeld['Turbo A']) { this._nes.buttonDown(1, 0); setTimeout(() => this._nes.buttonUp(1, 0), 40); }
+                if (turboMode.B || turboKeyHeld['Turbo B']) { this._nes.buttonDown(1, 1); setTimeout(() => this._nes.buttonUp(1, 1), 40); }
             }
         }
 
-        // --- Keyboard Input ---
-        const keysDown = new Set();
-        function turboCodeToName(code) {
-            for (const [name, c] of Object.entries(turboKeymap)) { if (c === code) return name; }
+        _resumeAudio() {
+            if (this._audioCtx && this._audioCtx.state === 'suspended') this._audioCtx.resume();
+        }
+
+        stop() {
+            isRunning = false;
+            if (this._animId) { cancelAnimationFrame(this._animId); this._animId = null; }
+        }
+
+        buttonDown(port, btn) {
+            if (!this._nes) return;
+            const idx = BUTTON_NAMES.indexOf(btn);
+            if (idx >= 0) this._nes.buttonDown(port || 1, idx);
+        }
+
+        buttonUp(port, btn) {
+            if (!this._nes) return;
+            const idx = BUTTON_NAMES.indexOf(btn);
+            if (idx >= 0) this._nes.buttonUp(port || 1, idx);
+        }
+
+        saveState() { return this._nes ? this._nes.saveState() : null; }
+        loadState(state) { if (this._nes && state) this._nes.loadState(state); }
+
+        getCanvas() { return this._canvas; }
+    }
+
+    // ==================== RetroArchCore Adapter ====================
+    class RetroArchCore {
+        constructor(coreDef) {
+            this.id = coreDef.id;
+            this.name = coreDef.name;
+            this.type = 'retroarch';
+            this.coreDef = coreDef;
+            this._nostalgist = null;
+            this._Nostalgist = null;
+        }
+
+        async loadROM(data) {
+            // Lazy load Nostalgist.js
+            if (!NostalgistModule) {
+                const module = await import('./lib/nostalgist.js');
+                NostalgistModule = module.Nostalgist;
+            }
+            this._Nostalgist = NostalgistModule;
+
+            // Setup RA canvas container
+            const container = document.getElementById('retroarch-canvas-container');
+            container.innerHTML = '';
+
+            const romFile = typeof data === 'string'
+                ? { fileName: 'game.nes', fileContent: data }
+                : { fileName: (currentROMName || 'game') + '.nes', fileContent: new Uint8Array(data) };
+
+            this._nostalgist = await this._Nostalgist.launch({
+                core: {
+                    name: this.coreDef.coreName,
+                    js: this.coreDef.jsPath,
+                    wasm: this.coreDef.wasmPath,
+                },
+                rom: romFile,
+                element: container,
+            });
+        }
+
+        start() { /* Nostalgist manages its own loop */ isRunning = true; frameCount = 0; }
+        stop() { isRunning = false; }
+
+        buttonDown(port, btn) {
+            if (this._nostalgist) this._nostalgist.pressDown(port || 1, btn.toLowerCase());
+        }
+
+        buttonUp(port, btn) {
+            if (this._nostalgist) this._nostalgist.pressUp(port || 1, btn.toLowerCase());
+        }
+
+        saveState() {
+            if (this._nostalgist) return this._nostalgist.saveState();
             return null;
         }
-        document.addEventListener('keydown', (e) => {
-            if (listeningBtn) {
-                e.preventDefault();
-                if (listeningTurbo) { turboKeymap[listeningBtn] = e.code; listeningTurbo = null; }
-                else { keymap[listeningBtn] = e.code; }
-                listeningBtn = null;
-                renderKeymapPanel();
-                return;
+
+        loadState(state) {
+            if (this._nostalgist && state) this._nostalgist.loadState(state);
+        }
+
+        getCanvas() {
+            if (this._nostalgist) return this._nostalgist.getCanvas();
+            return null;
+        }
+    }
+
+    // ==================== Core Creation ====================
+    function createCoreInstance(coreDef) {
+        if (coreDef.type === 'jsnes') return new JsnesCore();
+        return new RetroArchCore(coreDef);
+    }
+
+    // ==================== Auto Detection ====================
+    async function tryAutoLoad(romData, romName) {
+        // Try each core in priority order
+        for (const coreDef of CORES) {
+            showLoading('正在尝试核心...', `${coreDef.name}`);
+            try {
+                console.log(`[AutoDetect] Trying ${coreDef.name}...`);
+                const core = createCoreInstance(coreDef);
+                await core.loadROM(romData);
+                // For jsnes, verify the ROM loaded correctly (check for non-black frames)
+                if (coreDef.type === 'jsnes') {
+                    const success = await verifyJsnesFrames(core, 30);
+                    if (!success) {
+                        console.log(`[AutoDetect] ${coreDef.name}: Black screen detected, skipping`);
+                        core.stop();
+                        continue;
+                    }
+                }
+                console.log(`[AutoDetect] ${coreDef.name} succeeded!`);
+                return core;
+            } catch (e) {
+                console.warn(`[AutoDetect] ${coreDef.name} failed:`, e.message);
             }
-            const turboName = turboCodeToName(e.code);
-            if (turboName) { e.preventDefault(); turboKeyHeld[turboName] = true; return; }
-            const btn = codeToBtn(e.code);
-            if (btn) { e.preventDefault(); keysDown.add(e.code); nes.buttonDown(1, btnToIndex(btn)); }
-        });
-        document.addEventListener('keyup', (e) => {
-            const turboName = turboCodeToName(e.code);
-            if (turboName) { turboKeyHeld[turboName] = false; return; }
-            const btn = codeToBtn(e.code);
-            if (btn) { keysDown.delete(e.code); nes.buttonUp(1, btnToIndex(btn)); }
-        });
+        }
+        return null;
+    }
 
-        // --- Mobile Touch: Joystick ---
-        const joystickZone = document.getElementById('joystick-zone');
-        const joystickThumb = document.getElementById('joystick-thumb');
-        let joystickTouch = null;
-        const JOYSTICK_RADIUS = 38; // max displacement px
-        const JOYSTICK_DEADZONE = 0.25; // ratio
-        let joystickDir = { up: false, down: false, left: false, right: false };
-
-        function updateJoystick(cx, cy) {
-            const rect = joystickZone.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            let dx = cx - centerX;
-            let dy = cy - centerY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > JOYSTICK_RADIUS) {
-                dx = dx / dist * JOYSTICK_RADIUS;
-                dy = dy / dist * JOYSTICK_RADIUS;
-            }
-            joystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-            joystickThumb.classList.add('active');
-
-            const normDist = dist / JOYSTICK_RADIUS;
-            const newDir = {
-                up: dy < -JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
-                down: dy > JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
-                left: dx < -JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
-                right: dx > JOYSTICK_RADIUS * JOYSTICK_DEADZONE
+    async function verifyJsnesFrames(core, frameCount) {
+        // Run some frames and check if framebuffer has non-zero pixels
+        return new Promise((resolve) => {
+            const ctx = core._ctx;
+            let frames = 0;
+            const testLoop = () => {
+                core._nes.frame();
+                frames++;
+                if (frames >= frameCount) {
+                    // Check if any pixel is non-black
+                    const imageData = ctx.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+                    const data = imageData.data;
+                    let nonBlack = 0;
+                    for (let i = 0; i < data.length; i += 4) {
+                        if (data[i] > 0 || data[i+1] > 0 || data[i+2] > 0) {
+                            nonBlack++;
+                            if (nonBlack > 100) break;
+                        }
+                    }
+                    resolve(nonBlack > 100);
+                    return;
+                }
+                setTimeout(testLoop, 0);
             };
-            ['up', 'down', 'left', 'right'].forEach(d => {
-                if (newDir[d] !== joystickDir[d]) {
-                    joystickDir[d] = newDir[d];
-                    const idx = btnToIndex(d.toUpperCase());
-                    if (newDir[d]) nes.buttonDown(1, idx);
-                    else nes.buttonUp(1, idx);
-                }
-            });
+            testLoop();
+        });
+    }
+
+    // ==================== Load with specific core ====================
+    async function loadWithCore(coreDef, romData, romName) {
+        // Stop any running core
+        if (activeCore && isRunning) {
+            activeCore.stop();
+            if (activeCore._nostalgist) {
+                try { activeCore._nostalgist.exit({ removeCanvas: false }); } catch (e) {}
+            }
         }
 
-        function resetJoystick() {
-            joystickThumb.style.transform = 'translate(-50%, -50%)';
-            joystickThumb.classList.remove('active');
-            ['up', 'down', 'left', 'right'].forEach(d => {
-                if (joystickDir[d]) {
-                    joystickDir[d] = false;
-                    nes.buttonUp(1, btnToIndex(d.toUpperCase()));
-                }
-            });
+        showLoading('正在加载核心...', coreDef.name);
+
+        const core = createCoreInstance(coreDef);
+        await core.loadROM(romData);
+
+        // Switch UI
+        activeCore = core;
+        switchCanvasDisplay(core);
+        updateCoreIndicator(core);
+
+        document.getElementById('selector-ui').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+
+        currentROMData = romData;
+        currentROMName = romName || '游戏';
+
+        // Save ROM core preference
+        saveCorePref(romName, coreDef.id);
+
+        updateScale();
+        hideLoading();
+
+        // Start game
+        core.start();
+    }
+
+    // ==================== ROM Load Entry Point ====================
+    async function startGameWithROM(romData, romName) {
+        pendingRomData = romData;
+        pendingRomName = romName;
+
+        document.getElementById('selector-ui').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        showLoading('正在检测最佳核心...', '自动选择中');
+
+        // Step 1: Auto detect
+        const autoCore = await tryAutoLoad(romData, romName);
+        if (autoCore) {
+            activeCore = autoCore;
+            switchCanvasDisplay(autoCore);
+            updateCoreIndicator(autoCore);
+            currentROMData = romData;
+            currentROMName = romName;
+            saveCorePref(romName, autoCore.id);
+
+            updateScale();
+            hideLoading();
+            autoCore.start();
+
+            // Hide continue button
+            document.getElementById('resume-btn').classList.add('hidden');
+            return;
         }
 
-        joystickZone.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (joystickTouch === null && e.changedTouches.length > 0) {
-                joystickTouch = e.changedTouches[0].identifier;
-                updateJoystick(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-            }
-        }, { passive: false });
+        hideLoading();
 
-        joystickZone.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            for (const t of e.changedTouches) {
-                if (t.identifier === joystickTouch) {
-                    updateJoystick(t.clientX, t.clientY);
+        // Step 2: Try historical preference
+        const pref = getCorePref(romName);
+        if (pref) {
+            const prefDef = CORES.find(c => c.id === pref);
+            if (prefDef) {
+                showLoading('正在尝试历史偏好核心...', prefDef.name);
+                try {
+                    const core = createCoreInstance(prefDef);
+                    await core.loadROM(romData);
+                    activeCore = core;
+                    switchCanvasDisplay(core);
+                    updateCoreIndicator(core);
+                    currentROMData = romData;
+                    currentROMName = romName;
+                    updateScale();
+                    hideLoading();
+                    core.start();
+                    document.getElementById('resume-btn').classList.add('hidden');
+                    return;
+                } catch (e) {
+                    console.warn(`[HistoryPref] ${prefDef.name} failed:`, e.message);
+                    hideLoading();
                 }
             }
-        }, { passive: false });
+        }
 
-        joystickZone.addEventListener('touchend', (e) => {
-            for (const t of e.changedTouches) {
-                if (t.identifier === joystickTouch) {
-                    joystickTouch = null;
-                    resetJoystick();
-                }
-            }
-        });
-        joystickZone.addEventListener('touchcancel', (e) => {
-            for (const t of e.changedTouches) {
-                if (t.identifier === joystickTouch) {
-                    joystickTouch = null;
-                    resetJoystick();
-                }
-            }
-        });
+        // Step 3: Manual selection
+        showCorePickerModal();
+    }
 
-        // --- Mobile Touch: Action Buttons (支持多点触控) ---
-        const touchBtns = new Map();
-        const btnElements = document.querySelectorAll('.a-btn, .b-btn, .m-btn, .turbo-btn');
-        
-        btnElements.forEach(el => {
-            el.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                for (const t of e.changedTouches) {
-                    const btnName = el.dataset.btn || el.dataset.type;
-                    // 判断是单发按钮还是连发按钮
-                    if (el.classList.contains('turbo-btn')) {
-                        // 连发按钮：切换状态
-                        const type = el.dataset.type;
-                        turboMode[type] = !turboMode[type];
-                        el.classList.toggle('active');
-                    } else {
-                        // 单发按钮：按下
-                        const idx = btnToIndex(btnName);
-                        if (idx >= 0) {
-                            nes.buttonDown(1, idx);
-                            touchBtns.set(t.identifier + '_' + btnName, { el, idx, btnName });
-                            el.classList.add('active');
-                        }
+    // ==================== Core Preference Storage ====================
+    function saveCorePref(romName, coreId) {
+        try {
+            let prefs = JSON.parse(localStorage.getItem(SAVE_KEY_CORE_PREF) || '{}');
+            prefs[romName] = coreId;
+            localStorage.setItem(SAVE_KEY_CORE_PREF, JSON.stringify(prefs));
+        } catch (e) { console.error('Save core pref failed:', e); }
+    }
+
+    function getCorePref(romName) {
+        try {
+            const prefs = JSON.parse(localStorage.getItem(SAVE_KEY_CORE_PREF) || '{}');
+            return prefs[romName] || null;
+        } catch (e) { return null; }
+    }
+
+    // ==================== Game State Save/Restore ====================
+    function tryRestoreSavedState() {
+        try {
+            const savedROM = localStorage.getItem(SAVE_KEY_ROM);
+            const savedState = localStorage.getItem(SAVE_KEY_STATE);
+            const savedName = localStorage.getItem(SAVE_KEY_NAME);
+            const savedCore = localStorage.getItem(SAVE_KEY_CORE);
+            if (savedROM && savedState && savedName) {
+                currentROMData = savedROM;
+                lastGameState = savedState;
+                currentROMName = savedName;
+                romCorePref = savedCore;
+                document.getElementById('resume-btn').classList.remove('hidden');
+                document.getElementById('resume-btn').textContent = '▶️ 继续: ' + savedName;
+            }
+        } catch (e) { console.error('Restore failed:', e); }
+    }
+
+    function saveGameState() {
+        if (!activeCore || !currentROMData || !currentROMName) return;
+        try {
+            const state = activeCore.saveState();
+            if (!state) return;
+            lastGameState = typeof state === 'string' ? state : JSON.stringify(state);
+            localStorage.setItem(SAVE_KEY_ROM, currentROMData);
+            localStorage.setItem(SAVE_KEY_STATE, lastGameState);
+            localStorage.setItem(SAVE_KEY_NAME, currentROMName);
+            localStorage.setItem(SAVE_KEY_CORE, activeCore.id);
+        } catch (e) {
+            if (e.name === 'QuotaExceededError') {
+                localStorage.removeItem(SAVE_KEY_ROM);
+                localStorage.removeItem(SAVE_KEY_STATE);
+                localStorage.removeItem(SAVE_KEY_NAME);
+                localStorage.removeItem(SAVE_KEY_CORE);
+            }
+        }
+    }
+
+    async function resumeGame() {
+        if (!currentROMData) return;
+        // Determine which core to use for resuming
+        const savedCoreId = localStorage.getItem(SAVE_KEY_CORE);
+        let coreDef = CORES.find(c => c.id === savedCoreId) || CORES[0];
+        showLoading('正在恢复游戏...', coreDef.name);
+        try {
+            await loadWithCore(coreDef, currentROMData, currentROMName);
+            // Restore state
+            if (lastGameState) {
+                try {
+                    const stateData = JSON.parse(lastGameState);
+                    activeCore.loadState(stateData);
+                } catch (e) {
+                    try { activeCore.loadState(lastGameState); } catch (e2) {
+                        console.error('State restore failed:', e2);
                     }
                 }
-            }, { passive: false });
-            
-            el.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                for (const t of e.changedTouches) {
-                    // 找到对应的按钮
-                    for (const [key, info] of touchBtns.entries()) {
-                        if (info.btnName && (t.clientX !== 0 || t.clientY !== 0)) {
-                            // 检查这个touch是否在这个按钮上
-                            const rect = info.el.getBoundingClientRect();
-                            if (t.clientX >= rect.left && t.clientX <= rect.right &&
-                                t.clientY >= rect.top && t.clientY <= rect.bottom) {
-                                nes.buttonUp(1, info.idx);
-                                info.el.classList.remove('active');
-                                touchBtns.delete(key);
-                            }
-                        }
-                    }
+            }
+            document.getElementById('resume-btn').classList.add('hidden');
+        } catch (e) {
+            console.error('Resume failed:', e);
+            hideLoading();
+            document.getElementById('selector-ui').classList.remove('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+        }
+    }
+
+    function stopGame() {
+        if (activeCore && isRunning) {
+            try {
+                saveGameState();
+                activeCore.stop();
+                if (activeCore._nostalgist) {
+                    try { activeCore._nostalgist.exit({ removeCanvas: false }); } catch (e) {}
                 }
-            }, { passive: false });
-            
-            el.addEventListener('touchcancel', (e) => {
-                for (const t of e.changedTouches) {
-                    for (const [key, info] of touchBtns.entries()) {
-                        if (info.btnName) {
-                            nes.buttonUp(1, info.idx);
+            } catch (e) { console.error('Stop failed:', e); }
+        }
+        isRunning = false;
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('game-fullscreen');
+        document.getElementById('selector-ui').classList.remove('hidden');
+        document.getElementById('keymap-panel').classList.remove('show');
+        document.getElementById('fullscreen-btn').textContent = '📺 全屏';
+        // Show resume button
+        if (currentROMData && lastGameState && currentROMName) {
+            document.getElementById('resume-btn').classList.remove('hidden');
+            document.getElementById('resume-btn').textContent = '▶️ 继续: ' + currentROMName;
+        } else {
+            document.getElementById('resume-btn').classList.add('hidden');
+        }
+    }
+
+    // ==================== Scale & Fullscreen ====================
+    function changeScale(d) { currentScale = Math.max(0.5, Math.min(5, currentScale + d)); updateScale(); }
+    function updateScale() {
+        const screen = document.getElementById('game-screen');
+        const container = document.getElementById('canvas-container');
+        const isFs = screen && screen.classList.contains('game-fullscreen');
+        if (isFs) {
+            const scaleX = (window.innerWidth - 40) / SCREEN_WIDTH;
+            const scaleY = (window.innerHeight - 40) / SCREEN_HEIGHT;
+            const fitScale = Math.min(scaleX, scaleY);
+            const finalScale = Math.max(1, Math.floor(fitScale));
+            container.style.transform = `scale(${finalScale})`;
+        } else {
+            container.style.transform = `scale(${currentScale})`;
+        }
+        document.getElementById('scale-display').textContent = currentScale + 'x';
+    }
+
+    function toggleFullScreen() {
+        const screen = document.getElementById('game-screen');
+        const btn = document.getElementById('fullscreen-btn');
+        const isEnteringFs = !screen.classList.contains('game-fullscreen');
+        screen.classList.toggle('game-fullscreen');
+        btn.textContent = isEnteringFs ? '📺 退出' : '📺 全屏';
+        if (isEnteringFs) {
+            if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
+        } else {
+            if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+        }
+        updateScale();
+    }
+
+    // ==================== Turbo ====================
+    function toggleTurbo(btn) { const type = btn.dataset.type; turboMode[type] = !turboMode[type]; btn.classList.toggle('active'); }
+    function setRate(r, btn) {
+        turboRate = r;
+        document.querySelectorAll('.turbo-bar .t-btn').forEach(b => { if (!b.dataset.type) b.classList.remove('active'); });
+        btn.classList.add('active');
+    }
+
+    // ==================== Keymap Panel ====================
+    let listeningBtn = null, listeningTurbo = false;
+    function toggleKeymapPanel() {
+        const panel = document.getElementById('keymap-panel');
+        panel.classList.toggle('show');
+        if (panel.classList.contains('show')) renderKeymapPanel();
+    }
+    function renderKeymapPanel() {
+        const list = document.getElementById('keymap-list');
+        list.innerHTML = '';
+        BUTTON_NAMES.forEach(btn => {
+            const row = document.createElement('div'); row.className = 'keymap-row';
+            const label = document.createElement('span'); label.className = 'keymap-label'; label.textContent = btn;
+            const key = document.createElement('span'); key.className = 'keymap-key'; key.textContent = codeToLabel(keymap[btn]);
+            if (listeningBtn === btn && !listeningTurbo) key.classList.add('listening');
+            key.addEventListener('click', () => { listeningBtn = btn; listeningTurbo = false; renderKeymapPanel(); });
+            row.appendChild(label); row.appendChild(key); list.appendChild(row);
+        });
+        const sep = document.createElement('div');
+        sep.style.cssText = 'border-top:1px solid rgba(0,240,255,0.2);padding:8px 0 2px;margin-top:4px;';
+        const sepLabel = document.createElement('span');
+        sepLabel.style.cssText = 'color:#00f0ff;font-size:0.8rem;'; sepLabel.textContent = '连发按键';
+        sep.appendChild(sepLabel); list.appendChild(sep);
+        Object.keys(turboKeymap).forEach(name => {
+            const row = document.createElement('div'); row.className = 'keymap-row';
+            const label = document.createElement('span'); label.className = 'keymap-label'; label.textContent = name; label.style.color = '#ff9944';
+            const key = document.createElement('span'); key.className = 'keymap-key'; key.textContent = codeToLabel(turboKeymap[name]);
+            if (listeningBtn === name && listeningTurbo) key.classList.add('listening');
+            key.addEventListener('click', () => { listeningBtn = name; listeningTurbo = true; renderKeymapPanel(); });
+            row.appendChild(label); row.appendChild(key); list.appendChild(row);
+        });
+    }
+
+    // ==================== Keyboard Input ====================
+    const keysDown = new Set();
+    document.addEventListener('keydown', (e) => {
+        if (listeningBtn) {
+            e.preventDefault();
+            if (listeningTurbo) { turboKeymap[listeningBtn] = e.code; listeningTurbo = null; }
+            else { keymap[listeningBtn] = e.code; }
+            listeningBtn = null; renderKeymapPanel(); return;
+        }
+        const turboName = turboCodeToName(e.code);
+        if (turboName) { e.preventDefault(); turboKeyHeld[turboName] = true; return; }
+        const btn = codeToBtn(e.code);
+        if (btn && activeCore) { e.preventDefault(); keysDown.add(e.code); activeCore.buttonDown(1, btn); }
+    });
+    document.addEventListener('keyup', (e) => {
+        const turboName = turboCodeToName(e.code);
+        if (turboName) { turboKeyHeld[turboName] = false; return; }
+        const btn = codeToBtn(e.code);
+        if (btn && activeCore) { keysDown.delete(e.code); activeCore.buttonUp(1, btn); }
+    });
+
+    // ==================== Mobile Touch: Joystick ====================
+    const joystickZone = document.getElementById('joystick-zone');
+    const joystickThumb = document.getElementById('joystick-thumb');
+    let joystickTouch = null;
+    const JOYSTICK_RADIUS = 38, JOYSTICK_DEADZONE = 0.25;
+    let joystickDir = { up: false, down: false, left: false, right: false };
+
+    function updateJoystick(cx, cy) {
+        const rect = joystickZone.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2, centerY = rect.top + rect.height / 2;
+        let dx = cx - centerX, dy = cy - centerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > JOYSTICK_RADIUS) { dx = dx / dist * JOYSTICK_RADIUS; dy = dy / dist * JOYSTICK_RADIUS; }
+        joystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        joystickThumb.classList.add('active');
+        const newDir = {
+            up: dy < -JOYSTICK_RADIUS * JOYSTICK_DEADZONE, down: dy > JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
+            left: dx < -JOYSTICK_RADIUS * JOYSTICK_DEADZONE, right: dx > JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
+        };
+        ['up','down','left','right'].forEach(d => {
+            if (newDir[d] !== joystickDir[d]) {
+                joystickDir[d] = newDir[d];
+                if (activeCore) { newDir[d] ? activeCore.buttonDown(1, d.toUpperCase()) : activeCore.buttonUp(1, d.toUpperCase()); }
+            }
+        });
+    }
+    function resetJoystick() {
+        joystickThumb.style.transform = 'translate(-50%, -50%)';
+        joystickThumb.classList.remove('active');
+        ['up','down','left','right'].forEach(d => {
+            if (joystickDir[d]) { joystickDir[d] = false; if (activeCore) activeCore.buttonUp(1, d.toUpperCase()); }
+        });
+    }
+    joystickZone.addEventListener('touchstart', (e) => { e.preventDefault(); if (joystickTouch === null && e.changedTouches.length > 0) { joystickTouch = e.changedTouches[0].identifier; updateJoystick(e.changedTouches[0].clientX, e.changedTouches[0].clientY); } }, { passive: false });
+    joystickZone.addEventListener('touchmove', (e) => { e.preventDefault(); for (const t of e.changedTouches) { if (t.identifier === joystickTouch) updateJoystick(t.clientX, t.clientY); } }, { passive: false });
+    joystickZone.addEventListener('touchend', (e) => { for (const t of e.changedTouches) { if (t.identifier === joystickTouch) { joystickTouch = null; resetJoystick(); } } });
+    joystickZone.addEventListener('touchcancel', (e) => { for (const t of e.changedTouches) { if (t.identifier === joystickTouch) { joystickTouch = null; resetJoystick(); } } });
+
+    // ==================== Mobile Touch: Action Buttons ====================
+    const touchBtns = new Map();
+    const btnElements = document.querySelectorAll('.a-btn, .b-btn, .m-btn, .turbo-btn');
+    btnElements.forEach(el => {
+        el.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            for (const t of e.changedTouches) {
+                const btnName = el.dataset.btn || el.dataset.type;
+                if (el.classList.contains('turbo-btn')) {
+                    turboMode[el.dataset.type] = !turboMode[el.dataset.type]; el.classList.toggle('active');
+                } else {
+                    if (activeCore) activeCore.buttonDown(1, btnName);
+                    touchBtns.set(t.identifier + '_' + btnName, { el, btnName });
+                    el.classList.add('active');
+                }
+            }
+        }, { passive: false });
+        el.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            for (const t of e.changedTouches) {
+                for (const [key, info] of touchBtns.entries()) {
+                    if (info.btnName && (t.clientX !== 0 || t.clientY !== 0)) {
+                        const rect = info.el.getBoundingClientRect();
+                        if (t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom) {
+                            if (activeCore) activeCore.buttonUp(1, info.btnName);
                             info.el.classList.remove('active');
                             touchBtns.delete(key);
                         }
                     }
                 }
-            });
+            }
+        }, { passive: false });
+        el.addEventListener('touchcancel', (e) => {
+            for (const t of e.changedTouches) {
+                for (const [key, info] of touchBtns.entries()) {
+                    if (info.btnName) { if (activeCore) activeCore.buttonUp(1, info.btnName); info.el.classList.remove('active'); touchBtns.delete(key); }
+                }
+            }
         });
-        
-        // 新的多点触控处理：监听全局touch事件来处理AB同时按
-        document.addEventListener('touchstart', (e) => {
-            for (const t of e.changedTouches) {
-                const el = document.elementFromPoint(t.clientX, t.clientY);
-                if (el && (el.classList.contains('a-btn') || el.classList.contains('b-btn'))) {
-                    const btnName = el.dataset.btn;
-                    const idx = btnToIndex(btnName);
-                    if (idx >= 0) {
-                        nes.buttonDown(1, idx);
-                        touchBtns.set('ab_' + t.identifier, { el, idx, btnName });
-                        el.classList.add('active');
-                    }
-                }
+    });
+    // Multi-touch A+B
+    document.addEventListener('touchstart', (e) => {
+        for (const t of e.changedTouches) {
+            const el = document.elementFromPoint(t.clientX, t.clientY);
+            if (el && (el.classList.contains('a-btn') || el.classList.contains('b-btn')) && activeCore) {
+                const btnName = el.dataset.btn;
+                activeCore.buttonDown(1, btnName);
+                touchBtns.set('ab_' + t.identifier, { el, btnName });
+                el.classList.add('active');
             }
-        }, { passive: true });
-        
-        document.addEventListener('touchend', (e) => {
-            for (const t of e.changedTouches) {
-                const info = touchBtns.get('ab_' + t.identifier);
-                if (info) {
-                    nes.buttonUp(1, info.idx);
-                    info.el.classList.remove('active');
-                    touchBtns.delete('ab_' + t.identifier);
-                }
-            }
-        }, { passive: true });
-        
-        document.addEventListener('touchcancel', (e) => {
-            for (const t of e.changedTouches) {
-                const info = touchBtns.get('ab_' + t.identifier);
-                if (info) {
-                    nes.buttonUp(1, info.idx);
-                    info.el.classList.remove('active');
-                    touchBtns.delete('ab_' + t.identifier);
-                }
-            }
-        }, { passive: true });
+        }
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+        for (const t of e.changedTouches) {
+            const info = touchBtns.get('ab_' + t.identifier);
+            if (info) { if (activeCore) activeCore.buttonUp(1, info.btnName); info.el.classList.remove('active'); touchBtns.delete('ab_' + t.identifier); }
+        }
+    }, { passive: true });
+    document.addEventListener('touchcancel', (e) => {
+        for (const t of e.changedTouches) {
+            const info = touchBtns.get('ab_' + t.identifier);
+            if (info) { if (activeCore) activeCore.buttonUp(1, info.btnName); info.el.classList.remove('active'); touchBtns.delete('ab_' + t.identifier); }
+        }
+    }, { passive: true });
 
-        // --- UI Functions ---
-        function changeScale(d) { currentScale = Math.max(0.5, Math.min(5, currentScale + d)); updateScale(); }
-        function updateScale() {
-            const screen = document.getElementById('game-screen');
-            const canvas = document.getElementById('screen');
-            const isFs = screen && screen.classList.contains('game-fullscreen');
-            if (isFs) {
-                // 全屏模式：根据屏幕尺寸计算最大缩放比例，保持4:3比例
-                const scaleX = (window.innerWidth - 40) / SCREEN_WIDTH;
-                const scaleY = (window.innerHeight - 40) / SCREEN_HEIGHT;
-                const fitScale = Math.min(scaleX, scaleY);
-                const finalScale = Math.max(1, Math.floor(fitScale)); // 至少1倍，最多填满屏幕
-                canvas.style.transform = `scale(${finalScale})`;
-            } else {
-                canvas.style.transform = `scale(${currentScale})`;
-            }
-            document.getElementById('scale-display').textContent = currentScale + 'x';
-        }
-        function toggleFullScreen() {
-            const screen = document.getElementById('game-screen');
-            const btn = document.getElementById('fullscreen-btn');
-            const isEnteringFs = !screen.classList.contains('game-fullscreen');
-            
-            screen.classList.toggle('game-fullscreen');
-            btn.textContent = isEnteringFs ? '📺 退出' : '📺 全屏';
-            
-            // 手机上全屏时尝试切换到横屏
-            if (isEnteringFs) {
-                // 尝试使用 Screen Orientation API 锁定横屏
-                if (screen.orientation && screen.orientation.lock) {
-                    screen.orientation.lock('landscape').catch(() => {});
-                } else if (screen.lockOrientation) {
-                    screen.lockOrientation('landscape');
-                } else if (screen.matchMedia('(orientation: portrait)').matches) {
-                    // 如果是竖屏，提示用户旋转手机
-                    // 大多数现代浏览器会自动响应屏幕方向变化
-                }
-            } else {
-                // 退出全屏时解除方向锁定
-                if (screen.orientation && screen.orientation.unlock) {
-                    screen.orientation.unlock();
-                } else if (screen.unlockOrientation) {
-                    screen.unlockOrientation();
-                }
-            }
-            
-            updateScale();
-        }
-        function stopGame() {
-            // 保存游戏状态
-            if (nes && isRunning) {
-                try {
-                    lastGameState = nes.saveState();
-                    console.log('游戏状态已保存');
-                    // 持久化保存到 localStorage
-                    saveGameState();
-                } catch (e) {
-                    console.error('保存游戏状态失败:', e);
-                    lastGameState = null;
-                }
-            }
-            
-            isRunning = false;
-            document.getElementById('game-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('game-fullscreen');
-            document.getElementById('selector-ui').classList.remove('hidden');
-            document.getElementById('keymap-panel').classList.remove('show');
-            document.getElementById('fullscreen-btn').textContent = '📺 全屏';
-            // 显示继续游戏按钮（如果有保存的ROM和状态）
-            const resumeBtn = document.getElementById('resume-btn');
-            if (currentROMData && lastGameState && currentROMName) {
-                resumeBtn.classList.remove('hidden');
-                resumeBtn.textContent = '▶️ 继续: ' + currentROMName;
-            } else {
-                resumeBtn.classList.add('hidden');
-            }
-        }
-        function toggleTurbo(btn) {
-            const type = btn.dataset.type;
-            turboMode[type] = !turboMode[type];
-            btn.classList.toggle('active');
-        }
-        function setRate(r, btn) {
-            turboRate = r;
-            document.querySelectorAll('.turbo-bar .t-btn').forEach(b => { if (!b.dataset.type) b.classList.remove('active'); });
-            btn.classList.add('active');
-        }
-
-        // --- Keymap Panel ---
-        let listeningBtn = null;
-        let listeningTurbo = false;
-
-        function toggleKeymapPanel() {
-            const panel = document.getElementById('keymap-panel');
-            panel.classList.toggle('show');
-            if (panel.classList.contains('show')) renderKeymapPanel();
-        }
-
-        function renderKeymapPanel() {
-            const list = document.getElementById('keymap-list');
-            list.innerHTML = '';
-            BUTTON_NAMES.forEach(btn => {
-                const row = document.createElement('div');
-                row.className = 'keymap-row';
-                const label = document.createElement('span');
-                label.className = 'keymap-label';
-                label.textContent = btn;
-                const key = document.createElement('span');
-                key.className = 'keymap-key';
-                key.textContent = codeToLabel(keymap[btn]);
-                key.dataset.btn = btn;
-                if (listeningBtn === btn && !listeningTurbo) key.classList.add('listening');
-                key.addEventListener('click', () => {
-                    listeningBtn = btn;
-                    listeningTurbo = false;
-                    renderKeymapPanel();
-                });
-                row.appendChild(label);
-                row.appendChild(key);
-                list.appendChild(row);
-            });
-            // Turbo keys section
-            const sep = document.createElement('div');
-            sep.style.cssText = 'border-top: 1px solid rgba(0,240,255,0.2); padding: 8px 0 2px; margin-top: 4px;';
-            const sepLabel = document.createElement('span');
-            sepLabel.style.cssText = 'color: #00f0ff; font-size: 0.8rem;';
-            sepLabel.textContent = '连发按键（按住自动连发）';
-            sep.appendChild(sepLabel);
-            list.appendChild(sep);
-            Object.keys(turboKeymap).forEach(name => {
-                const row = document.createElement('div');
-                row.className = 'keymap-row';
-                const label = document.createElement('span');
-                label.className = 'keymap-label';
-                label.textContent = name;
-                label.style.color = '#ff9944';
-                const key = document.createElement('span');
-                key.className = 'keymap-key';
-                key.textContent = codeToLabel(turboKeymap[name]);
-                key.dataset.btn = name;
-                if (listeningBtn === name && listeningTurbo) key.classList.add('listening');
-                key.addEventListener('click', () => {
-                    listeningBtn = name;
-                    listeningTurbo = true;
-                    renderKeymapPanel();
-                });
-                row.appendChild(label);
-                row.appendChild(key);
-                list.appendChild(row);
+    // ==================== File Loading ====================
+    async function pickAndLoadROM() {
+        let file;
+        if ('showOpenFilePicker' in window) {
+            try { [file] = await window.showOpenFilePicker({ id: 'fc-rom-picker', types: [{ description: 'NES ROM', accept: { 'application/octet-stream': ['.nes', '.zip'] } }] }); } catch (e) { return; }
+        } else {
+            return new Promise(resolve => {
+                const input = document.createElement('input'); input.type = 'file'; input.accept = '.nes,.zip';
+                input.onchange = () => { if (input.files[0]) loadFile(input.files[0]); resolve(); };
+                input.click();
             });
         }
+        if (file) loadFile(await file.getFile());
+    }
 
-        // --- File Loading (uses File System Access API to remember last directory) ---
-        async function pickAndLoadROM() {
-            let file;
-            // Prefer showOpenFilePicker: remembers last directory via id
-            if ('showOpenFilePicker' in window) {
-                try {
-                    [file] = await window.showOpenFilePicker({
-                        id: 'fc-rom-picker',
-                        types: [{
-                            description: 'NES ROM',
-                            accept: { 'application/octet-stream': ['.nes', '.zip'] }
-                        }]
-                    });
-                } catch (e) { return; } // user cancelled
-            } else {
-                // Fallback: native file input
-                return new Promise(resolve => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = '.nes,.zip';
-                    input.onchange = () => {
-                        if (input.files[0]) loadFile(input.files[0]);
-                        resolve();
-                    };
-                    input.click();
-                });
-            }
-            if (file) loadFile(await file.getFile());
+    async function loadFile(file) {
+        let romName = file.name.replace(/\.(nes|zip)$/i, '');
+        if (file.name.endsWith('.zip')) {
+            const zip = await JSZip.loadAsync(file);
+            const nesFile = Object.values(zip.files).find(f => f.name.toLowerCase().endsWith('.nes'));
+            if (nesFile) {
+                romName = nesFile.name.replace(/\.nes$/i, '');
+                startGameWithROM(await nesFile.async('binarystring'), romName);
+            } else alert('未找到 .nes 文件');
+        } else {
+            const reader = new FileReader();
+            reader.onload = (ev) => startGameWithROM(ev.target.result, romName);
+            reader.readAsBinaryString(file);
         }
+    }
 
-        async function loadFile(file) {
-            let romName = file.name.replace(/\.(nes|zip)$/i, '');
-            if (file.name.endsWith('.zip')) {
-                const zip = await JSZip.loadAsync(file);
-                const nesFile = Object.values(zip.files).find(f => f.name.toLowerCase().endsWith('.nes'));
-                if (nesFile) {
-                    romName = nesFile.name.replace(/\.nes$/i, '');
-                    loadROM(await nesFile.async("binarystring"), romName);
-                }
-                else alert('未找到 .nes 文件');
-            } else {
-                const reader = new FileReader();
-                reader.onload = (ev) => loadROM(ev.target.result, romName);
-                reader.readAsBinaryString(file);
-            }
-        }
+    document.getElementById('rom-pick-btn').addEventListener('click', (e) => { e.preventDefault(); pickAndLoadROM(); });
 
-        document.getElementById('rom-pick-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            pickAndLoadROM();
-        });
-
-        // 页面加载时尝试恢复保存的游戏状态
+    // ==================== Init ====================
+    function init() {
+        renderCoreSelector();
         tryRestoreSavedState();
-
-        // 窗口大小变化时重新计算全屏缩放
         window.addEventListener('resize', () => {
             const screen = document.getElementById('game-screen');
-            if (screen && screen.classList.contains('game-fullscreen')) {
-                updateScale();
-            }
+            if (screen && screen.classList.contains('game-fullscreen')) updateScale();
         });
+    }
+
+    init();
     </script>
 </body>
 </html>
