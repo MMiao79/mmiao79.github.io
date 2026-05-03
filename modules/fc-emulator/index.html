@@ -307,13 +307,16 @@
         <div class="loading-spinner"></div>
         <div class="loading-text" id="loading-text">正在加载...</div>
         <div class="loading-sub" id="loading-sub"></div>
+        <div id="loading-core-btn" class="hidden" style="margin-top:16px;">
+            <button onclick="showCorePickerFromLoading()" style="padding:10px 24px;background:rgba(0,240,255,0.15);border:1px solid rgba(0,240,255,0.4);border-radius:8px;color:#00f0ff;font-size:0.9rem;cursor:pointer;">选择核心</button>
+        </div>
     </div>
 
     <!-- Core Picker Modal -->
     <div id="core-picker-modal" class="hidden">
         <div class="core-picker">
-            <h2>选择模拟核心</h2>
-            <p>所有核心均无法自动运行此 ROM，请手动选择一个核心尝试</p>
+            <h2 id="picker-title">选择模拟核心</h2>
+            <p id="picker-sub">所有核心均无法自动运行此 ROM，请手动选择一个核心尝试</p>
             <div id="core-picker-list"></div>
             <button class="core-picker-cancel" onclick="cancelCorePicker()">取消返回</button>
         </div>
@@ -471,8 +474,12 @@
         document.getElementById('loading-text').textContent = text || '正在加载...';
         document.getElementById('loading-sub').textContent = sub || '';
         document.getElementById('loading-overlay').classList.remove('hidden');
+        document.getElementById('loading-core-btn').classList.add('hidden');
     }
-    function hideLoading() { document.getElementById('loading-overlay').classList.add('hidden'); }
+    function hideLoading() {
+        document.getElementById('loading-overlay').classList.add('hidden');
+        document.getElementById('loading-core-btn').classList.add('hidden');
+    }
 
     function updateCoreIndicator(core) {
         document.getElementById('core-label-text').textContent = core.name;
@@ -523,9 +530,23 @@
     }
 
     // ==================== Core Picker Modal ====================
-    function showCorePickerModal() {
+    let _pickerReturnTo = 'game'; // 'loading' = back to loading screen, 'game' = stay in game
+
+    function showCorePickerModal(returnTo) {
+        _pickerReturnTo = returnTo || 'game';
         const modal = document.getElementById('core-picker-modal');
         const list = document.getElementById('core-picker-list');
+        const title = document.getElementById('picker-title');
+        const sub = document.getElementById('picker-sub');
+
+        if (_pickerReturnTo === 'loading') {
+            title.textContent = '选择模拟核心';
+            sub.textContent = '自动检测失败，请选择一个核心尝试';
+        } else {
+            title.textContent = '切换模拟核心';
+            sub.textContent = '选择一个核心替换当前运行的核心';
+        }
+
         list.innerHTML = '';
         CORES.forEach(c => {
             const opt = document.createElement('div');
@@ -538,7 +559,6 @@
                 </div>
             `;
             opt.addEventListener('click', async () => {
-                const modal = document.getElementById('core-picker-modal');
                 modal.classList.add('hidden');
                 showLoading('正在加载核心...', c.name);
                 try {
@@ -546,7 +566,7 @@
                 } catch (e) {
                     console.error(`Core ${c.name} failed:`, e);
                     hideLoading();
-                    showCorePickerModal();
+                    showCorePickerModal(_pickerReturnTo);
                 }
             });
             list.appendChild(opt);
@@ -556,12 +576,21 @@
 
     function cancelCorePicker() {
         document.getElementById('core-picker-modal').classList.add('hidden');
-        document.getElementById('selector-ui').classList.remove('hidden');
-        document.getElementById('game-screen').classList.add('hidden');
-        hideLoading();
+        if (_pickerReturnTo === 'loading') {
+            // From loading screen: show loading with select-core button
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            document.getElementById('loading-core-btn').classList.remove('hidden');
+        }
+        // From 'game': just close picker, game stays paused
+    }
+
+    function showCorePickerFromLoading() {
+        document.getElementById('loading-core-btn').classList.add('hidden');
+        showCorePickerModal('loading');
     }
 
     function showCoreSwitcher() {
+        _pickerReturnTo = 'game';
         // Paused game, show core switch
         const wasRunning = isRunning;
         if (isRunning && activeCore) {
@@ -570,6 +599,10 @@
         }
         const modal = document.getElementById('core-picker-modal');
         const list = document.getElementById('core-picker-list');
+        const title = document.getElementById('picker-title');
+        const sub = document.getElementById('picker-sub');
+        title.textContent = '切换模拟核心';
+        sub.textContent = '选择一个核心替换当前运行的核心';
         list.innerHTML = '';
         CORES.forEach(c => {
             if (c.id === (activeCore ? activeCore.id : null)) return;
@@ -934,8 +967,9 @@
             }
         }
 
-        // Step 3: Manual selection
-        showCorePickerModal();
+        // Step 3: Show select-core button, user can manually trigger picker
+        showLoading('自动检测失败', '请选择核心');
+        document.getElementById('loading-core-btn').classList.remove('hidden');
     }
 
     // ==================== Core Preference Storage ====================
