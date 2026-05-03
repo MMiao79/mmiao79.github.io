@@ -607,9 +607,12 @@
             if (audio_ctx && audio_ctx.state === 'suspended') audio_ctx.resume();
             isRunning = true;
             lastTime = 0; lag = 0; // 重置帧率计时器
-            // 保存ROM数据用于恢复
+            // 保存ROM数据用于恢复，如果是新ROM则清除旧的游戏状态
             if (!isResume) {
                 currentROMData = data;
+                lastGameState = null; // 清除旧的游戏状态
+                // 隐藏继续游戏按钮
+                document.getElementById('resume-btn').classList.add('hidden');
             }
             updateScale();
             requestAnimationFrame(loop);
@@ -617,7 +620,28 @@
 
         function resumeGame() {
             if (currentROMData) {
-                loadROM(currentROMData, true);
+                document.getElementById('selector-ui').classList.add('hidden');
+                document.getElementById('game-screen').classList.remove('hidden');
+                if (!nes) initGame();
+                // 重置音频缓冲区
+                audioFifoHead = 0; audioFifoCount = 0;
+                // 加载ROM
+                nes.loadROM(currentROMData);
+                // 恢复游戏状态
+                if (lastGameState) {
+                    try {
+                        nes.loadState(lastGameState);
+                        console.log('游戏状态已恢复');
+                    } catch (e) {
+                        console.error('恢复游戏状态失败:', e);
+                    }
+                }
+                // 恢复音频上下文
+                if (audio_ctx && audio_ctx.state === 'suspended') audio_ctx.resume();
+                isRunning = true;
+                lastTime = 0; lag = 0;
+                updateScale();
+                requestAnimationFrame(loop);
             }
         }
 
@@ -887,16 +911,29 @@
             updateScale();
         }
         function stopGame() {
+            // 保存游戏状态
+            if (nes && isRunning) {
+                try {
+                    lastGameState = nes.saveState();
+                    console.log('游戏状态已保存');
+                } catch (e) {
+                    console.error('保存游戏状态失败:', e);
+                    lastGameState = null;
+                }
+            }
+            
             isRunning = false;
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('game-fullscreen');
             document.getElementById('selector-ui').classList.remove('hidden');
             document.getElementById('keymap-panel').classList.remove('show');
             document.getElementById('fullscreen-btn').textContent = '📺 全屏';
-            // 显示继续游戏按钮（如果有保存的ROM）
+            // 显示继续游戏按钮（如果有保存的ROM和状态）
             const resumeBtn = document.getElementById('resume-btn');
-            if (currentROMData) {
+            if (currentROMData && lastGameState) {
                 resumeBtn.classList.remove('hidden');
+            } else {
+                resumeBtn.classList.add('hidden');
             }
         }
         function toggleTurbo(btn) {
