@@ -180,12 +180,15 @@
         .toolbar-btn:hover { background: rgba(0, 240, 255, 0.2); border-color: rgba(0, 240, 255, 0.5); }
         #back-btn:hover { background: rgba(255, 80, 80, 0.3); border-color: rgba(255, 80, 80, 0.5); }
 
-        /* Fullscreen button - fixed position, always accessible */
+        /* Fullscreen button - always visible, positioned relative to game-screen */
         #fullscreen-btn {
-            position: fixed; top: 10px; right: 10px; z-index: 100;
+            position: absolute; top: 10px; right: 10px; z-index: 100;
         }
-        #game-screen:not(.game-fullscreen) #fullscreen-btn {
-            position: absolute;
+        #game-screen.game-fullscreen #fullscreen-btn {
+            opacity: 0.3; transition: opacity 0.3s;
+        }
+        #game-screen.game-fullscreen #fullscreen-btn:hover {
+            opacity: 1; background: rgba(255,0,0,0.6);
         }
 
         /* Core Badge */
@@ -401,6 +404,8 @@
 
     <!-- Game UI -->
     <div id="game-screen" class="hidden">
+        <!-- Fullscreen button - outside toolbar to avoid opacity inheritance -->
+        <button id="fullscreen-btn" class="toolbar-btn" onclick="toggleFullScreen()">📺</button>
         <div id="top-toolbar">
             <div id="core-badge" onclick="showCoreSwitcher()" title="点击切换核心">
                 <span class="core-badge-icon">⚡</span>
@@ -414,7 +419,6 @@
             </div>
             <div class="toolbar-spacer"></div>
             <button id="keymap-btn" class="toolbar-btn" onclick="toggleKeymapPanel()">⌨️</button>
-            <button id="fullscreen-btn" class="toolbar-btn" onclick="toggleFullScreen()">📺</button>
             <button id="back-btn" class="toolbar-btn" onclick="stopGame()">❌</button>
         </div>
         <div id="canvas-container">
