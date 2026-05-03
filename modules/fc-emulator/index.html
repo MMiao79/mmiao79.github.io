@@ -304,11 +304,12 @@
 <body>
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="hidden">
-        <div class="loading-spinner"></div>
+        <div class="loading-spinner" id="loading-spinner"></div>
         <div class="loading-text" id="loading-text">正在加载...</div>
         <div class="loading-sub" id="loading-sub"></div>
-        <div id="loading-core-btn" class="hidden" style="margin-top:16px;">
-            <button onclick="showCorePickerFromLoading()" style="padding:10px 24px;background:rgba(0,240,255,0.15);border:1px solid rgba(0,240,255,0.4);border-radius:8px;color:#00f0ff;font-size:0.9rem;cursor:pointer;">选择核心</button>
+        <div id="loading-core-btn" class="hidden" style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+            <button onclick="showCorePickerFromLoading()" style="padding:10px 20px;background:rgba(0,240,255,0.15);border:1px solid rgba(0,240,255,0.4);border-radius:8px;color:#00f0ff;font-size:0.9rem;cursor:pointer;">选择核心</button>
+            <button onclick="returnToLauncher()" style="padding:10px 20px;background:rgba(255,100,100,0.15);border:1px solid rgba(255,100,100,0.4);border-radius:8px;color:#ff6464;font-size:0.9rem;cursor:pointer;">返回启动器</button>
         </div>
     </div>
 
@@ -473,12 +474,32 @@
     function showLoading(text, sub) {
         document.getElementById('loading-text').textContent = text || '正在加载...';
         document.getElementById('loading-sub').textContent = sub || '';
+        document.getElementById('loading-spinner').style.display = 'block';
         document.getElementById('loading-overlay').classList.remove('hidden');
         document.getElementById('loading-core-btn').classList.add('hidden');
     }
     function hideLoading() {
         document.getElementById('loading-overlay').classList.add('hidden');
         document.getElementById('loading-core-btn').classList.add('hidden');
+    }
+
+    function returnToLauncher() {
+        // Stop any running core
+        if (activeCore) {
+            activeCore.stop();
+            if (activeCore._nostalgist) {
+                try { activeCore._nostalgist.exit({ removeCanvas: true }); } catch (e) {}
+            }
+            activeCore = null;
+        }
+        isRunning = false;
+        currentROMData = null;
+        currentROMName = null;
+
+        // Reset UI
+        hideLoading();
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('selector-ui').classList.remove('hidden');
     }
 
     function updateCoreIndicator(core) {
@@ -891,7 +912,10 @@
             await core.loadROM(romData);
         } catch (e) {
             console.error(`Failed to load ROM with core ${coreDef.name}:`, e);
-            showLoading('核心加载失败', coreDef.name);
+            // Show error state: hide spinner, show error message and buttons
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('loading-text').textContent = '核心加载失败';
+            document.getElementById('loading-sub').textContent = `无法使用 ${coreDef.name} 加载此 ROM`;
             document.getElementById('loading-core-btn').classList.remove('hidden');
             throw e; // Re-throw so caller can handle
         }
