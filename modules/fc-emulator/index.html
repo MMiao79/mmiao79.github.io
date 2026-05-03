@@ -294,6 +294,7 @@
         }
         .keymap-key:hover { border-color: #00f0ff; color: #00f0ff; }
         .keymap-key.listening { border-color: #ff5050; color: #ff5050; animation: pulse-border 0.8s infinite; }
+        .t-rate-btn.active { background: rgba(0,240,255,0.2) !important; border-color: #00f0ff !important; color: #00f0ff !important; }
         @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,80,80,0.4); } 50% { box-shadow: 0 0 8px 3px rgba(255,80,80,0.2); } }
         .keymap-close { display: block; margin: 20px auto 0; padding: 10px 30px; background: rgba(0,240,255,0.15); border: 1px solid rgba(0,240,255,0.3); border-radius: 8px; color: #00f0ff; font-size: 1rem; cursor: pointer; }
         .keymap-close:hover { background: rgba(0,240,255,0.25); }
@@ -366,9 +367,10 @@
             <div class="action-group">
                 <div class="turbo-bar">
                     <div class="turbo-row">
-                        <button class="t-btn active" onclick="setRate(10, this)">10/s</button>
-                        <button class="t-btn" onclick="setRate(20, this)">20/s</button>
-                        <button class="t-btn" onclick="setRate(30, this)">30/s</button>
+                        <button class="t-btn t-rate-btn active" onclick="setRate(10, this)">10/s</button>
+                        <button class="t-btn t-rate-btn" onclick="setRate(15, this)">15/s</button>
+                        <button class="t-btn t-rate-btn" onclick="setRate(20, this)">20/s</button>
+                        <button class="t-btn t-rate-btn" onclick="setRate(30, this)">30/s</button>
                     </div>
                 </div>
                 <div class="turbo-ab-row">
@@ -1079,7 +1081,7 @@
     function toggleTurbo(btn) { const type = btn.dataset.type; turboMode[type] = !turboMode[type]; btn.classList.toggle('active'); }
     function setRate(r, btn) {
         turboRate = r;
-        document.querySelectorAll('.turbo-bar .t-btn').forEach(b => { if (!b.dataset.type) b.classList.remove('active'); });
+        document.querySelectorAll('.t-rate-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
     }
 
@@ -1114,6 +1116,25 @@
             key.addEventListener('click', () => { listeningBtn = name; listeningTurbo = true; renderKeymapPanel(); });
             row.appendChild(label); row.appendChild(key); list.appendChild(row);
         });
+
+        // Turbo rate selector
+        const rateSep = document.createElement('div');
+        rateSep.style.cssText = 'border-top:1px solid rgba(0,240,255,0.2);padding:8px 0 2px;margin-top:8px;';
+        const rateLabel = document.createElement('span');
+        rateLabel.style.cssText = 'color:#00f0ff;font-size:0.8rem;'; rateLabel.textContent = '连发速率';
+        rateSep.appendChild(rateLabel); list.appendChild(rateSep);
+        const rateRow = document.createElement('div');
+        rateRow.className = 'keymap-row';
+        rateRow.style.cssText = 'flex-wrap:wrap;gap:4px;';
+        [5, 10, 15, 20, 30].forEach(r => {
+            const btn = document.createElement('button');
+            btn.className = 'keymap-key t-rate-btn' + (r === turboRate ? ' active' : '');
+            btn.style.cssText = 'padding:2px 8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#ccc;font-size:0.75rem;cursor:pointer;';
+            btn.textContent = r + '/s';
+            btn.addEventListener('click', () => setRate(r, btn));
+            rateRow.appendChild(btn);
+        });
+        list.appendChild(rateRow);
     }
 
     // ==================== Keyboard Input ====================
