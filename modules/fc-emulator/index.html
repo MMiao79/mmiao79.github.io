@@ -516,6 +516,53 @@
         // 保存当前ROM数据，支持关闭后恢复
         let currentROMData = null;
         let lastGameState = null; // 保存游戏状态用于恢复
+        let currentROMName = null; // 保存当前ROM名称
+        
+        const SAVE_KEY_ROM = 'fc_emulator_rom';
+        const SAVE_KEY_STATE = 'fc_emulator_state';
+        const SAVE_KEY_NAME = 'fc_emulator_rom_name';
+        
+        // 页面加载时尝试恢复保存的状态
+        function tryRestoreSavedState() {
+            try {
+                const savedROM = localStorage.getItem(SAVE_KEY_ROM);
+                const savedState = localStorage.getItem(SAVE_KEY_STATE);
+                const savedName = localStorage.getItem(SAVE_KEY_NAME);
+                if (savedROM && savedState && savedName) {
+                    currentROMData = savedROM;
+                    lastGameState = savedState;
+                    currentROMName = savedName;
+                    // 显示继续游戏按钮
+                    document.getElementById('resume-btn').classList.remove('hidden');
+                    // 更新按钮文字，显示ROM名称
+                    document.getElementById('resume-btn').textContent = '▶️ 继续: ' + savedName;
+                    console.log('检测到保存的游戏状态:', savedName);
+                }
+            } catch (e) {
+                console.error('恢复保存状态失败:', e);
+            }
+        }
+        
+        // 保存游戏状态到 localStorage
+        function saveGameState() {
+            if (currentROMData && lastGameState && currentROMName) {
+                try {
+                    localStorage.setItem(SAVE_KEY_ROM, currentROMData);
+                    localStorage.setItem(SAVE_KEY_STATE, lastGameState);
+                    localStorage.setItem(SAVE_KEY_NAME, currentROMName);
+                    console.log('游戏状态已保存到本地');
+                } catch (e) {
+                    console.error('保存游戏状态失败:', e);
+                    // 如果存储空间不足，尝试清理
+                    if (e.name === 'QuotaExceededError') {
+                        localStorage.removeItem(SAVE_KEY_ROM);
+                        localStorage.removeItem(SAVE_KEY_STATE);
+                        localStorage.removeItem(SAVE_KEY_NAME);
+                        console.log('存储空间不足，已清理旧数据');
+                    }
+                }
+            }
+        }
 
         // --- Audio ring buffer ---
         const AUDIO_FIFO_SIZE = 16384;
@@ -596,7 +643,7 @@
             script_processor.connect(audio_ctx.destination);
         }
 
-        function loadROM(data, isResume = false) {
+        function loadROM(data, romName = null, isResume = false) {
             document.getElementById('selector-ui').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
             if (!nes) initGame();
@@ -610,6 +657,7 @@
             // 保存ROM数据用于恢复，如果是新ROM则清除旧的游戏状态
             if (!isResume) {
                 currentROMData = data;
+                currentROMName = romName || '游戏';
                 lastGameState = null; // 清除旧的游戏状态
                 // 隐藏继续游戏按钮
                 document.getElementById('resume-btn').classList.add('hidden');
@@ -939,6 +987,8 @@
                 try {
                     lastGameState = nes.saveState();
                     console.log('游戏状态已保存');
+                    // 持久化保存到 localStorage
+                    saveGameState();
                 } catch (e) {
                     console.error('保存游戏状态失败:', e);
                     lastGameState = null;
@@ -953,8 +1003,9 @@
             document.getElementById('fullscreen-btn').textContent = '📺 全屏';
             // 显示继续游戏按钮（如果有保存的ROM和状态）
             const resumeBtn = document.getElementById('resume-btn');
-            if (currentROMData && lastGameState) {
+            if (currentROMData && lastGameState && currentROMName) {
                 resumeBtn.classList.remove('hidden');
+                resumeBtn.textContent = '▶️ 继续: ' + currentROMName;
             } else {
                 resumeBtn.classList.add('hidden');
             }
@@ -1065,14 +1116,18 @@
         }
 
         async function loadFile(file) {
+            let romName = file.name.replace(/\.(nes|zip)$/i, '');
             if (file.name.endsWith('.zip')) {
                 const zip = await JSZip.loadAsync(file);
                 const nesFile = Object.values(zip.files).find(f => f.name.toLowerCase().endsWith('.nes'));
-                if (nesFile) loadROM(await nesFile.async("binarystring"));
+                if (nesFile) {
+                    romName = nesFile.name.replace(/\.nes$/i, '');
+                    loadROM(await nesFile.async("binarystring"), romName);
+                }
                 else alert('未找到 .nes 文件');
             } else {
                 const reader = new FileReader();
-                reader.onload = (ev) => loadROM(ev.target.result);
+                reader.onload = (ev) => loadROM(ev.target.result, romName);
                 reader.readAsBinaryString(file);
             }
         }
@@ -1081,6 +1136,9 @@
             e.preventDefault();
             pickAndLoadROM();
         });
+
+        // 页面加载时尝试恢复保存的游戏状态
+        tryRestoreSavedState();
 
         // 窗口大小变化时重新计算全屏缩放
         window.addEventListener('resize', () => {
