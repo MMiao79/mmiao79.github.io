@@ -621,11 +621,10 @@
                     await loadWithCore(c, currentROMData, currentROMName);
                 } catch (e) {
                     console.error(`Core switch to ${c.name} failed:`, e);
-                    hideLoading();
-                    // Re-launch previous core
-                    if (wasRunning && currentROMData) {
-                        await loadWithCore(CORES.find(x => x.id === activeCore?.id), currentROMData, currentROMName);
-                    }
+                    // Keep error message visible with "选择核心" button
+                    document.getElementById('loading-core-btn').classList.remove('hidden');
+                    // Don't restore old core - let user choose another
+                    isRunning = false;
                 }
             });
             list.appendChild(opt);
@@ -888,9 +887,16 @@
         showLoading('正在加载核心...', coreDef.name);
 
         const core = createCoreInstance(coreDef);
-        await core.loadROM(romData);
+        try {
+            await core.loadROM(romData);
+        } catch (e) {
+            console.error(`Failed to load ROM with core ${coreDef.name}:`, e);
+            showLoading('核心加载失败', coreDef.name);
+            document.getElementById('loading-core-btn').classList.remove('hidden');
+            throw e; // Re-throw so caller can handle
+        }
 
-        // Switch UI
+        // Switch UI (these always run after successful load)
         activeCore = core;
         switchCanvasDisplay(core);
         updateCoreIndicator(core);
