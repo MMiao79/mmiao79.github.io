@@ -180,6 +180,14 @@
         .toolbar-btn:hover { background: rgba(0, 240, 255, 0.2); border-color: rgba(0, 240, 255, 0.5); }
         #back-btn:hover { background: rgba(255, 80, 80, 0.3); border-color: rgba(255, 80, 80, 0.5); }
 
+        /* Fullscreen button - fixed position, always accessible */
+        #fullscreen-btn {
+            position: fixed; top: 10px; right: 10px; z-index: 100;
+        }
+        #game-screen:not(.game-fullscreen) #fullscreen-btn {
+            position: absolute;
+        }
+
         /* Core Badge */
         #core-badge {
             display: flex; align-items: center; gap: 6px;
