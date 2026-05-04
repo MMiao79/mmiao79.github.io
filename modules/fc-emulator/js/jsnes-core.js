@@ -96,10 +96,15 @@ export class JsnesCore extends EmulatorCore {
         };
         this.#scriptProcessor.connect(this.#audioCtx.destination);
 
-        // jsnes.loadROM expects a string (hex string) or Array of numbers
-        // Convert Uint8Array to hex string for compatibility
-        const hexString = Array.from(romBytes).map(b => b.toString(16).padStart(2, '0')).join('');
-        this.#nes.loadROM(hexString);
+        // jsnes.loadROM expects a string (base64 or URL) or Array of numbers
+        // Convert to base64 string for compatibility
+        let binary = '';
+        for (let i = 0; i < romBytes.length; i++) {
+            binary += String.fromCharCode(romBytes[i]);
+        }
+        const base64 = btoa(binary);
+        console.log('[JsnesCore] Base64 length:', base64.length);
+        this.#nes.loadROM(base64);
         console.log('[JsnesCore] ROM loaded into NES, ready to run');
     }
 

@@ -43,9 +43,13 @@ export class RetroArchCore extends EmulatorCore {
         this.#romData = data;
         this.#romName = null; // set externally
 
-        // Setup RA canvas container
+        // Setup RA canvas container - must be visible for Nostalgist
         const container = document.getElementById('retroarch-canvas-container');
         container.innerHTML = '';
+        container.style.display = 'block'; // Make visible for Nostalgist
+        container.style.width = '100%';
+        container.style.height = '100%';
+        console.log('[RetroArch] Container element:', container, 'offsetWidth:', container.offsetWidth);
 
         const romBytes = data instanceof Uint8Array ? data
             : typeof data === 'string'
@@ -53,6 +57,7 @@ export class RetroArchCore extends EmulatorCore {
                 : new Uint8Array(data);
         const romFile = { fileName: 'game.nes', fileContent: romBytes };
 
+        console.log('[RetroArch] Launching with core:', this.coreDef.coreName);
         this.#nostalgist = await this.#Nostalgist.launch({
             core: {
                 name: this.coreDef.coreName,
@@ -62,6 +67,7 @@ export class RetroArchCore extends EmulatorCore {
             rom: romFile,
             element: container,
         });
+        console.log('[RetroArch] Launch successful');
     }
 
     setRomName(name) { this.#romName = name; }
@@ -97,6 +103,12 @@ export class RetroArchCore extends EmulatorCore {
         if (this.#nostalgist) {
             try { this.#nostalgist.exit({ removeCanvas }); } catch {}
             this.#nostalgist = null;
+        }
+        // Reset container
+        const container = document.getElementById('retroarch-canvas-container');
+        if (container) {
+            container.innerHTML = '';
+            container.style.display = 'none';
         }
     }
 }
