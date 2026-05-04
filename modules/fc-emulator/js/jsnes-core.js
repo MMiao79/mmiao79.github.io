@@ -96,7 +96,10 @@ export class JsnesCore extends EmulatorCore {
         };
         this.#scriptProcessor.connect(this.#audioCtx.destination);
 
-        this.#nes.loadROM(Array.from(romBytes)); // jsnes expects Array<number>
+        // jsnes.loadROM expects a string (hex string) or Array of numbers
+        // Convert Uint8Array to hex string for compatibility
+        const hexString = Array.from(romBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+        this.#nes.loadROM(hexString);
         console.log('[JsnesCore] ROM loaded into NES, ready to run');
     }
 

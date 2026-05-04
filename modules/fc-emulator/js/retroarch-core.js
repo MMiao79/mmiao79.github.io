@@ -35,7 +35,7 @@ export class RetroArchCore extends EmulatorCore {
     async loadROM(data) {
         // Lazy load Nostalgist.js
         if (!RetroArchCore.#cachedNostalgist) {
-            const module = await import('./lib/nostalgist.js');
+            const module = await import('../lib/nostalgist.js');
             RetroArchCore.#cachedNostalgist = module.Nostalgist;
         }
         this.#Nostalgist = RetroArchCore.#cachedNostalgist;
