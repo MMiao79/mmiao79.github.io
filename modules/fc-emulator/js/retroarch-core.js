@@ -43,13 +43,25 @@ export class RetroArchCore extends EmulatorCore {
         this.#romData = data;
         this.#romName = null; // set externally
 
-        // Setup RA canvas container - must be visible for Nostalgist
+        // Setup RA canvas container - must be visible and contain a canvas for Nostalgist
         const container = document.getElementById('retroarch-canvas-container');
         container.innerHTML = '';
-        container.style.display = 'block'; // Make visible for Nostalgist
+        container.style.display = 'flex'; // Make visible for Nostalgist
         container.style.width = '100%';
         container.style.height = '100%';
-        console.log('[RetroArch] Container element:', container, 'offsetWidth:', container.offsetWidth);
+        container.style.alignItems = 'center';
+        container.style.justifyContent = 'center';
+
+        // Create a canvas element inside the container
+        const canvas = document.createElement('canvas');
+        canvas.id = 'retroarch-canvas';
+        canvas.width = 256;
+        canvas.height = 240;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        container.appendChild(canvas);
+
+        console.log('[RetroArch] Canvas element:', canvas);
 
         const romBytes = data instanceof Uint8Array ? data
             : typeof data === 'string'
@@ -65,7 +77,7 @@ export class RetroArchCore extends EmulatorCore {
                 wasm: this.coreDef.wasmPath,
             },
             rom: romFile,
-            element: container,
+            element: canvas, // Pass canvas directly, not container
         });
         console.log('[RetroArch] Launch successful');
     }
