@@ -1,191 +1,163 @@
-## 产品概述
+# FC 红白机模拟器 — 模块化重构计划
 
-重做 FC 红白机模拟器，在保留现有 jsnes 核心作为默认引擎的基础上，集成 Nostalgist.js + RetroArch 多核心支持（fceumm、nestopia、quicknes），以增强游戏 ROM 兼容性，覆盖各种改版、破解、修改过的非官方 ROM。
+> 状态：**已完成** ✅
 
-## 核心功能
+## 用户需求
 
-- **多核心架构**：保留 jsnes（快速启动），新增 fceumm（最佳兼容性）、nestopia（高精度）、quicknes（高速）三个 RetroArch 核心，共 4 个核心可选
-- **自动核心选择**：加载 ROM 时按优先级自动尝试（jsnes -> fceumm -> nestopia -> quicknes），首个能正常运行的核心即被采用；若自动检测全部失败，弹窗提示用户手动选择
-- **手动核心选择**：启动器界面提供核心选择控件；游戏界面显示当前核心名称并提供切换按钮；用户手动选择的核心偏好会按 ROM 名称记忆到 localStorage
-- **离线使用**：所有核心文件（Nostalgist.js 库 + RetroArch WASM 核心包）全部下载到 lib/ 目录本地托管，无需联网即可切换核心
-- **功能完整保留**：虚拟摇杆、自定义按键映射、连发键（可调频率）、画面缩放（0.5x-5x）、全屏（含横屏锁定）、ZIP ROM 解压、游戏状态存档/恢复（localStorage 持久化）等全部现有功能适配多核心
-- **存档兼容**：存档数据中记录创建时使用的核心类型，恢复时自动匹配核心
+将 FC 红白机模拟器 `modules/fc-emulator/index.html` 中的 ~1390 行代码进行抽象化、类化、模块化重构，用现代 JavaScript 编程规范重新组织。
 
-## 技术栈
+## 当前问题
 
-- **前端框架**：无框架，原生 JavaScript + HTML + CSS（延续现有单文件应用模式）
-- **核心引擎**：jsnes（现有） + Nostalgist.js（新增，用于加载 RetroArch 核心）
-- **RetroArch 核心**：fceumm_libretro、nestopia_libretro、quicknes_libretro（来源：retroarch-emscripten-build 仓库）
-- **构建工具**：无（纯静态文件部署于 GitHub Pages）
+1. **全局状态污染**：~20 个全局变量散落各处（activeCore, isRunning, currentScale, turboMode, frameCount, lastTime, lag, audioFifoHead 等）
+2. **职责混杂**：UI 渲染、业务逻辑、输入处理、存储管理、音频处理全部混在一起
+3. **重复代码**：`startGameWithROM` 和 `loadWithCore` 中大量重复的 UI 切换逻辑（约 20 行完全重复）
+4. **HTML 内联事件**：按钮全部使用 `onclick="xxx()"` 内联调用全局函数
+5. **DOM 查询无缓存**：频繁调用 `document.getElementById()` 且不缓存结果
+6. **触摸事件逻辑分散**：摇杆和按钮的触摸处理散落在不同位置
 
-## 实现方案
+## 项目约束
 
-### 核心架构：适配器模式 + 双画布系统
+- GitHub Pages 静态站点，**无构建工具**（不能使用 webpack/vite/ESM bundler）
+- `jsnes.min.js` 和 `jszip.min.js` 是 UMD 全局变量，只能通过 `<script>` 标签加载
+- `nostalgist.js` 通过动态 `import()` 加载（ESM）
+- 必须保持单文件或少量文件的最终产物（静态 HTML + 少量 JS 模块文件）
 
-采用**适配器模式**统一 jsnes 和 Nostalgist.js 完全不同的 API，上层 UI 代码只依赖统一接口，不感知底层核心差异。
-
-**关键架构决策：**
-
-1. **双画布策略**：jsnes 使用自有 Canvas + putImageData 手动渲染 + 自管理游戏循环；Nostalgist.js/RetroArch 内部创建并管理自己的 Canvas 和游戏循环。两者无法共享画布。方案：两个 Canvas 放在同一容器内，根据活跃核心显示/隐藏，共享缩放和全屏 CSS。
-
-2. **输入适配**：jsnes 使用数字索引（A=0, B=1, SELECT=2, START=3, UP=4, DOWN=5, LEFT=6, RIGHT=7）；Nostalgist.js 使用字符串名（'a', 'b', 'select', 'start', 'up', 'down', 'left', 'right'）。通过输入适配层统一转换。
-
-3. **游戏循环分离**：jsnes 模式下由我们的 `requestAnimationFrame` 循环驱动；RetroArch 模式下 Nostalgist.js 内部管理循环，我们只需在初始化后调用 `nostalgist.start()` 即可。
-
-4. **Nostalgist.js 导入策略**：Nostalgist.js 是 ES Module 包。采用**动态 import()** 方式按需加载——仅在用户选择 RetroArch 核心时才加载 Nostalgist.js 库和对应核心文件，避免影响 jsnes 的快速启动体验。
-
-5. **自动检测逻辑**：尝试加载 ROM 时捕获异常/错误，若当前核心失败则按优先级尝试下一个；同时在 jsnes 模式下运行若干帧后检测帧缓冲是否有有效像素（非全黑），若无则判定失败切换核心。
-
-6. **RetroArch 核心文件加载**：通过 Nostalgist.js 的 `core: { name, js, wasm }` 对象传入本地相对路径（如 `lib/fceumm_libretro.js`），Nostalgist.js 内部负责 fetch 和初始化。
-
-### 架构设计
-
-```mermaid
-graph TD
-    UI[UI 层<br/>启动器 / 游戏界面 / 控制面板] --> CM[CoreManager<br/>核心管理器]
-    UI --> IA[InputAdapter<br/>输入适配器]
-    CM --> |"自动/手动选择"| JC[JsnesCore<br/>适配器]
-    CM --> |"自动/手动选择"| RC[RetroArchCore<br/>适配器]
-    RC --> NL[Nostalgist.js<br/>动态 import 按需加载]
-    NL --> FCE[FCEUMM 核心]
-    NL --> NES[Nestopia 核心]
-    NL --> QNS[QuickNES 核心]
-    JC --> CV_A[Canvas A<br/>jsnes putImageData 渲染]
-    RC --> CV_B[Canvas B<br/>RetroArch 内部渲染]
-    IA --> |"buttonDown/Up"| JC
-    IA --> |"pressDown/Up"| RC
-```
-
-### 数据流：ROM 加载 + 自动核心选择
-
-```mermaid
-sequenceDiagram
-    participant U as 用户
-    participant CM as CoreManager
-    participant JC as JsnesCore
-    participant RC as RetroArchCore
-    participant LS as localStorage
-
-    U->>CM: 选择 ROM 文件
-    CM->>LS: 查询该 ROM 的历史核心偏好
-    alt 有历史偏好
-        CM->>JC or RC: 使用偏好核心加载
-    else 无历史偏好（自动检测）
-        CM->>JC: 尝试 jsnes 加载 ROM
-        alt jsnes 成功
-            JC-->>CM: 加载成功
-        else jsnes 失败
-            CM->>RC: 尝试 fceumm
-            alt fceumm 成功
-                RC-->>CM: 加载成功
-            else fceumm 失败
-                CM->>RC: 尝试 nestopia -> quicknes
-                alt 全部失败
-                    CM-->>U: 弹窗提示手动选择核心
-                end
-            end
-        end
-    end
-    CM-->>U: 开始游戏，显示当前核心名称
-```
-
-### 目录结构
+## 最终文件结构
 
 ```
 modules/fc-emulator/
-├── index.html                    # [MODIFY] 完整重写：核心抽象层、核心选择UI、双画布系统、多核心适配
-└── lib/
-    ├── jsnes.min.js              # [EXISTING] JSNES 核心引擎（保留不动）
-    ├── jszip.min.js              # [EXISTING] ZIP 解压库（保留不动）
-    ├── nostalgist.min.js         # [NEW] Nostalgist.js 库（从 npm 下载，ES Module 格式）
-    ├── fceumm_libretro.js        # [NEW] FCEUMM RetroArch 核心脚本（从 retroarch-emscripten-build 下载解压）
-    ├── fceumm_libretro.wasm      # [NEW] FCEUMM RetroArch 核心二进制
-    ├── nestopia_libretro.js      # [NEW] Nestopia RetroArch 核心脚本
-    ├── nestopia_libretro.wasm    # [NEW] Nestopia RetroArch 核心二进制
-    ├── quicknes_libretro.js      # [NEW] QuickNES RetroArch 核心脚本
-    └── quicknes_libretro.wasm    # [NEW] QuickNES RetroArch 核心二进制
+  index.html              # HTML 结构 + CSS 样式（无内联 JS/onclick）
+  js/
+    config.js             # [DONE] 常量、核心定义、按键映射、code-to-label
+    audio.js              # [DONE] AudioFIFO 环形缓冲区类（私有字段）
+    storage.js             # [DONE] StorageManager（localStorage 封装）
+    rom-loader.js          # [DONE] ROMLoader（文件选择 + JSZip 解压）
+    core-base.js           # [DONE] EmulatorCore 抽象基类
+    jsnes-core.js          # [DONE] JsnesCore（jsnes.NES 封装 + turbo）
+    retroarch-core.js      # [DONE] RetroArchCore（Nostalgist.js 适配器）
+    core-manager.js        # [DONE] 核心生命周期、自动检测、切换
+    input-handler.js       # [DONE] 键盘 + 虚拟摇杆 + 触摸按钮
+    ui.js                  # [DONE] 所有 DOM 操作、overlay、面板
+    app.js                 # [DONE] 主入口，连接所有模块
 ```
 
-### index.html 修改要点
+## 技术方案
 
-index.html 是单文件应用（当前 1152 行），重写后预计 1800-2200 行，主要变更：
+### 模块化策略：纯 ES Module
 
-1. **核心抽象层**（约 200 行）：
+由于项目运行在无构建工具的 GitHub Pages 上，所有模块文件使用 ES Module (`export class` / `import`)，通过 `<script type="module">` 加载。
 
-- `class JsnesCore`：封装现有 jsnes 的 `new jsnes.NES()`、`loadROM()`、`frame()`、`buttonDown/Up()`、`saveState/loadState()`，管理自有 Canvas 渲染和 Web Audio 环形缓冲区
-- `class RetroArchCore`：封装 Nostalgist.js 的 `Nostalgist.launch()`、`pressDown/Up()`、`saveState/loadState()`、`getCanvas()`、`exit()`，动态 import Nostalgist.js 和核心文件
-- 统一接口：`loadROM(data)`、`start()`、`stop()`、`buttonDown(port, btnName)`、`buttonUp(port, btnName)`、`saveState()`、`loadState(state)`、`getCanvas()`、`getName()`
+基础库（`jsnes.min.js`、`jszip.min.js`）仍通过 `<script>` 标签加载为全局变量，ES Module 中通过 `window.jsnes` / `window.JSZip` 访问。
 
-2. **CoreManager**（约 100 行）：
-
-- 核心注册表：4 个核心的 id、名称、描述、优先级
-- `tryAutoLoad(romData, romName)`：按优先级依次尝试加载
-- `loadWithCore(coreId, romData, romName)`：指定核心加载
-- `switchCore(coreId)`：运行中切换核心（需重新加载 ROM）
-- ROM 核心偏好存储：`localStorage` key `fc_core_pref_{romName}`
-
-3. **双画布管理**（约 30 行）：
-
-- 新增 `<div id="canvas-container">` 包裹两个 Canvas
-- jsnes Canvas（`#screen`）保留，新增 RetroArch Canvas 容器
-- 根据活跃核心切换 `display`，共享 `transform: scale()` 和全屏 CSS
-
-4. **核心选择 UI**（约 80 行 HTML + CSS + JS）：
-
-- 启动器界面：核心选择区域（单选按钮组 + 简要描述）
-- 游戏界面：顶部核心名称标签 + 切换按钮（点击弹出核心选择面板）
-- 自动检测失败弹窗：列出所有可用核心供用户选择
-
-5. **输入适配**（约 40 行修改）：
-
-- 所有调用 `nes.buttonDown(1, btnToIndex(btn))` 改为 `activeCore.buttonDown(1, btn)`
-- 所有调用 `nes.buttonUp(1, btnToIndex(btn))` 改为 `activeCore.buttonUp(1, btn)`
-- 虚拟摇杆、触摸按钮、键盘映射逻辑保持不变，仅输出端从直调 jsnes 改为调用 activeCore
-
-6. **存档适配**（约 30 行修改）：
-
-- 存档数据结构增加 `coreId` 字段
-- 恢复时匹配核心类型，不匹配则提示用户
-
-7. **Nostalgist.js 按需加载**（约 50 行）：
-
-- `loadNostalgistLib()`：动态 `import('./lib/nostalgist.min.js')` 并缓存
-- 加载失败时回退提示
-
-### 关键代码结构
-
-**统一核心接口（概念定义，非最终代码）：**
+### 架构设计
 
 ```
-EmulatorCore:
-  id: string              // 'jsnes' | 'fceumm' | 'nestopia' | 'quicknes'
-  name: string            // 显示名称
-  description: string     // 核心描述
-  
-  async loadROM(romData: string|ArrayBuffer, romName: string): Promise<void>
-  start(): void
-  stop(): Promise<void>
-  buttonDown(port: number, btn: string): void   // btn: 'A'|'B'|'SELECT'|'START'|'UP'|'DOWN'|'LEFT'|'RIGHT'
-  buttonUp(port: number, btn: string): void
-  saveState(): any
-  loadState(state: any): void
-  getCanvas(): HTMLCanvasElement | null
+index.html
+  ├─ <script> lib/jszip.min.js      (全局变量)
+  ├─ <script> lib/jsnes.min.js      (全局变量)
+  ├─ <script type="module">
+  │     ├─ import { Config } from './js/config.js'
+  │     ├─ import { AudioFIFO } from './js/audio.js'
+  │     ├─ import { StorageManager } from './js/storage.js'
+  │     ├─ import { ROMLoader } from './js/rom-loader.js'
+  │     ├─ import { EmulatorCore } from './js/core-base.js'
+  │     ├─ import { JsnesCore } from './js/jsnes-core.js'
+  │     ├─ import { RetroArchCore } from './js/retroarch-core.js'
+  │     ├─ import { CoreManager } from './js/core-manager.js'
+  │     ├─ import { InputHandler } from './js/input-handler.js'
+  │     ├─ import { UI } from './js/ui.js'
+  │     └─ import { App } from './js/app.js'   ← 入口
 ```
 
-**RetroArch 核心配置（概念定义）：**
+### 核心类设计
 
-```
-RETROARCH_CORES = [
-  { id: 'fceumm',   name: 'FCEUMM',  jsPath: 'lib/fceumm_libretro.js',   wasmPath: 'lib/fceumm_libretro.wasm' },
-  { id: 'nestopia', name: 'Nestopia', jsPath: 'lib/nestopia_libretro.js', wasmPath: 'lib/nestopia_libretro.wasm' },
-  { id: 'quicknes', name: 'QuickNES', jsPath: 'lib/quicknes_libretro.js', wasmPath: 'lib/quicknes_libretro.wasm' },
-]
-```
+**1. Config — 配置常量**
 
-### 性能与可靠性
+- 所有魔法数字（屏幕尺寸、帧率、键位定义）集中管理
+- `CORE_DEFINITIONS` 核心注册表
+- `KEY_MAPS` / `BTN_MAP` 按键映射
+- `CODE_TO_LABEL` 键码转标签
 
-- **jsnes 零延迟启动**：jsnes 及其依赖已内联加载，选择 jsnes 核心时无需额外网络请求，保持现有的快速启动体验
-- **RetroArch 按需加载**：Nostalgist.js 库（约 50-100KB）仅在首次选择 RetroArch 核心时通过动态 import 加载，之后缓存在内存中；WASM 核心文件（各约 1-3MB）仅在启动时加载一次
-- **帧率控制**：jsnes 模式维持现有固定 60FPS + 帧追赶限制（最多 3 帧）；RetroArch 模式由 Nostalgist.js 内部管理帧率
-- **向后兼容**：存档格式增加 `coreId` 字段但保持向后兼容（旧存档默认视为 jsnes）
-- **优雅降级**：若浏览器不支持 WebAssembly 或动态 import，自动隐藏 RetroArch 核心选项，仅显示 jsnes
+**2. AudioFIFO — 音频环形缓冲区**
+
+- 将全局 `audioFifoL/R, audioFifoHead/Count` 封装为独立类
+- 提供 `write(l, r)`, `read()` 方法，内部管理指针
+- 使用私有字段 `#buffer`, `#head`, `#capacity`
+
+**3. StorageManager — 持久化管理**
+
+- 封装所有 localStorage 操作
+- 管理 ROM 数据、游戏状态、核心偏好的存取
+- 处理 QuotaExceededError
+
+**4. ROMLoader — ROM 加载**
+
+- 封装 ZIP 解压（JSZip）和文件选择（File System Access API）
+- 支持 drag & drop、button click、zip auto-extract
+
+**5. EmulatorCore — 核心基类**
+
+- 抽象基类，定义统一接口：`loadROM`, `start`, `stop`, `buttonDown`, `buttonUp`, `saveState`, `loadState`, `getCanvas`, `destroy`
+- 所有核心类继承此类
+
+**6. JsnesCore — jsnes 封装**
+
+- 封装 `new jsnes.NES()`, `loadROM()`, `frame()`, `buttonDown/Up()`, `saveState/loadState()`
+- 管理自有 Canvas 渲染和 Web Audio 环形缓冲区
+- 支持 turbo 模式（快速跳过无声帧）
+- 提供 `runVerificationFrames(count)` 用于自动检测验证
+
+**7. RetroArchCore — Nostalgist.js 适配器**
+
+- 封装 `Nostalgist.launch()`, `pressDown/Up()`, `saveState/loadState()`, `getCanvas()`, `exit()`
+- 动态 `import()` Nostalgist.js 和核心文件
+- `destroy(removeCanvas)` 区分停止游戏和返回启动器
+
+**8. CoreManager — 核心管理器**
+
+- 封装 `createCoreInstance`, `tryAutoLoad`, `loadWithCore`, `startGameWithROM`
+- 消除重复的 UI 切换逻辑（`#activateCore` 统一方法）
+- 管理核心偏好和自动检测
+- 按优先级依次尝试加载 ROM：`jsnes -> fceumm -> nestopia -> quicknes`
+
+**9. InputHandler — 输入处理**
+
+- 封装键盘事件监听（`keydown`/`keyup`，含连发键）
+- 封装虚拟摇杆逻辑（拖拽角度映射）
+- 封装触摸按钮逻辑（touch start/move/end）
+- 统一的 `onButtonDown(btn)` / `onButtonUp(btn)` 回调接口
+
+**10. UI — UI 管理**
+
+- DOM 元素缓存（`#els` Map）
+- Loading overlay 控制
+- 缩放/全屏管理
+- Canvas 显示切换
+- 键盘映射面板、核心选择面板
+- 启动器界面和游戏界面切换
+
+**11. App — 主入口**
+
+- 持有所有模块实例
+- 初始化 CoreManager、UI、InputHandler
+- 绑定所有 DOM 事件（无 onclick）
+- 协调模块间通信
+
+## 关键改进
+
+| 问题 | 解决方案 |
+|------|---------|
+| ~20 个全局变量 | 类封装 + 私有字段（`#`） |
+| 重复代码（~20行） | `CoreManager.#activateCore()` 统一 |
+| onclick 内联事件 | `addEventListener` 统一绑定 |
+| DOM 查询无缓存 | `UI.#els` Map 一次性缓存 |
+| 职责混杂 | 按功能划分 10 个模块文件 |
+| 触摸事件分散 | `InputHandler` 统一管理 |
+
+## 实现注意事项
+
+- `jsnes.NES` 和 `JSZip` 是全局变量，在 ES Module 中通过 `window.jsnes` / `window.JSZip` 访问
+- `nostalgist.js` 保持动态 `import()` 加载方式不变
+- CSS 保持内联在 index.html 的 `<style>` 中，不单独拆分（减少 HTTP 请求）
+- DOM 元素引用在 UI 类初始化时一次性缓存，避免重复查询
+- `EmulatorCore.destroy(removeCanvas)` 接受参数区分游戏停止和返回启动器场景
