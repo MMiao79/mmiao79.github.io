@@ -50,15 +50,19 @@ export class CoreManager {
     // ────────── Auto Detection ──────────
 
     async tryAutoLoad(romData, romName) {
+        console.log('[AutoDetect] Starting with ROM:', romName, 'data length:', romData?.length);
         for (const coreDef of CORE_DEFS) {
             this.onShowLoading?.('正在尝试核心...', coreDef.name);
             try {
                 console.log(`[AutoDetect] Trying ${coreDef.name}...`);
                 const core = this.#createCore(coreDef);
                 await core.loadROM(romData);
+                console.log(`[AutoDetect] ${coreDef.name} ROM loaded successfully`);
 
                 if (coreDef.type === 'jsnes') {
+                    console.log(`[AutoDetect] Verifying ${coreDef.name} frames...`);
                     const success = await this.#verifyJsnesFrames(core, 30);
+                    console.log(`[AutoDetect] ${coreDef.name} verification result:`, success);
                     if (!success) {
                         console.log(`[AutoDetect] ${coreDef.name}: Black screen, skipping`);
                         core.destroy();
@@ -69,15 +73,17 @@ export class CoreManager {
                 console.log(`[AutoDetect] ${coreDef.name} succeeded!`);
                 return core;
             } catch (e) {
-                console.warn(`[AutoDetect] ${coreDef.name} failed:`, e.message);
+                console.warn(`[AutoDetect] ${coreDef.name} failed:`, e.message, e.stack);
             }
         }
+        console.log('[AutoDetect] All cores failed');
         return null;
     }
 
     async #verifyJsnesFrames(core, frameCount) {
         return new Promise((resolve) => {
             setTimeout(() => {
+                console.log('[Verify] Running', frameCount, 'frames...');
                 core.runVerificationFrames(frameCount);
                 const canvas = document.getElementById('screen');
                 const ctx = canvas.getContext('2d');
@@ -90,8 +96,9 @@ export class CoreManager {
                         if (nonBlack > 100) break;
                     }
                 }
+                console.log('[Verify] Non-black pixels found:', nonBlack);
                 resolve(nonBlack > 100);
-            }, 0);
+            }, 100); // Increased timeout for rendering
         });
     }
 

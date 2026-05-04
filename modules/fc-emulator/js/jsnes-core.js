@@ -50,6 +50,8 @@ export class JsnesCore extends EmulatorCore {
     setTurboRate(rate) { this.#turboRate = rate; }
 
     async loadROM(data) {
+        console.log('[JsnesCore] loadROM called, data type:', typeof data, 'is Uint8Array:', data instanceof Uint8Array, 'length:', data?.length);
+        
         this.#canvas = document.getElementById('screen');
         this.#ctx = this.#canvas.getContext('2d');
         this.#image = this.#ctx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -58,7 +60,11 @@ export class JsnesCore extends EmulatorCore {
         this.audioFifo.reset();
 
         const NesCtor = window.jsnes?.NES;
-        if (!NesCtor) throw new Error('jsnes not loaded');
+        if (!NesCtor) {
+            console.error('[JsnesCore] jsnes.NES not found! window.jsnes:', window.jsnes);
+            throw new Error('jsnes not loaded');
+        }
+        console.log('[JsnesCore] jsnes.NES constructor found');
 
         // Normalise: ensure Uint8Array (avoids UTF-16 surrogate-pair issues with binary strings)
         let romBytes;
@@ -72,6 +78,7 @@ export class JsnesCore extends EmulatorCore {
         } else {
             throw new Error('Unsupported ROM data format');
         }
+        console.log('[JsnesCore] romBytes length:', romBytes.length, 'first bytes:', Array.from(romBytes.slice(0, 16)));
 
         this.#nes = new NesCtor({
             onFrame: (buf) => {
@@ -90,6 +97,7 @@ export class JsnesCore extends EmulatorCore {
         this.#scriptProcessor.connect(this.#audioCtx.destination);
 
         this.#nes.loadROM(Array.from(romBytes)); // jsnes expects Array<number>
+        console.log('[JsnesCore] ROM loaded into NES, ready to run');
     }
 
     start() {

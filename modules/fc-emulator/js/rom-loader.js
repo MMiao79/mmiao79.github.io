@@ -28,6 +28,7 @@ export class ROMLoader {
     }
 
     async #load(file) {
+        console.log('[ROMLoader] Loading file:', file.name, 'size:', file.size);
         let romName = file.name.replace(/\.(nes|zip)$/i, '');
         if (file.name.toLowerCase().endsWith('.zip')) {
             const JSZip = window.JSZip;
@@ -37,12 +38,14 @@ export class ROMLoader {
             if (nesFile) {
                 romName = nesFile.name.replace(/\.nes$/i, '');
                 const uint8 = await nesFile.async('uint8array');
+                console.log('[ROMLoader] ZIP: NES file loaded, size:', uint8.length);
                 this.onROMLoaded?.(uint8, romName);
             } else {
                 alert('未找到 .nes 文件');
             }
         } else {
             const uint8 = new Uint8Array(await file.arrayBuffer());
+            console.log('[ROMLoader] File read complete, uint8 size:', uint8.length, 'first bytes:', Array.from(uint8.slice(0, 4)));
             this.onROMLoaded?.(uint8, romName);
         }
     }
