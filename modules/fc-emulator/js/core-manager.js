@@ -264,7 +264,11 @@ export class CoreManager {
     // ────────── Switch Core (while running) ──────────
 
     async switchCore(coreDef) {
-        if (this.#core) this.#core.stop();
+        if (this.#core) {
+            this.#core.stop();
+            this.#core.destroy();
+            this.#core = null;
+        }
         await this.loadWithCore(coreDef, this.#currentRom.romData, this.#currentRom.romName);
     }
 
