@@ -221,6 +221,23 @@ export class CoreManager {
         this.#core = null;
     }
 
+    /** RESET: restart current game with the same core */
+    async resetGame() {
+        if (!this.#core || !this.#currentRom.romData) return;
+        const romData = this.#currentRom.romData;
+        const romName = this.#currentRom.romName;
+        const coreDef = this.findCoreDef(this.#core.id);
+        if (!coreDef) return;
+
+        // Stop and cleanup old core FIRST — before loading new one
+        this.#core.stop();
+        this.#core.destroy();
+        this.#core = null;
+
+        // Reload with the same core
+        await this.loadWithCore(coreDef, romData, romName);
+    }
+
     /** POWER OFF: stop emulation, clear saved session */
     powerOff() {
         if (this.#core) {

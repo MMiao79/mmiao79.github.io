@@ -158,11 +158,8 @@ class App {
 
     /** RESET: restart current game (like pressing physical RESET button) */
     async #resetGame() {
-        if (!this.#coreManager.isRunning) return;
-        const romData = this.#coreManager.currentRomData;
-        const romName = this.#coreManager.currentRomName;
-        if (!romData || !romName) return;
-        this.#startGame(romData, romName);
+        this.#ui.showGameAndLoading('正在重启...', '');
+        await this.#coreManager.resetGame();
     }
 
     /** POWER OFF: clear save data and return to launcher */
