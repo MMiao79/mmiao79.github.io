@@ -125,9 +125,16 @@
             aspect-ratio: 256 / 240; width: auto; height: auto;
             max-width: 100vw; max-height: 100vh; box-shadow: none;
         }
-        #game-screen.game-fullscreen #top-toolbar { opacity: 0; pointer-events: none; }
-        #game-screen.game-fullscreen #fullscreen-btn { opacity: 1; pointer-events: auto; }
-        #game-screen.game-fullscreen #fullscreen-btn:hover { background: rgba(255,0,0,0.6); }
+        #game-screen.game-fullscreen #top-toolbar { background: transparent; padding: 0; }
+        #game-screen.game-fullscreen #top-toolbar > :not(#fullscreen-btn) { display: none; }
+        #game-screen.game-fullscreen #fullscreen-btn {
+            position: absolute; top: 10px; right: 10px; z-index: 100;
+            opacity: 0.3; transition: opacity 0.3s;
+        }
+        #game-screen.game-fullscreen #fullscreen-btn:hover,
+        #game-screen.game-fullscreen #fullscreen-btn:focus {
+            opacity: 1; background: rgba(255,0,0,0.6);
+        }
         @media (hover: hover) { #game-screen { justify-content: center; } }
         @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
             #game-screen { justify-content: flex-start; padding-top: 50px; }
@@ -176,17 +183,7 @@
         .toolbar-btn:hover { background: rgba(0, 240, 255, 0.2); border-color: rgba(0, 240, 255, 0.5); }
         #back-btn:hover { background: rgba(255, 80, 80, 0.3); border-color: rgba(255, 80, 80, 0.5); }
 
-        /* Fullscreen button */
-        #fullscreen-btn {
-            position: absolute; top: 10px; right: 10px; z-index: 100;
-        }
-        #game-screen.game-fullscreen #fullscreen-btn {
-            opacity: 0.3; transition: opacity 0.3s;
-        }
-        #game-screen.game-fullscreen #fullscreen-btn:hover,
-        #game-screen.game-fullscreen #fullscreen-btn:focus {
-            opacity: 1; background: rgba(255,0,0,0.6);
-        }
+        /* Fullscreen button is now a toolbar flex item; only floats in fullscreen mode */
         @media (hover: none) and (pointer: coarse) {
             #game-screen.game-fullscreen #fullscreen-btn {
                 opacity: 0.7 !important;
@@ -197,15 +194,8 @@
             }
         }
         @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-            #game-screen:not(.game-fullscreen) #fullscreen-btn {
-                top: 10px; left: 10px; right: auto;
-            }
             #game-screen.game-fullscreen #fullscreen-btn {
                 top: 10px; left: 10px; right: auto;
-                opacity: 0.7 !important;
-            }
-            #game-screen.game-fullscreen #fullscreen-btn:active {
-                opacity: 1; background: rgba(255,0,0,0.6);
             }
         }
 
@@ -422,7 +412,6 @@
 
     <!-- Game UI -->
     <div id="game-screen" class="hidden">
-        <button id="fullscreen-btn" class="toolbar-btn">📺</button>
         <div id="top-toolbar">
             <div id="core-badge" title="点击切换核心">
                 <span class="core-badge-icon">⚡</span>
@@ -436,6 +425,7 @@
             </div>
             <div class="toolbar-spacer"></div>
             <button id="keymap-btn" class="toolbar-btn">⌨️</button>
+            <button id="fullscreen-btn" class="toolbar-btn">📺</button>
             <button id="back-btn" class="toolbar-btn">❌</button>
         </div>
         <div id="canvas-container">
