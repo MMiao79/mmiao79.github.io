@@ -156,18 +156,13 @@ class App {
         }
     }
 
-    /** RESET: save state and return to launcher (can resume next time) */
-    #resetGame() {
-        this.#coreManager.stopGame();
-        this.#ui.showSelectorScreen();
-        this.#ui.resetFullScreen();
-        this.#ui.hideKeymapPanel();
-
-        if (this.#storage.hasSavedGame) {
-            this.#ui.showResumeButton(this.#storage.savedRomName);
-        } else {
-            this.#ui.hideResumeButton();
-        }
+    /** RESET: restart current game (like pressing physical RESET button) */
+    async #resetGame() {
+        if (!this.#coreManager.isRunning) return;
+        const romData = this.#coreManager.currentRomData;
+        const romName = this.#coreManager.currentRomName;
+        if (!romData || !romName) return;
+        this.#startGame(romData, romName);
     }
 
     /** POWER OFF: clear save data and return to launcher */
