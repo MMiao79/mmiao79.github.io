@@ -122,8 +122,8 @@
         }
         #game-screen.game-fullscreen { justify-content: center; padding-top: 0 !important; }
         #game-screen.game-fullscreen #canvas-container {
-            aspect-ratio: 256 / 240; width: auto; height: auto;
-            max-width: 100vw; max-height: 100vh; box-shadow: none;
+            aspect-ratio: 4 / 3; width: auto; height: auto;
+            max-width: 100vw; max-height: calc(100vh - 50px); box-shadow: none;
         }
         #game-screen.game-fullscreen #top-toolbar { background: transparent; padding: 0; }
         #game-screen.game-fullscreen #top-toolbar > :not(#fullscreen-btn) { display: none; }
@@ -143,18 +143,19 @@
             #game-screen { justify-content: center; }
         }
 
-        /* Canvas container */
+        /* Canvas container — 4:3 CRT aspect ratio, all cores unified */
         #canvas-container {
             position: relative;
             image-rendering: pixelated;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            aspect-ratio: 256 / 240;
-            width: auto; height: auto;
+            aspect-ratio: 4 / 3;
+            width: 512px; height: 384px; /* 2x base 256x192 (4:3 crop of 256x240) */
         }
         #canvas-container canvas {
             display: block;
             image-rendering: pixelated;
             width: 100%; height: 100%;
+            object-fit: contain;
         }
         #screen { display: block; }
         #retroarch-canvas-container {
@@ -164,6 +165,7 @@
         #retroarch-canvas-container canvas {
             width: 100% !important; height: 100% !important;
             image-rendering: pixelated;
+            object-fit: contain;
         }
 
         /* Top Toolbar */

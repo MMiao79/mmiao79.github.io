@@ -110,14 +110,17 @@ export class UI {
 
     updateScale() {
         const isFs = this.#els['game-screen'].classList.contains('game-fullscreen');
+        const container = this.#els['canvas-container'];
         if (isFs) {
-            const scaleX = (window.innerWidth - 40) / SCREEN_WIDTH;
-            const scaleY = (window.innerHeight - 40) / SCREEN_HEIGHT;
-            const fitScale = Math.min(scaleX, scaleY);
-            const finalScale = Math.max(1, Math.floor(fitScale));
-            this.#els['canvas-container'].style.transform = `scale(${finalScale})`;
+            // Fullscreen: let CSS max-width/max-height handle sizing
+            container.style.width = '';
+            container.style.height = '';
         } else {
-            this.#els['canvas-container'].style.transform = `scale(${this.#currentScale})`;
+            // Normal mode: scale by multiplying base 512px
+            const baseW = 512;
+            const baseH = 384; // 4:3
+            container.style.width = Math.round(baseW * this.#currentScale) + 'px';
+            container.style.height = Math.round(baseH * this.#currentScale) + 'px';
         }
         this.#els['scale-display'].textContent = this.#currentScale + 'x';
     }
