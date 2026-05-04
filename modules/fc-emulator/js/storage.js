@@ -2,6 +2,33 @@
 
 import { STORAGE_KEYS } from './config.js';
 
+/** Convert Uint8Array to base64 string for localStorage */
+function uint8ToBase64(arr) {
+    let binary = '';
+    for (let i = 0; i < arr.length; i++) binary += String.fromCharCode(arr[i]);
+    return btoa(binary);
+}
+
+/** Convert base64 string back to Uint8Array */
+function base64ToUint8(b64) {
+    const binary = atob(b64);
+    const arr = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+    return arr;
+}
+
+/** Normalise ROM data to Uint8Array */
+function normaliseRom(data) {
+    if (data instanceof Uint8Array) return data;
+    if (data instanceof ArrayBuffer) return new Uint8Array(data);
+    if (typeof data === 'string') {
+        const arr = new Uint8Array(data.length);
+        for (let i = 0; i < data.length; i++) arr[i] = data.charCodeAt(i) & 0xff;
+        return arr;
+    }
+    return null;
+}
+
 export class StorageManager {
     #romData = null;
     #romName = null;
@@ -22,7 +49,8 @@ export class StorageManager {
             const state = localStorage.getItem(STORAGE_KEYS.STATE);
             const name  = localStorage.getItem(STORAGE_KEYS.NAME);
             if (rom && state && name) {
-                this.#romData   = rom;
+                // rom stored as base64 string -> Uint8Array
+                this.#romData   = base64ToUint8(rom);
                 this.#gameState = state;
                 this.#romName   = name;
                 return { romName: name };
@@ -37,10 +65,13 @@ export class StorageManager {
         try {
             const state = core.saveState();
             if (!state) return;
+            const romBytes = normaliseRom(romData);
+            if (!romBytes) return;
             this.#gameState = typeof state === 'string' ? state : JSON.stringify(state);
-            this.#romData   = romData;
+            this.#romData   = romBytes;
             this.#romName   = romName;
-            localStorage.setItem(STORAGE_KEYS.ROM,   romData);
+            // Store ROM as base64 to survive localStorage round-trip
+            localStorage.setItem(STORAGE_KEYS.ROM,   uint8ToBase64(romBytes));
             localStorage.setItem(STORAGE_KEYS.STATE, this.#gameState);
             localStorage.setItem(STORAGE_KEYS.NAME,  romName);
             localStorage.setItem(STORAGE_KEYS.CORE,  core.id);
@@ -66,7 +97,7 @@ export class StorageManager {
         } catch (e) { console.error('Save core pref failed:', e); }
     }
 
-    /** Look up previously saved core preference for a ROM */
+    /** Look up previously saved core preference for a ROM name */
     getCorePref(romName) {
         try {
             return (JSON.parse(localStorage.getItem(STORAGE_KEYS.CORE_PREF) || '{}'))[romName] || null;

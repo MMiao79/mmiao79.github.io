@@ -47,9 +47,11 @@ export class RetroArchCore extends EmulatorCore {
         const container = document.getElementById('retroarch-canvas-container');
         container.innerHTML = '';
 
-        const romFile = typeof data === 'string'
-            ? { fileName: 'game.nes', fileContent: data }
-            : { fileName: (this.#romName || 'game') + '.nes', fileContent: new Uint8Array(data) };
+        const romBytes = data instanceof Uint8Array ? data
+            : typeof data === 'string'
+                ? (() => { const b = new Uint8Array(data.length); for (let i = 0; i < data.length; i++) b[i] = data.charCodeAt(i) & 0xff; return b; })()
+                : new Uint8Array(data);
+        const romFile = { fileName: 'game.nes', fileContent: romBytes };
 
         this.#nostalgist = await this.#Nostalgist.launch({
             core: {
