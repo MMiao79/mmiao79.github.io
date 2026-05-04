@@ -102,7 +102,7 @@ export class CoreManager {
         // Stop and cleanup existing core
         if (this.#core) {
             this.#core.stop();
-            this.#core.destroy(false); // don't remove canvas, new core reuses container
+            this.#core.destroy();
         }
 
         this.#core = core;
@@ -226,7 +226,7 @@ export class CoreManager {
         if (this.#core) {
             try {
                 this.#core.stop();
-                this.#core.destroy(true);
+                this.#core.destroy();
             } catch (e) { console.error('Stop failed:', e); }
         }
         this.#core = null;
@@ -237,7 +237,7 @@ export class CoreManager {
     returnToLauncher() {
         if (this.#core) {
             this.#core.stop();
-            this.#core.destroy(true);
+            this.#core.destroy();
             this.#core = null;
         }
         this.#currentRom = { romData: null, romName: null };

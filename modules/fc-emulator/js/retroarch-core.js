@@ -43,6 +43,12 @@ export class RetroArchCore extends EmulatorCore {
         this.#romData = data;
         this.#romName = null; // set externally
 
+        // Ensure previous Nostalgist instance is fully cleaned up
+        if (this.#nostalgist) {
+            try { this.#nostalgist.exit({ removeCanvas: true }); } catch {}
+            this.#nostalgist = null;
+        }
+
         // Setup RA canvas container - must be visible and contain a canvas for Nostalgist
         const container = document.getElementById('retroarch-canvas-container');
         container.innerHTML = '';
@@ -106,13 +112,13 @@ export class RetroArchCore extends EmulatorCore {
         if (this.#nostalgist && state) this.#nostalgist.loadState(state);
     }
 
-    destroy(removeCanvas = false) {
+    destroy() {
         this.stop();
         if (this.#nostalgist) {
-            try { this.#nostalgist.exit({ removeCanvas }); } catch {}
+            try { this.#nostalgist.exit({ removeCanvas: true }); } catch {}
             this.#nostalgist = null;
         }
-        // Reset container
+        // Always clean up container completely
         const container = document.getElementById('retroarch-canvas-container');
         if (container) {
             container.innerHTML = '';
