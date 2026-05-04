@@ -6,7 +6,7 @@ import { InputHandler } from './input-handler.js';
 import { UI } from './ui.js';
 import { ROMLoader } from './rom-loader.js';
 import { BUTTON_NAMES, codeToLabel } from './config.js';
-import { initConsoleTranslator } from './console-i18n.js';
+import { initConsoleFilter } from './console-i18n.js';
 
 /**
  * Main application entry point.
