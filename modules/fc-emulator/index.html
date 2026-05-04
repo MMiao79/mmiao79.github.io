@@ -71,11 +71,6 @@
         .core-info { flex: 1; }
         .core-name { font-size: 0.95rem; color: #ddd; font-weight: 500; }
         .core-desc { font-size: 0.75rem; color: #666; margin-top: 2px; }
-        .core-badge {
-            font-size: 0.65rem; padding: 2px 6px; border-radius: 4px;
-            background: rgba(0,240,255,0.15); color: #00f0ff; white-space: nowrap;
-        }
-
         /* Loading overlay */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -180,15 +175,37 @@
         .toolbar-btn:hover { background: rgba(0, 240, 255, 0.2); border-color: rgba(0, 240, 255, 0.5); }
         #back-btn:hover { background: rgba(255, 80, 80, 0.3); border-color: rgba(255, 80, 80, 0.5); }
 
-        /* Fullscreen button - always visible, positioned relative to game-screen */
+        /* Fullscreen button */
         #fullscreen-btn {
             position: absolute; top: 10px; right: 10px; z-index: 100;
         }
         #game-screen.game-fullscreen #fullscreen-btn {
             opacity: 0.3; transition: opacity 0.3s;
         }
-        #game-screen.game-fullscreen #fullscreen-btn:hover {
+        #game-screen.game-fullscreen #fullscreen-btn:hover,
+        #game-screen.game-fullscreen #fullscreen-btn:focus {
             opacity: 1; background: rgba(255,0,0,0.6);
+        }
+        @media (hover: none) and (pointer: coarse) {
+            #game-screen.game-fullscreen #fullscreen-btn {
+                opacity: 0.7 !important;
+                min-width: 44px; min-height: 44px;
+            }
+            #game-screen.game-fullscreen #fullscreen-btn:active {
+                opacity: 1; background: rgba(255,0,0,0.6);
+            }
+        }
+        @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+            #game-screen:not(.game-fullscreen) #fullscreen-btn {
+                top: 10px; left: 10px; right: auto;
+            }
+            #game-screen.game-fullscreen #fullscreen-btn {
+                top: 10px; left: 10px; right: auto;
+                opacity: 0.7 !important;
+            }
+            #game-screen.game-fullscreen #fullscreen-btn:active {
+                opacity: 1; background: rgba(255,0,0,0.6);
+            }
         }
 
         /* Core Badge */
@@ -367,8 +384,8 @@
         <div class="loading-text" id="loading-text">正在加载...</div>
         <div class="loading-sub" id="loading-sub"></div>
         <div id="loading-core-btn" class="hidden" style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
-            <button onclick="showCorePickerFromLoading()" style="padding:10px 20px;background:rgba(0,240,255,0.15);border:1px solid rgba(0,240,255,0.4);border-radius:8px;color:#00f0ff;font-size:0.9rem;cursor:pointer;">选择核心</button>
-            <button onclick="returnToLauncher()" style="padding:10px 20px;background:rgba(255,100,100,0.15);border:1px solid rgba(255,100,100,0.4);border-radius:8px;color:#ff6464;font-size:0.9rem;cursor:pointer;">返回启动器</button>
+            <button style="padding:10px 20px;background:rgba(0,240,255,0.15);border:1px solid rgba(0,240,255,0.4);border-radius:8px;color:#00f0ff;font-size:0.9rem;cursor:pointer;">选择核心</button>
+            <button style="padding:10px 20px;background:rgba(255,100,100,0.15);border:1px solid rgba(255,100,100,0.4);border-radius:8px;color:#ff6464;font-size:0.9rem;cursor:pointer;">返回启动器</button>
         </div>
     </div>
 
@@ -378,7 +395,7 @@
             <h2 id="picker-title">选择模拟核心</h2>
             <p id="picker-sub">所有核心均无法自动运行此 ROM，请手动选择一个核心尝试</p>
             <div id="core-picker-list"></div>
-            <button class="core-picker-cancel" onclick="cancelCorePicker()">取消返回</button>
+            <button class="core-picker-cancel">取消返回</button>
         </div>
     </div>
 
@@ -389,7 +406,7 @@
         <div class="file-input-wrapper">
             <label class="file-input-label" id="rom-pick-btn">📂 选择 ROM 文件</label>
         </div>
-        <button id="resume-btn" class="resume-btn hidden" onclick="resumeGame()">▶️ 继续游戏</button>
+        <button id="resume-btn" class="resume-btn hidden">▶️ 继续游戏</button>
 
         <!-- Core Selection -->
         <div class="core-section">
@@ -404,22 +421,21 @@
 
     <!-- Game UI -->
     <div id="game-screen" class="hidden">
-        <!-- Fullscreen button - outside toolbar to avoid opacity inheritance -->
-        <button id="fullscreen-btn" class="toolbar-btn" onclick="toggleFullScreen()">📺</button>
+        <button id="fullscreen-btn" class="toolbar-btn">📺</button>
         <div id="top-toolbar">
-            <div id="core-badge" onclick="showCoreSwitcher()" title="点击切换核心">
+            <div id="core-badge" title="点击切换核心">
                 <span class="core-badge-icon">⚡</span>
                 <span id="core-label-text">JSNES</span>
                 <span class="core-badge-arrow">▼</span>
             </div>
             <div class="scale-controls">
-                <button class="scale-btn" onclick="changeScale(-0.5)">−</button>
+                <button class="scale-btn">−</button>
                 <span id="scale-display">1.5x</span>
-                <button class="scale-btn" onclick="changeScale(0.5)">+</button>
+                <button class="scale-btn">+</button>
             </div>
             <div class="toolbar-spacer"></div>
-            <button id="keymap-btn" class="toolbar-btn" onclick="toggleKeymapPanel()">⌨️</button>
-            <button id="back-btn" class="toolbar-btn" onclick="stopGame()">❌</button>
+            <button id="keymap-btn" class="toolbar-btn">⌨️</button>
+            <button id="back-btn" class="toolbar-btn">❌</button>
         </div>
         <div id="canvas-container">
             <canvas id="screen" width="256" height="240"></canvas>
@@ -435,15 +451,15 @@
             <div class="action-group">
                 <div class="turbo-bar">
                     <div class="turbo-row">
-                        <button class="t-btn t-rate-btn active" onclick="setRate(10, this)">10/s</button>
-                        <button class="t-btn t-rate-btn" onclick="setRate(15, this)">15/s</button>
-                        <button class="t-btn t-rate-btn" onclick="setRate(20, this)">20/s</button>
-                        <button class="t-btn t-rate-btn" onclick="setRate(30, this)">30/s</button>
+                        <button class="t-btn t-rate-btn active">10/s</button>
+                        <button class="t-btn t-rate-btn">15/s</button>
+                        <button class="t-btn t-rate-btn">20/s</button>
+                        <button class="t-btn t-rate-btn">30/s</button>
                     </div>
                 </div>
                 <div class="turbo-ab-row">
-                    <div class="turbo-btn" data-type="B" onclick="toggleTurbo(this)">B连</div>
-                    <div class="turbo-btn" data-type="A" onclick="toggleTurbo(this)">A连</div>
+                    <div class="turbo-btn" data-type="B">B连</div>
+                    <div class="turbo-btn" data-type="A">A连</div>
                 </div>
                 <div class="ab-row">
                     <div class="b-btn" data-btn="B">B</div>
@@ -461,978 +477,15 @@
     <div id="keymap-panel">
         <h2>⌨️ 按键设置</h2>
         <div id="keymap-list"></div>
-        <button class="keymap-close" onclick="toggleKeymapPanel()">关 闭</button>
+        <button class="keymap-close">关 闭</button>
         <div class="keymap-hint">点击按键名后按下新键即可修改绑定</div>
     </div>
 
+    <!-- Global dependencies (UMD) -->
     <script src="lib/jszip.min.js"></script>
     <script src="lib/jsnes.min.js"></script>
-    <script>
-    'use strict';
 
-    // ==================== Constants ====================
-    const SCREEN_WIDTH = 256, SCREEN_HEIGHT = 240;
-    const FPS = 60, FRAME_TIME = 1000 / FPS;
-    const BUTTON_NAMES = ['A', 'B', 'SELECT', 'START', 'UP', 'DOWN', 'LEFT', 'RIGHT'];
-
-    // Core definitions
-    const CORES = [
-        { id: 'jsnes',    name: 'JSNES',    desc: '快速启动 · 纯JS实现',    type: 'jsnes', priority: 0 },
-        { id: 'fceumm',   name: 'FCEUMM',   desc: '兼容性最强 · Mapper丰富', type: 'retroarch', coreName: 'fceumm',   jsPath: 'lib/fceumm_libretro.js',   wasmPath: 'lib/fceumm_libretro.wasm',   priority: 1 },
-        { id: 'nestopia', name: 'Nestopia', desc: '高精度模拟 · Cycle准确', type: 'retroarch', coreName: 'nestopia', jsPath: 'lib/nestopia_libretro.js', wasmPath: 'lib/nestopia_libretro.wasm', priority: 2 },
-        { id: 'quicknes', name: 'QuickNES', desc: '极速运行 · 轻量核心',    type: 'retroarch', coreName: 'quicknes', jsPath: 'lib/quicknes_libretro.js', wasmPath: 'lib/quicknes_libretro.wasm', priority: 3 },
-    ].filter(c => {
-        // Hide cores that don't have WASM files locally
-        if (c.type === 'retroarch') return typeof WebAssembly === 'object';
-        return true;
-    });
-
-    // ==================== State ====================
-    let activeCore = null;
-    let currentScale = 1.5, isRunning = false;
-    let turboMode = { A: false, B: false }, turboRate = 10, frameCount = 0;
-    let lastTime = 0, lag = 0;
-    let currentROMData = null, currentROMName = null, lastGameState = null;
-    let romCorePref = null; // null = auto detect, string = specific core id
-    let pendingRomData = null, pendingRomName = null;
-    let NostalgistModule = null; // cached Nostalgist.js module
-
-    const SAVE_KEY_ROM = 'fc_emulator_rom';
-    const SAVE_KEY_STATE = 'fc_emulator_state';
-    const SAVE_KEY_NAME = 'fc_emulator_rom_name';
-    const SAVE_KEY_CORE = 'fc_emulator_core';
-    const SAVE_KEY_CORE_PREF = 'fc_emulator_core_pref';
-
-    // ==================== Audio (shared ring buffer for jsnes) ====================
-    const AUDIO_FIFO_SIZE = 16384;
-    let audioFifoL = new Float32Array(AUDIO_FIFO_SIZE);
-    let audioFifoR = new Float32Array(AUDIO_FIFO_SIZE);
-    let audioFifoHead = 0, audioFifoCount = 0;
-
-    // ==================== Key mapping ====================
-    const DEFAULT_KEYMAP = {
-        'A': 'KeyX', 'B': 'KeyZ', 'SELECT': 'ShiftRight', 'START': 'Enter',
-        'UP': 'ArrowUp', 'DOWN': 'ArrowDown', 'LEFT': 'ArrowLeft', 'RIGHT': 'ArrowRight'
-    };
-    const DEFAULT_TURBO_KEYMAP = { 'Turbo A': 'KeyS', 'Turbo B': 'KeyA' };
-    let keymap = Object.assign({}, DEFAULT_KEYMAP);
-    let turboKeymap = Object.assign({}, DEFAULT_TURBO_KEYMAP);
-    let turboKeyHeld = { 'Turbo A': false, 'Turbo B': false };
-
-    function codeToBtn(code) { for (const [btn, c] of Object.entries(keymap)) { if (c === code) return btn; } return null; }
-    function turboCodeToName(code) { for (const [name, c] of Object.entries(turboKeymap)) { if (c === code) return name; } return null; }
-    function codeToLabel(code) {
-        const map = {
-            'KeyX':'X','KeyZ':'Z','Enter':'Enter','ShiftRight':'R-Shift',
-            'ArrowUp':'↑','ArrowDown':'↓','ArrowLeft':'←','ArrowRight':'→',
-            'Space':'Space','KeyC':'C','KeyV':'V','KeyA':'A','KeyS':'S',
-            'KeyD':'D','KeyW':'W','KeyQ':'Q','KeyE':'E','KeyR':'R','KeyF':'F',
-            'Tab':'Tab','Backspace':'Back','ShiftLeft':'L-Shift',
-            'ControlLeft':'L-Ctrl','ControlRight':'R-Ctrl','AltLeft':'L-Alt',
-            'AltRight':'R-Alt','KeyN':'N','KeyM':'M',
-        };
-        return map[code] || code.replace('Key','').replace('Digit','');
-    }
-
-    // ==================== UI Helpers ====================
-    function showLoading(text, sub) {
-        document.getElementById('loading-text').textContent = text || '正在加载...';
-        document.getElementById('loading-sub').textContent = sub || '';
-        document.getElementById('loading-spinner').style.display = 'block';
-        document.getElementById('loading-overlay').classList.remove('hidden');
-        document.getElementById('loading-core-btn').classList.add('hidden');
-    }
-    function hideLoading() {
-        document.getElementById('loading-overlay').classList.add('hidden');
-        document.getElementById('loading-core-btn').classList.add('hidden');
-    }
-
-    function returnToLauncher() {
-        // Stop any running core
-        if (activeCore) {
-            activeCore.stop();
-            if (activeCore._nostalgist) {
-                try { activeCore._nostalgist.exit({ removeCanvas: true }); } catch (e) {}
-            }
-            activeCore = null;
-        }
-        isRunning = false;
-        currentROMData = null;
-        currentROMName = null;
-
-        // Reset UI
-        hideLoading();
-        document.getElementById('game-screen').classList.add('hidden');
-        document.getElementById('selector-ui').classList.remove('hidden');
-    }
-
-    function updateCoreIndicator(core) {
-        document.getElementById('core-label-text').textContent = core.name;
-    }
-
-    function switchCanvasDisplay(core) {
-        const screen = document.getElementById('screen');
-        const raContainer = document.getElementById('retroarch-canvas-container');
-        if (core.type === 'jsnes') {
-            screen.style.display = 'block';
-            raContainer.style.display = 'none';
-        } else {
-            screen.style.display = 'none';
-            raContainer.style.display = 'block';
-        }
-    }
-
-    // ==================== Core Selector UI (Launcher) ====================
-    function renderCoreSelector() {
-        const container = document.getElementById('core-selector');
-        container.innerHTML = '';
-        // Auto option
-        const autoOpt = createCoreOption('auto', '🤖 自动检测', '按优先级依次尝试所有核心', true);
-        container.appendChild(autoOpt);
-        CORES.forEach(c => {
-            const opt = createCoreOption(c.id, c.name, c.desc, false);
-            container.appendChild(opt);
-        });
-    }
-
-    function createCoreOption(id, name, desc, isSelected) {
-        const div = document.createElement('div');
-        div.className = 'core-option' + (isSelected ? ' selected' : '');
-        div.dataset.coreId = id;
-        div.innerHTML = `
-            <div class="core-radio"></div>
-            <div class="core-info">
-                <div class="core-name">${name}</div>
-                <div class="core-desc">${desc}</div>
-            </div>
-        `;
-        div.addEventListener('click', () => {
-            document.querySelectorAll('.core-option').forEach(el => el.classList.remove('selected'));
-            div.classList.add('selected');
-            romCorePref = id === 'auto' ? null : id;
-        });
-        return div;
-    }
-
-    // ==================== Core Picker Modal ====================
-    let _pickerReturnTo = 'game'; // 'loading' = back to loading screen, 'game' = stay in game
-
-    function showCorePickerModal(returnTo) {
-        _pickerReturnTo = returnTo || 'game';
-        const modal = document.getElementById('core-picker-modal');
-        const list = document.getElementById('core-picker-list');
-        const title = document.getElementById('picker-title');
-        const sub = document.getElementById('picker-sub');
-
-        if (_pickerReturnTo === 'loading') {
-            title.textContent = '选择模拟核心';
-            sub.textContent = '自动检测失败，请选择一个核心尝试';
-        } else {
-            title.textContent = '切换模拟核心';
-            sub.textContent = '选择一个核心替换当前运行的核心';
-        }
-
-        list.innerHTML = '';
-        CORES.forEach(c => {
-            const opt = document.createElement('div');
-            opt.className = 'core-picker-option';
-            opt.innerHTML = `
-                <div class="core-radio"></div>
-                <div class="core-info">
-                    <div class="core-name">${c.name}</div>
-                    <div class="core-desc">${c.desc}</div>
-                </div>
-            `;
-            opt.addEventListener('click', async () => {
-                modal.classList.add('hidden');
-                showLoading('正在加载核心...', c.name);
-                try {
-                    await loadWithCore(c, pendingRomData, pendingRomName);
-                } catch (e) {
-                    console.error(`Core ${c.name} failed:`, e);
-                    hideLoading();
-                    showCorePickerModal(_pickerReturnTo);
-                }
-            });
-            list.appendChild(opt);
-        });
-        modal.classList.remove('hidden');
-    }
-
-    function cancelCorePicker() {
-        document.getElementById('core-picker-modal').classList.add('hidden');
-        if (_pickerReturnTo === 'loading') {
-            // From loading screen: show loading with select-core button
-            document.getElementById('loading-overlay').classList.remove('hidden');
-            document.getElementById('loading-core-btn').classList.remove('hidden');
-        }
-        // From 'game': just close picker, game stays paused
-    }
-
-    function showCorePickerFromLoading() {
-        document.getElementById('loading-core-btn').classList.add('hidden');
-        showCorePickerModal('loading');
-    }
-
-    function showCoreSwitcher() {
-        _pickerReturnTo = 'game';
-        // Paused game, show core switch
-        const wasRunning = isRunning;
-        if (isRunning && activeCore) {
-            activeCore.stop();
-            isRunning = false;
-        }
-        const modal = document.getElementById('core-picker-modal');
-        const list = document.getElementById('core-picker-list');
-        const title = document.getElementById('picker-title');
-        const sub = document.getElementById('picker-sub');
-        title.textContent = '切换模拟核心';
-        sub.textContent = '选择一个核心替换当前运行的核心';
-        list.innerHTML = '';
-        CORES.forEach(c => {
-            if (c.id === (activeCore ? activeCore.id : null)) return;
-            const opt = document.createElement('div');
-            opt.className = 'core-picker-option';
-            opt.innerHTML = `
-                <div class="core-info">
-                    <div class="core-name">${c.name}</div>
-                    <div class="core-desc">${c.desc}</div>
-                </div>
-            `;
-            opt.addEventListener('click', async () => {
-                modal.classList.add('hidden');
-                showLoading('正在切换核心...', `${c.name}`);
-                try {
-                    await loadWithCore(c, currentROMData, currentROMName);
-                } catch (e) {
-                    console.error(`Core switch to ${c.name} failed:`, e);
-                    // Keep error message visible with "选择核心" button
-                    document.getElementById('loading-core-btn').classList.remove('hidden');
-                    // Don't restore old core - let user choose another
-                    isRunning = false;
-                }
-            });
-            list.appendChild(opt);
-        });
-        modal.classList.remove('hidden');
-    }
-
-    // ==================== JsnesCore Adapter ====================
-    class JsnesCore {
-        constructor() {
-            this.id = 'jsnes';
-            this.name = 'JSNES';
-            this.type = 'jsnes';
-            this._nes = null;
-            this._canvas = null;
-            this._ctx = null;
-            this._image = null;
-            this._fbU8 = null;
-            this._fbU32 = null;
-            this._audioCtx = null;
-            this._scriptProcessor = null;
-            this._animId = null;
-        }
-
-        async loadROM(data) {
-            this._canvas = document.getElementById('screen');
-            this._ctx = this._canvas.getContext('2d');
-            this._image = this._ctx.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            const buffer = new ArrayBuffer(this._image.data.length);
-            this._fbU8 = new Uint8ClampedArray(buffer);
-            this._fbU32 = new Uint32Array(buffer);
-
-            // Reset audio FIFO
-            audioFifoHead = 0; audioFifoCount = 0;
-
-            this._nes = new jsnes.NES({
-                onFrame: (buf) => { for (let i = 0; i < buf.length; i++) this._fbU32[i] = 0xFF000000 | buf[i]; },
-                onAudioSample: (l, r) => {
-                    audioFifoL[audioFifoHead] = l;
-                    audioFifoR[audioFifoHead] = r;
-                    audioFifoHead = (audioFifoHead + 1) % AUDIO_FIFO_SIZE;
-                    if (audioFifoCount < AUDIO_FIFO_SIZE) audioFifoCount++;
-                }
-            });
-
-            // Init audio
-            this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            this._scriptProcessor = this._audioCtx.createScriptProcessor(2048, 0, 2);
-            this._scriptProcessor.onaudioprocess = (e) => {
-                const outL = e.outputBuffer.getChannelData(0);
-                const outR = e.outputBuffer.getChannelData(1);
-                for (let i = 0; i < outL.length; i++) {
-                    if (audioFifoCount > 0) {
-                        const idx = (audioFifoHead - audioFifoCount + AUDIO_FIFO_SIZE) % AUDIO_FIFO_SIZE;
-                        outL[i] = audioFifoL[idx];
-                        outR[i] = audioFifoR[idx];
-                        audioFifoCount--;
-                    } else { outL[i] = 0; outR[i] = 0; }
-                }
-            };
-            this._scriptProcessor.connect(this._audioCtx.destination);
-
-            this._nes.loadROM(data);
-        }
-
-        start() {
-            this._resumeAudio();
-            isRunning = true; lastTime = 0; lag = 0; frameCount = 0;
-            this._loop = this._loop.bind(this);
-            requestAnimationFrame(this._loop);
-        }
-
-        _loop(timestamp) {
-            if (!isRunning || activeCore !== this) return;
-            this._animId = requestAnimationFrame(this._loop);
-            if (lastTime === 0) lastTime = timestamp;
-            const elapsed = timestamp - lastTime;
-            lastTime = timestamp;
-            lag += elapsed;
-            let framesToRun = 0;
-            while (lag >= FRAME_TIME && framesToRun < 3) {
-                this._nes.frame();
-                lag -= FRAME_TIME;
-                framesToRun++;
-            }
-            if (lag > FRAME_TIME * 3) lag = FRAME_TIME;
-            this._image.data.set(this._fbU8);
-            this._ctx.putImageData(this._image, 0, 0);
-
-            // Turbo
-            frameCount++;
-            if (frameCount % Math.floor(FPS / turboRate) === 0) {
-                if (turboMode.A || turboKeyHeld['Turbo A']) { this._nes.buttonDown(1, 0); setTimeout(() => this._nes.buttonUp(1, 0), 40); }
-                if (turboMode.B || turboKeyHeld['Turbo B']) { this._nes.buttonDown(1, 1); setTimeout(() => this._nes.buttonUp(1, 1), 40); }
-            }
-        }
-
-        _resumeAudio() {
-            if (this._audioCtx && this._audioCtx.state === 'suspended') this._audioCtx.resume();
-        }
-
-        stop() {
-            isRunning = false;
-            if (this._animId) { cancelAnimationFrame(this._animId); this._animId = null; }
-        }
-
-        buttonDown(port, btn) {
-            if (!this._nes) return;
-            const idx = BUTTON_NAMES.indexOf(btn);
-            if (idx >= 0) this._nes.buttonDown(port || 1, idx);
-        }
-
-        buttonUp(port, btn) {
-            if (!this._nes) return;
-            const idx = BUTTON_NAMES.indexOf(btn);
-            if (idx >= 0) this._nes.buttonUp(port || 1, idx);
-        }
-
-        saveState() { return this._nes ? this._nes.saveState() : null; }
-        loadState(state) { if (this._nes && state) this._nes.loadState(state); }
-
-        getCanvas() { return this._canvas; }
-    }
-
-    // ==================== RetroArchCore Adapter ====================
-    class RetroArchCore {
-        constructor(coreDef) {
-            this.id = coreDef.id;
-            this.name = coreDef.name;
-            this.type = 'retroarch';
-            this.coreDef = coreDef;
-            this._nostalgist = null;
-            this._Nostalgist = null;
-        }
-
-        async loadROM(data) {
-            // Lazy load Nostalgist.js
-            if (!NostalgistModule) {
-                const module = await import('./lib/nostalgist.js');
-                NostalgistModule = module.Nostalgist;
-            }
-            this._Nostalgist = NostalgistModule;
-
-            // Setup RA canvas container
-            const container = document.getElementById('retroarch-canvas-container');
-            container.innerHTML = '';
-
-            const romFile = typeof data === 'string'
-                ? { fileName: 'game.nes', fileContent: data }
-                : { fileName: (currentROMName || 'game') + '.nes', fileContent: new Uint8Array(data) };
-
-            this._nostalgist = await this._Nostalgist.launch({
-                core: {
-                    name: this.coreDef.coreName,
-                    js: this.coreDef.jsPath,
-                    wasm: this.coreDef.wasmPath,
-                },
-                rom: romFile,
-                element: container,
-            });
-        }
-
-        start() { /* Nostalgist manages its own loop */ isRunning = true; frameCount = 0; }
-        stop() { isRunning = false; }
-
-        buttonDown(port, btn) {
-            if (this._nostalgist) this._nostalgist.pressDown(port || 1, btn.toLowerCase());
-        }
-
-        buttonUp(port, btn) {
-            if (this._nostalgist) this._nostalgist.pressUp(port || 1, btn.toLowerCase());
-        }
-
-        saveState() {
-            if (this._nostalgist) return this._nostalgist.saveState();
-            return null;
-        }
-
-        loadState(state) {
-            if (this._nostalgist && state) this._nostalgist.loadState(state);
-        }
-
-        getCanvas() {
-            if (this._nostalgist) return this._nostalgist.getCanvas();
-            return null;
-        }
-    }
-
-    // ==================== Core Creation ====================
-    function createCoreInstance(coreDef) {
-        if (coreDef.type === 'jsnes') return new JsnesCore();
-        return new RetroArchCore(coreDef);
-    }
-
-    // ==================== Auto Detection ====================
-    async function tryAutoLoad(romData, romName) {
-        // Try each core in priority order
-        for (const coreDef of CORES) {
-            showLoading('正在尝试核心...', `${coreDef.name}`);
-            try {
-                console.log(`[AutoDetect] Trying ${coreDef.name}...`);
-                const core = createCoreInstance(coreDef);
-                await core.loadROM(romData);
-                // For jsnes, verify the ROM loaded correctly (check for non-black frames)
-                if (coreDef.type === 'jsnes') {
-                    const success = await verifyJsnesFrames(core, 30);
-                    if (!success) {
-                        console.log(`[AutoDetect] ${coreDef.name}: Black screen detected, skipping`);
-                        core.stop();
-                        continue;
-                    }
-                }
-                console.log(`[AutoDetect] ${coreDef.name} succeeded!`);
-                return core;
-            } catch (e) {
-                console.warn(`[AutoDetect] ${coreDef.name} failed:`, e.message);
-            }
-        }
-        return null;
-    }
-
-    async function verifyJsnesFrames(core, frameCount) {
-        // Run some frames and check if framebuffer has non-zero pixels
-        return new Promise((resolve) => {
-            const ctx = core._ctx;
-            let frames = 0;
-            const testLoop = () => {
-                core._nes.frame();
-                frames++;
-                if (frames >= frameCount) {
-                    // Check if any pixel is non-black
-                    const imageData = ctx.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-                    const data = imageData.data;
-                    let nonBlack = 0;
-                    for (let i = 0; i < data.length; i += 4) {
-                        if (data[i] > 0 || data[i+1] > 0 || data[i+2] > 0) {
-                            nonBlack++;
-                            if (nonBlack > 100) break;
-                        }
-                    }
-                    resolve(nonBlack > 100);
-                    return;
-                }
-                setTimeout(testLoop, 0);
-            };
-            testLoop();
-        });
-    }
-
-    // ==================== Load with specific core ====================
-    async function loadWithCore(coreDef, romData, romName) {
-        // Stop any running core
-        if (activeCore && isRunning) {
-            activeCore.stop();
-            if (activeCore._nostalgist) {
-                try { activeCore._nostalgist.exit({ removeCanvas: false }); } catch (e) {}
-            }
-        }
-
-        showLoading('正在加载核心...', coreDef.name);
-
-        const core = createCoreInstance(coreDef);
-        try {
-            await core.loadROM(romData);
-        } catch (e) {
-            console.error(`Failed to load ROM with core ${coreDef.name}:`, e);
-            // Show error state: hide spinner, show error message and buttons
-            document.getElementById('loading-spinner').style.display = 'none';
-            document.getElementById('loading-text').textContent = '核心加载失败';
-            document.getElementById('loading-sub').textContent = `无法使用 ${coreDef.name} 加载此 ROM`;
-            document.getElementById('loading-core-btn').classList.remove('hidden');
-            throw e; // Re-throw so caller can handle
-        }
-
-        // Switch UI (these always run after successful load)
-        activeCore = core;
-        switchCanvasDisplay(core);
-        updateCoreIndicator(core);
-
-        document.getElementById('selector-ui').classList.add('hidden');
-        document.getElementById('game-screen').classList.remove('hidden');
-
-        currentROMData = romData;
-        currentROMName = romName || '游戏';
-
-        // Save ROM core preference
-        saveCorePref(romName, coreDef.id);
-
-        updateScale();
-        hideLoading();
-
-        // Start game
-        core.start();
-    }
-
-    // ==================== ROM Load Entry Point ====================
-    async function startGameWithROM(romData, romName) {
-        pendingRomData = romData;
-        pendingRomName = romName;
-
-        document.getElementById('selector-ui').classList.add('hidden');
-        document.getElementById('game-screen').classList.remove('hidden');
-        showLoading('正在检测最佳核心...', '自动选择中');
-
-        // Step 1: Auto detect
-        const autoCore = await tryAutoLoad(romData, romName);
-        if (autoCore) {
-            activeCore = autoCore;
-            switchCanvasDisplay(autoCore);
-            updateCoreIndicator(autoCore);
-            currentROMData = romData;
-            currentROMName = romName;
-            saveCorePref(romName, autoCore.id);
-
-            updateScale();
-            hideLoading();
-            autoCore.start();
-
-            // Hide continue button
-            document.getElementById('resume-btn').classList.add('hidden');
-            return;
-        }
-
-        hideLoading();
-
-        // Step 2: Try historical preference
-        const pref = getCorePref(romName);
-        if (pref) {
-            const prefDef = CORES.find(c => c.id === pref);
-            if (prefDef) {
-                showLoading('正在尝试历史偏好核心...', prefDef.name);
-                try {
-                    const core = createCoreInstance(prefDef);
-                    await core.loadROM(romData);
-                    activeCore = core;
-                    switchCanvasDisplay(core);
-                    updateCoreIndicator(core);
-                    currentROMData = romData;
-                    currentROMName = romName;
-                    updateScale();
-                    hideLoading();
-                    core.start();
-                    document.getElementById('resume-btn').classList.add('hidden');
-                    return;
-                } catch (e) {
-                    console.warn(`[HistoryPref] ${prefDef.name} failed:`, e.message);
-                    hideLoading();
-                }
-            }
-        }
-
-        // Step 3: Show select-core button, user can manually trigger picker
-        showLoading('自动检测失败', '请选择核心');
-        document.getElementById('loading-core-btn').classList.remove('hidden');
-    }
-
-    // ==================== Core Preference Storage ====================
-    function saveCorePref(romName, coreId) {
-        try {
-            let prefs = JSON.parse(localStorage.getItem(SAVE_KEY_CORE_PREF) || '{}');
-            prefs[romName] = coreId;
-            localStorage.setItem(SAVE_KEY_CORE_PREF, JSON.stringify(prefs));
-        } catch (e) { console.error('Save core pref failed:', e); }
-    }
-
-    function getCorePref(romName) {
-        try {
-            const prefs = JSON.parse(localStorage.getItem(SAVE_KEY_CORE_PREF) || '{}');
-            return prefs[romName] || null;
-        } catch (e) { return null; }
-    }
-
-    // ==================== Game State Save/Restore ====================
-    function tryRestoreSavedState() {
-        try {
-            const savedROM = localStorage.getItem(SAVE_KEY_ROM);
-            const savedState = localStorage.getItem(SAVE_KEY_STATE);
-            const savedName = localStorage.getItem(SAVE_KEY_NAME);
-            const savedCore = localStorage.getItem(SAVE_KEY_CORE);
-            if (savedROM && savedState && savedName) {
-                currentROMData = savedROM;
-                lastGameState = savedState;
-                currentROMName = savedName;
-                romCorePref = savedCore;
-                document.getElementById('resume-btn').classList.remove('hidden');
-                document.getElementById('resume-btn').textContent = '▶️ 继续: ' + savedName;
-            }
-        } catch (e) { console.error('Restore failed:', e); }
-    }
-
-    function saveGameState() {
-        if (!activeCore || !currentROMData || !currentROMName) return;
-        try {
-            const state = activeCore.saveState();
-            if (!state) return;
-            lastGameState = typeof state === 'string' ? state : JSON.stringify(state);
-            localStorage.setItem(SAVE_KEY_ROM, currentROMData);
-            localStorage.setItem(SAVE_KEY_STATE, lastGameState);
-            localStorage.setItem(SAVE_KEY_NAME, currentROMName);
-            localStorage.setItem(SAVE_KEY_CORE, activeCore.id);
-        } catch (e) {
-            if (e.name === 'QuotaExceededError') {
-                localStorage.removeItem(SAVE_KEY_ROM);
-                localStorage.removeItem(SAVE_KEY_STATE);
-                localStorage.removeItem(SAVE_KEY_NAME);
-                localStorage.removeItem(SAVE_KEY_CORE);
-            }
-        }
-    }
-
-    async function resumeGame() {
-        if (!currentROMData) return;
-        // Determine which core to use for resuming
-        const savedCoreId = localStorage.getItem(SAVE_KEY_CORE);
-        let coreDef = CORES.find(c => c.id === savedCoreId) || CORES[0];
-        showLoading('正在恢复游戏...', coreDef.name);
-        try {
-            await loadWithCore(coreDef, currentROMData, currentROMName);
-            // Restore state
-            if (lastGameState) {
-                try {
-                    const stateData = JSON.parse(lastGameState);
-                    activeCore.loadState(stateData);
-                } catch (e) {
-                    try { activeCore.loadState(lastGameState); } catch (e2) {
-                        console.error('State restore failed:', e2);
-                    }
-                }
-            }
-            document.getElementById('resume-btn').classList.add('hidden');
-        } catch (e) {
-            console.error('Resume failed:', e);
-            hideLoading();
-            document.getElementById('selector-ui').classList.remove('hidden');
-            document.getElementById('game-screen').classList.add('hidden');
-        }
-    }
-
-    function stopGame() {
-        if (activeCore && isRunning) {
-            try {
-                saveGameState();
-                activeCore.stop();
-                if (activeCore._nostalgist) {
-                    try { activeCore._nostalgist.exit({ removeCanvas: false }); } catch (e) {}
-                }
-            } catch (e) { console.error('Stop failed:', e); }
-        }
-        isRunning = false;
-        document.getElementById('game-screen').classList.add('hidden');
-        document.getElementById('game-screen').classList.remove('game-fullscreen');
-        document.getElementById('selector-ui').classList.remove('hidden');
-        document.getElementById('keymap-panel').classList.remove('show');
-        document.getElementById('fullscreen-btn').textContent = '📺 全屏';
-        // Show resume button
-        if (currentROMData && lastGameState && currentROMName) {
-            document.getElementById('resume-btn').classList.remove('hidden');
-            document.getElementById('resume-btn').textContent = '▶️ 继续: ' + currentROMName;
-        } else {
-            document.getElementById('resume-btn').classList.add('hidden');
-        }
-    }
-
-    // ==================== Scale & Fullscreen ====================
-    function changeScale(d) { currentScale = Math.max(0.5, Math.min(5, currentScale + d)); updateScale(); }
-    function updateScale() {
-        const screen = document.getElementById('game-screen');
-        const container = document.getElementById('canvas-container');
-        const isFs = screen && screen.classList.contains('game-fullscreen');
-        if (isFs) {
-            const scaleX = (window.innerWidth - 40) / SCREEN_WIDTH;
-            const scaleY = (window.innerHeight - 40) / SCREEN_HEIGHT;
-            const fitScale = Math.min(scaleX, scaleY);
-            const finalScale = Math.max(1, Math.floor(fitScale));
-            container.style.transform = `scale(${finalScale})`;
-        } else {
-            container.style.transform = `scale(${currentScale})`;
-        }
-        document.getElementById('scale-display').textContent = currentScale + 'x';
-    }
-
-    function toggleFullScreen() {
-        const screen = document.getElementById('game-screen');
-        const btn = document.getElementById('fullscreen-btn');
-        const isEnteringFs = !screen.classList.contains('game-fullscreen');
-        screen.classList.toggle('game-fullscreen');
-        btn.textContent = isEnteringFs ? '📺 退出' : '📺 全屏';
-        if (isEnteringFs) {
-            if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
-        } else {
-            if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
-        }
-        updateScale();
-    }
-
-    // ==================== Turbo ====================
-    function toggleTurbo(btn) { const type = btn.dataset.type; turboMode[type] = !turboMode[type]; btn.classList.toggle('active'); }
-    function setRate(r, btn) {
-        turboRate = r;
-        document.querySelectorAll('.t-rate-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
-
-    // ==================== Keymap Panel ====================
-    let listeningBtn = null, listeningTurbo = false;
-    function toggleKeymapPanel() {
-        const panel = document.getElementById('keymap-panel');
-        panel.classList.toggle('show');
-        if (panel.classList.contains('show')) renderKeymapPanel();
-    }
-    function renderKeymapPanel() {
-        const list = document.getElementById('keymap-list');
-        list.innerHTML = '';
-        BUTTON_NAMES.forEach(btn => {
-            const row = document.createElement('div'); row.className = 'keymap-row';
-            const label = document.createElement('span'); label.className = 'keymap-label'; label.textContent = btn;
-            const key = document.createElement('span'); key.className = 'keymap-key'; key.textContent = codeToLabel(keymap[btn]);
-            if (listeningBtn === btn && !listeningTurbo) key.classList.add('listening');
-            key.addEventListener('click', () => { listeningBtn = btn; listeningTurbo = false; renderKeymapPanel(); });
-            row.appendChild(label); row.appendChild(key); list.appendChild(row);
-        });
-        const sep = document.createElement('div');
-        sep.style.cssText = 'border-top:1px solid rgba(0,240,255,0.2);padding:8px 0 2px;margin-top:4px;';
-        const sepLabel = document.createElement('span');
-        sepLabel.style.cssText = 'color:#00f0ff;font-size:0.8rem;'; sepLabel.textContent = '连发按键';
-        sep.appendChild(sepLabel); list.appendChild(sep);
-        Object.keys(turboKeymap).forEach(name => {
-            const row = document.createElement('div'); row.className = 'keymap-row';
-            const label = document.createElement('span'); label.className = 'keymap-label'; label.textContent = name; label.style.color = '#ff9944';
-            const key = document.createElement('span'); key.className = 'keymap-key'; key.textContent = codeToLabel(turboKeymap[name]);
-            if (listeningBtn === name && listeningTurbo) key.classList.add('listening');
-            key.addEventListener('click', () => { listeningBtn = name; listeningTurbo = true; renderKeymapPanel(); });
-            row.appendChild(label); row.appendChild(key); list.appendChild(row);
-        });
-
-        // Turbo rate selector
-        const rateSep = document.createElement('div');
-        rateSep.style.cssText = 'border-top:1px solid rgba(0,240,255,0.2);padding:8px 0 2px;margin-top:8px;';
-        const rateLabel = document.createElement('span');
-        rateLabel.style.cssText = 'color:#00f0ff;font-size:0.8rem;'; rateLabel.textContent = '连发速率';
-        rateSep.appendChild(rateLabel); list.appendChild(rateSep);
-        const rateRow = document.createElement('div');
-        rateRow.className = 'keymap-row';
-        rateRow.style.cssText = 'flex-wrap:wrap;gap:4px;';
-        [5, 10, 15, 20, 30].forEach(r => {
-            const btn = document.createElement('button');
-            btn.className = 'keymap-key t-rate-btn' + (r === turboRate ? ' active' : '');
-            btn.style.cssText = 'padding:2px 8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#ccc;font-size:0.75rem;cursor:pointer;';
-            btn.textContent = r + '/s';
-            btn.addEventListener('click', () => setRate(r, btn));
-            rateRow.appendChild(btn);
-        });
-        list.appendChild(rateRow);
-    }
-
-    // ==================== Keyboard Input ====================
-    const keysDown = new Set();
-    document.addEventListener('keydown', (e) => {
-        if (listeningBtn) {
-            e.preventDefault();
-            if (listeningTurbo) { turboKeymap[listeningBtn] = e.code; listeningTurbo = null; }
-            else { keymap[listeningBtn] = e.code; }
-            listeningBtn = null; renderKeymapPanel(); return;
-        }
-        const turboName = turboCodeToName(e.code);
-        if (turboName) { e.preventDefault(); turboKeyHeld[turboName] = true; return; }
-        const btn = codeToBtn(e.code);
-        if (btn && activeCore) { e.preventDefault(); keysDown.add(e.code); activeCore.buttonDown(1, btn); }
-    });
-    document.addEventListener('keyup', (e) => {
-        const turboName = turboCodeToName(e.code);
-        if (turboName) { turboKeyHeld[turboName] = false; return; }
-        const btn = codeToBtn(e.code);
-        if (btn && activeCore) { keysDown.delete(e.code); activeCore.buttonUp(1, btn); }
-    });
-
-    // ==================== Mobile Touch: Joystick ====================
-    const joystickZone = document.getElementById('joystick-zone');
-    const joystickThumb = document.getElementById('joystick-thumb');
-    let joystickTouch = null;
-    const JOYSTICK_RADIUS = 38, JOYSTICK_DEADZONE = 0.25;
-    let joystickDir = { up: false, down: false, left: false, right: false };
-
-    function updateJoystick(cx, cy) {
-        const rect = joystickZone.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2, centerY = rect.top + rect.height / 2;
-        let dx = cx - centerX, dy = cy - centerY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > JOYSTICK_RADIUS) { dx = dx / dist * JOYSTICK_RADIUS; dy = dy / dist * JOYSTICK_RADIUS; }
-        joystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-        joystickThumb.classList.add('active');
-        const newDir = {
-            up: dy < -JOYSTICK_RADIUS * JOYSTICK_DEADZONE, down: dy > JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
-            left: dx < -JOYSTICK_RADIUS * JOYSTICK_DEADZONE, right: dx > JOYSTICK_RADIUS * JOYSTICK_DEADZONE,
-        };
-        ['up','down','left','right'].forEach(d => {
-            if (newDir[d] !== joystickDir[d]) {
-                joystickDir[d] = newDir[d];
-                if (activeCore) { newDir[d] ? activeCore.buttonDown(1, d.toUpperCase()) : activeCore.buttonUp(1, d.toUpperCase()); }
-            }
-        });
-    }
-    function resetJoystick() {
-        joystickThumb.style.transform = 'translate(-50%, -50%)';
-        joystickThumb.classList.remove('active');
-        ['up','down','left','right'].forEach(d => {
-            if (joystickDir[d]) { joystickDir[d] = false; if (activeCore) activeCore.buttonUp(1, d.toUpperCase()); }
-        });
-    }
-    joystickZone.addEventListener('touchstart', (e) => { e.preventDefault(); if (joystickTouch === null && e.changedTouches.length > 0) { joystickTouch = e.changedTouches[0].identifier; updateJoystick(e.changedTouches[0].clientX, e.changedTouches[0].clientY); } }, { passive: false });
-    joystickZone.addEventListener('touchmove', (e) => { e.preventDefault(); for (const t of e.changedTouches) { if (t.identifier === joystickTouch) updateJoystick(t.clientX, t.clientY); } }, { passive: false });
-    joystickZone.addEventListener('touchend', (e) => { for (const t of e.changedTouches) { if (t.identifier === joystickTouch) { joystickTouch = null; resetJoystick(); } } });
-    joystickZone.addEventListener('touchcancel', (e) => { for (const t of e.changedTouches) { if (t.identifier === joystickTouch) { joystickTouch = null; resetJoystick(); } } });
-
-    // ==================== Mobile Touch: Action Buttons ====================
-    const touchBtns = new Map();
-    const btnElements = document.querySelectorAll('.a-btn, .b-btn, .m-btn, .turbo-btn');
-    btnElements.forEach(el => {
-        el.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            for (const t of e.changedTouches) {
-                const btnName = el.dataset.btn || el.dataset.type;
-                if (el.classList.contains('turbo-btn')) {
-                    turboMode[el.dataset.type] = !turboMode[el.dataset.type]; el.classList.toggle('active');
-                } else {
-                    if (activeCore) activeCore.buttonDown(1, btnName);
-                    touchBtns.set(t.identifier + '_' + btnName, { el, btnName });
-                    el.classList.add('active');
-                }
-            }
-        }, { passive: false });
-        el.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            for (const t of e.changedTouches) {
-                for (const [key, info] of touchBtns.entries()) {
-                    if (info.btnName && (t.clientX !== 0 || t.clientY !== 0)) {
-                        const rect = info.el.getBoundingClientRect();
-                        if (t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom) {
-                            if (activeCore) activeCore.buttonUp(1, info.btnName);
-                            info.el.classList.remove('active');
-                            touchBtns.delete(key);
-                        }
-                    }
-                }
-            }
-        }, { passive: false });
-        el.addEventListener('touchcancel', (e) => {
-            for (const t of e.changedTouches) {
-                for (const [key, info] of touchBtns.entries()) {
-                    if (info.btnName) { if (activeCore) activeCore.buttonUp(1, info.btnName); info.el.classList.remove('active'); touchBtns.delete(key); }
-                }
-            }
-        });
-    });
-    // Multi-touch A+B
-    document.addEventListener('touchstart', (e) => {
-        for (const t of e.changedTouches) {
-            const el = document.elementFromPoint(t.clientX, t.clientY);
-            if (el && (el.classList.contains('a-btn') || el.classList.contains('b-btn')) && activeCore) {
-                const btnName = el.dataset.btn;
-                activeCore.buttonDown(1, btnName);
-                touchBtns.set('ab_' + t.identifier, { el, btnName });
-                el.classList.add('active');
-            }
-        }
-    }, { passive: true });
-    document.addEventListener('touchend', (e) => {
-        for (const t of e.changedTouches) {
-            const info = touchBtns.get('ab_' + t.identifier);
-            if (info) { if (activeCore) activeCore.buttonUp(1, info.btnName); info.el.classList.remove('active'); touchBtns.delete('ab_' + t.identifier); }
-        }
-    }, { passive: true });
-    document.addEventListener('touchcancel', (e) => {
-        for (const t of e.changedTouches) {
-            const info = touchBtns.get('ab_' + t.identifier);
-            if (info) { if (activeCore) activeCore.buttonUp(1, info.btnName); info.el.classList.remove('active'); touchBtns.delete('ab_' + t.identifier); }
-        }
-    }, { passive: true });
-
-    // ==================== File Loading ====================
-    async function pickAndLoadROM() {
-        let file;
-        if ('showOpenFilePicker' in window) {
-            try { [file] = await window.showOpenFilePicker({ id: 'fc-rom-picker', types: [{ description: 'NES ROM', accept: { 'application/octet-stream': ['.nes', '.zip'] } }] }); } catch (e) { return; }
-        } else {
-            return new Promise(resolve => {
-                const input = document.createElement('input'); input.type = 'file'; input.accept = '.nes,.zip';
-                input.onchange = () => { if (input.files[0]) loadFile(input.files[0]); resolve(); };
-                input.click();
-            });
-        }
-        if (file) loadFile(await file.getFile());
-    }
-
-    async function loadFile(file) {
-        let romName = file.name.replace(/\.(nes|zip)$/i, '');
-        if (file.name.endsWith('.zip')) {
-            const zip = await JSZip.loadAsync(file);
-            const nesFile = Object.values(zip.files).find(f => f.name.toLowerCase().endsWith('.nes'));
-            if (nesFile) {
-                romName = nesFile.name.replace(/\.nes$/i, '');
-                startGameWithROM(await nesFile.async('binarystring'), romName);
-            } else alert('未找到 .nes 文件');
-        } else {
-            const reader = new FileReader();
-            reader.onload = (ev) => startGameWithROM(ev.target.result, romName);
-            reader.readAsBinaryString(file);
-        }
-    }
-
-    document.getElementById('rom-pick-btn').addEventListener('click', (e) => { e.preventDefault(); pickAndLoadROM(); });
-
-    // ==================== Init ====================
-    function init() {
-        renderCoreSelector();
-        tryRestoreSavedState();
-        window.addEventListener('resize', () => {
-            const screen = document.getElementById('game-screen');
-            if (screen && screen.classList.contains('game-fullscreen')) updateScale();
-        });
-    }
-
-    init();
-    </script>
+    <!-- ES Module entry point -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
