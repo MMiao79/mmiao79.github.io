@@ -85,7 +85,8 @@ class App {
         $('resume-btn').addEventListener('click', () => this.#resumeGame());
 
         // Toolbar buttons
-        $('back-btn').addEventListener('click', () => this.#stopGame());
+        $('reset-btn').addEventListener('click', () => this.#resetGame());
+        $('power-btn').addEventListener('click', () => this.#powerOff());
         $('fullscreen-btn').addEventListener('click', () => this.#ui.toggleFullScreen());
         $('core-badge').addEventListener('click', () => this.#ui.showCoreSwitcher(this.#coreManager));
 
@@ -155,18 +156,27 @@ class App {
         }
     }
 
-    #stopGame() {
+    /** RESET: save state and return to launcher (can resume next time) */
+    #resetGame() {
         this.#coreManager.stopGame();
         this.#ui.showSelectorScreen();
         this.#ui.resetFullScreen();
         this.#ui.hideKeymapPanel();
 
-        // Show resume button if there's a saved game
         if (this.#storage.hasSavedGame) {
             this.#ui.showResumeButton(this.#storage.savedRomName);
         } else {
             this.#ui.hideResumeButton();
         }
+    }
+
+    /** POWER OFF: clear save data and return to launcher */
+    #powerOff() {
+        this.#coreManager.powerOff();
+        this.#ui.showSelectorScreen();
+        this.#ui.resetFullScreen();
+        this.#ui.hideKeymapPanel();
+        this.#ui.hideResumeButton();
     }
 
     #returnToLauncher() {

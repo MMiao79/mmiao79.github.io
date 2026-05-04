@@ -209,6 +209,7 @@ export class CoreManager {
 
     // ────────── Stop & Return ──────────
 
+    /** RESET: save state, stop emulation, resume later */
     stopGame() {
         if (this.#core) {
             try {
@@ -218,6 +219,19 @@ export class CoreManager {
             } catch (e) { console.error('Stop failed:', e); }
         }
         this.#core = null;
+    }
+
+    /** POWER OFF: stop emulation, clear saved session */
+    powerOff() {
+        if (this.#core) {
+            try {
+                this.#core.stop();
+                this.#core.destroy(true);
+            } catch (e) { console.error('Stop failed:', e); }
+        }
+        this.#core = null;
+        this.#currentRom = { romData: null, romName: null };
+        this.#storage.clearAll();
     }
 
     returnToLauncher() {

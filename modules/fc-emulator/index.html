@@ -181,7 +181,8 @@
             transition: all 0.2s;
         }
         .toolbar-btn:hover { background: rgba(0, 240, 255, 0.2); border-color: rgba(0, 240, 255, 0.5); }
-        #back-btn:hover { background: rgba(255, 80, 80, 0.3); border-color: rgba(255, 80, 80, 0.5); }
+        #reset-btn:hover { background: rgba(255, 200, 50, 0.3); border-color: rgba(255, 200, 50, 0.5); }
+        #power-btn:hover { background: rgba(255, 80, 80, 0.3); border-color: rgba(255, 80, 80, 0.5); }
 
         /* Fullscreen button is now a toolbar flex item; only floats in fullscreen mode */
         @media (hover: none) and (pointer: coarse) {
@@ -426,7 +427,8 @@
             <div class="toolbar-spacer"></div>
             <button id="keymap-btn" class="toolbar-btn">⌨️</button>
             <button id="fullscreen-btn" class="toolbar-btn">📺</button>
-            <button id="back-btn" class="toolbar-btn">❌</button>
+            <button id="reset-btn" class="toolbar-btn" title="RESET - 保存进度并退出">🔄</button>
+            <button id="power-btn" class="toolbar-btn" title="POWER OFF - 关机退出">⏻</button>
         </div>
         <div id="canvas-container">
             <canvas id="screen" width="256" height="240"></canvas>
