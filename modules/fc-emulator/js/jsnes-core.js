@@ -24,6 +24,7 @@ export class JsnesCore extends EmulatorCore {
     /** @type {ScriptProcessorNode | null} */
     #scriptProcessor = null;
     #animId = null;
+    #loopFn = null;
 
     /** Shared audio ring buffer */
     audioFifo = new AudioFIFO();
@@ -50,8 +51,6 @@ export class JsnesCore extends EmulatorCore {
     setTurboRate(rate) { this.#turboRate = rate; }
 
     async loadROM(data) {
-        console.log('[JsnesCore] loadROM called, data type:', typeof data, 'is Uint8Array:', data instanceof Uint8Array, 'length:', data?.length);
-        
         this.#canvas = document.getElementById('screen');
         this.#ctx = this.#canvas.getContext('2d');
         this.#image = this.#ctx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -61,12 +60,9 @@ export class JsnesCore extends EmulatorCore {
 
         const NesCtor = window.jsnes?.NES;
         if (!NesCtor) {
-            console.error('[JsnesCore] jsnes.NES not found! window.jsnes:', window.jsnes);
             throw new Error('jsnes not loaded');
         }
-        console.log('[JsnesCore] jsnes.NES constructor found');
 
-        // Normalise: ensure Uint8Array (avoids UTF-16 surrogate-pair issues with binary strings)
         let romBytes;
         if (data instanceof Uint8Array) {
             romBytes = data;
@@ -78,7 +74,6 @@ export class JsnesCore extends EmulatorCore {
         } else {
             throw new Error('Unsupported ROM data format');
         }
-        console.log('[JsnesCore] romBytes length:', romBytes.length, 'first bytes:', Array.from(romBytes.slice(0, 16)));
 
         this.#nes = new NesCtor({
             onFrame: (buf) => {
@@ -96,10 +91,7 @@ export class JsnesCore extends EmulatorCore {
         };
         this.#scriptProcessor.connect(this.#audioCtx.destination);
 
-        // jsnes supports Uint8Array directly (ArrayBuffer.isView check)
-        // Also supports string (checks startsWith("NES"))
         this.#nes.loadROM(romBytes);
-        console.log('[JsnesCore] ROM loaded into NES, ready to run');
     }
 
     start() {
@@ -109,13 +101,13 @@ export class JsnesCore extends EmulatorCore {
         this.#lag = 0;
         this.#frameCount = 0;
         this.onRunningChange?.(true);
-        this.#loop = this.#loop.bind(this);
-        requestAnimationFrame(this.#loop);
+        this.#loopFn = this.#loop.bind(this);
+        requestAnimationFrame(this.#loopFn);
     }
 
     #loop(timestamp) {
         if (!this.#running) return;
-        this.#animId = requestAnimationFrame(this.#loop);
+        this.#animId = requestAnimationFrame(this.#loopFn);
 
         if (this.#lastTime === 0) this.#lastTime = timestamp;
         const elapsed = timestamp - this.#lastTime;
@@ -150,6 +142,7 @@ export class JsnesCore extends EmulatorCore {
         this.#running = false;
         this.onRunningChange?.(false);
         if (this.#animId) { cancelAnimationFrame(this.#animId); this.#animId = null; }
+        this.#loopFn = null;
     }
 
     buttonDown(port, btn) {

@@ -61,15 +61,12 @@ export class RetroArchCore extends EmulatorCore {
         canvas.style.height = '100%';
         container.appendChild(canvas);
 
-        console.log('[RetroArch] Canvas element:', canvas);
-
         const romBytes = data instanceof Uint8Array ? data
             : typeof data === 'string'
                 ? (() => { const b = new Uint8Array(data.length); for (let i = 0; i < data.length; i++) b[i] = data.charCodeAt(i) & 0xff; return b; })()
                 : new Uint8Array(data);
         const romFile = { fileName: 'game.nes', fileContent: romBytes };
 
-        console.log('[RetroArch] Launching with core:', this.coreDef.coreName);
         this.#nostalgist = await this.#Nostalgist.launch({
             core: {
                 name: this.coreDef.coreName,
@@ -79,7 +76,6 @@ export class RetroArchCore extends EmulatorCore {
             rom: romFile,
             element: canvas, // Pass canvas directly, not container
         });
-        console.log('[RetroArch] Launch successful');
     }
 
     setRomName(name) { this.#romName = name; }
