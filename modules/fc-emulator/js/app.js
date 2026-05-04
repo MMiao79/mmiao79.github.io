@@ -276,7 +276,7 @@ class App {
 
 // ── Bootstrap ──
 document.addEventListener('DOMContentLoaded', () => {
-    initConsoleTranslator();
+    initConsoleFilter();
     const app = new App();
     app.init();
 });
